@@ -22,7 +22,11 @@ A multi-tenant internship platform for universities and companies: companies pos
 apps/web                 React SPA (Phase 1)
 packages/shared          Shared types, constants, utils (used by web now, mobile later)
 supabase/migrations      Schema, functions/RPCs, RLS, storage buckets, realtime
+<<<<<<< HEAD
 supabase/functions       invite-user, manage-admins, signup-admin, manage-users Edge Functions
+=======
+supabase/functions       invite-user + manage-admins Edge Functions (service-role provisioning)
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 supabase/tests           pgTAP RLS/tenant-isolation tests
 supabase/seed.sql        Demo universities, companies, users, postings, applications, placements
 ```
@@ -114,10 +118,14 @@ Public signup (`/signup`) offers two modes: **Student** (the default — univers
 | Record grade | — | — | ✓ | — | — | — |
 | Invite staff | — | — | faculty | — | site supervisors | coordinators, company admins |
 | Manage tenants | — | — | — | — | — | ✓ |
+<<<<<<< HEAD
 | Delete universities / companies | — | — | — | — | — | ✓ |
 | Manage general admins (max 2) | — | — | — | — | — | ✓ |
 | See & approve all users | — | — | — | — | — | ✓ |
 | Suspend / block / delete users | — | — | — | — | — | ✓ |
+=======
+| Manage general admins (max 2) | — | — | — | — | — | ✓ |
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 Platform admins have **full platform oversight**: they see the complete user directory (`list_all_users()`), approve pending accounts, and moderate (suspend, block, delete) any non-admin user, plus delete entire universities or companies. This explicitly replaces the earlier aggregate-only restriction — admins now have directory and moderation access to every account on the platform.
 
@@ -203,6 +211,38 @@ From **Tenants**, each university/company card has a **Delete** action opening a
 
 ---
 
+## General administrators (platform admins)
+
+General administrators are platform-wide `platform_admin` accounts. **At most two can exist at once** (`MAX_PLATFORM_ADMINS = 2` in `@sims/shared`, enforced again server-side). They are managed from **Tenants → General admins** in the web app, visible only to an existing platform admin.
+
+The create option is driven entirely by the live count:
+
+- **0 or 1 admins** → the **Create general admin** button is shown, with a slot meter (`X / 2`).
+- **2 admins** → the create button is **removed** and replaced by a "Both slots filled" notice plus a hint to delete one to free a slot.
+- **Delete one** → the count drops to 1 and the create button **returns** automatically (the list query is invalidated after every mutation).
+- **Create back up to 2** → the button is removed again.
+
+Supporting pieces:
+
+| Piece | Location | Purpose |
+| --- | --- | --- |
+| `MAX_PLATFORM_ADMINS` | `packages/shared/src/constants.ts` | Single source of truth for the cap |
+| `PlatformAdmin` type | `packages/shared/src/types.ts` | Shape returned by the list RPC |
+| `list_platform_admins()` | `supabase/migrations/20261109000006_platform_admins.sql` | `SECURITY DEFINER` RPC; returns admins only when the caller `is_platform_admin()` |
+| `manage-admins` function | `supabase/functions/manage-admins/index.ts` | Service-role create/delete with the cap enforced server-side |
+| `usePlatformAdmins` hooks | `apps/web/src/hooks/usePlatformAdmins.ts` | List query + create/delete mutations, invalidating the list on success |
+| `GeneralAdmins` component | `apps/web/src/components/GeneralAdmins.tsx` | Quota meter, admin rows, create modal (temporary password), delete confirmation |
+
+The list RPC exists because `profiles` RLS lets a user read only their own row or rows they are allowed to supervise — it has no platform-admin peer branch — so admins cannot enumerate each other through the table directly. `list_platform_admins()` is gated by `is_platform_admin()` and returns nothing for any other caller.
+
+Server-side rules in `manage-admins` (the UI cap is convenience; these are the authority):
+
+- Caller must present a valid JWT **and** be a `platform_admin` (otherwise 401/403).
+- **create**: rejects with 409 when the count is already 2; creates the auth user with `app_metadata.sims_provisioned = true` and `role = platform_admin` (null university/company), generates a one-time temporary password shown once, and rejects an existing email with 409.
+- **delete**: refuses to delete the caller's own account (400), verifies the target is a `platform_admin` (404/400 otherwise), then removes the auth user — which frees a slot.
+
+---
+
 ## Lifecycle
 
 ```
@@ -218,7 +258,11 @@ posting (draft → published → closed)
 
 Multi-step and privileged transitions are RPCs, not client-side writes:
 
+<<<<<<< HEAD
 `accept_application`, `review_application`, `withdraw_application`, `assign_faculty_supervisor`, `upsert_weekly_log`, `submit_weekly_log`, `review_weekly_log`, `submit_evaluation`, `add_check_in`, `record_grade`, `search_postings`, `university_stats`, `faculty_stats`, `company_stats`, `platform_stats`, `list_platform_admins`, `admin_signup_available`, `list_all_users`, `set_user_status`, `delete_tenant`.
+=======
+`accept_application`, `review_application`, `withdraw_application`, `assign_faculty_supervisor`, `upsert_weekly_log`, `submit_weekly_log`, `review_weekly_log`, `submit_evaluation`, `add_check_in`, `record_grade`, `search_postings`, `university_stats`, `faculty_stats`, `company_stats`, `platform_stats`, `list_platform_admins`.
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 ## Posting visibility
 
@@ -232,8 +276,12 @@ Postings are `all_universities` or `selected`. The join table `posting_universit
 - **Role/tenant cannot be self-assigned.** `handle_new_user()` reads trusted role and tenant from `raw_app_meta_data` **only when `sims_provisioned = true`**, a flag writable only by the service role. Public signups (user-controlled `raw_user_meta_data`) are forced to `student` plus the chosen university.
 - **Staff provisioning** goes through the `invite-user` Edge Function: it validates the caller's role against `ALLOWED_BY_CALLER`, constrains the tenant to the caller's own where applicable, verifies the target tenant is active, and creates the account with `app_metadata.sims_provisioned = true`. The returned temporary password is displayed once to the inviter.
 - **General-admin provisioning** goes through the `manage-admins` Edge Function, restricted to existing platform admins and capped at two accounts server-side. It never trusts a client-supplied count and refuses self-deletion.
+<<<<<<< HEAD
 - **Guard triggers** reject direct privilege/tenant/status changes on `profiles` (a user cannot approve or unblock themselves), illegal application status jumps, and invalid placement/log transitions.
 - **Admin moderation is RPC-gated.** The full user directory, status changes, and tenant deletion run through `SECURITY DEFINER` functions that re-check `is_platform_admin()`. `set_user_status()` refuses the caller's own account and routes admin-peer management to General admins; `delete_tenant()` runs in one transaction. Hard deletes of users and tenants go through the `manage-users` function with the service role key kept server-side.
+=======
+- **Guard triggers** reject direct privilege/tenant changes on `profiles`, illegal application status jumps, and invalid placement/log transitions.
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 - **Storage** uses three buckets: `cvs` and `reports` are private and read through RLS-backed access plus signed URLs; `company-logos` is public for branding. Buckets enforce size and MIME type limits.
 - **Audit logging** captures sensitive table changes; **notifications** are inserted by RPCs and streamed with Realtime.
 - **Errors returned to the UI are generic**; policy text and constraint internals are not surfaced.
@@ -256,28 +304,41 @@ Postings are `all_universities` or `selected`. The join table `posting_universit
 # Local
 npx supabase functions serve invite-user
 npx supabase functions serve manage-admins
+<<<<<<< HEAD
 npx supabase functions serve signup-admin
 npx supabase functions serve manage-users
+=======
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 # Deploy
 npx supabase functions deploy invite-user
 npx supabase functions deploy manage-admins
+<<<<<<< HEAD
 npx supabase functions deploy signup-admin
 npx supabase functions deploy manage-users
 ```
 
 All four functions require these server-side secrets (set with `npx supabase secrets set` in hosted projects; injected automatically locally):
+=======
+```
+
+Both functions require these server-side secrets (set with `npx supabase secrets set` in hosted projects; injected automatically locally):
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
+<<<<<<< HEAD
 Caller checks per function:
 
 - **`invite-user`** — missing/invalid JWT → 401, disallowed role → 403; also rejects inactive/mismatched tenants (400/403) and existing emails (409).
 - **`manage-admins`** — platform_admin only (403 otherwise); rejects a full quota of two (409 on create), self-deletion (400), and unknown targets (404).
 - **`signup-admin`** — **public, no session required** (the bootstrap path). Validates email/name/password, enforces the two-admin cap server-side with a post-create race guard that rolls back an over-cap account (409), and rejects existing emails (409). It never trusts a client-supplied count.
 - **`manage-users`** — platform_admin only (401/403 otherwise). `delete_user` refuses self-deletion (400) and admin peers (400, routed to General admins), 404 for unknown targets; `delete_tenant` runs the `delete_tenant()` RPC as the caller so `is_platform_admin()` is re-checked in-transaction (404 if the tenant is gone).
+=======
+Network access to each function is restricted by its own caller checks: missing/invalid JWT → 401, disallowed role → 403. `invite-user` additionally rejects inactive/mismatched tenants (400/403) and existing emails (409). `manage-admins` rejects non-platform-admins (403), a full quota of two (409 on create), self-deletion (400), and unknown targets (404).
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 ---
 
@@ -313,19 +374,32 @@ npm run build
 | `npm run functions:serve` | Serve `invite-user` locally |
 | `npm run functions:deploy` | Deploy `invite-user` |
 
+<<<<<<< HEAD
 > The `functions:*` scripts target `invite-user`. Serve/deploy `manage-admins`, `signup-admin`, and `manage-users` with the explicit `npx supabase functions … <name>` commands shown in [Edge Functions](#edge-functions).
+=======
+> The `functions:*` scripts target `invite-user`. Serve/deploy `manage-admins` with the explicit `npx supabase functions … manage-admins` commands shown in [Edge Functions](#edge-functions).
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 ---
 
 ## Deployment notes
 
 1. Create a Supabase project and link it: `npx supabase link --project-ref <ref>`.
+<<<<<<< HEAD
 2. Push schema: `npx supabase db push` (migrations) — do **not** push `seed.sql` to production. This includes `20261109000006_platform_admins.sql` (`list_platform_admins()`) and `20261109000007_admin_console.sql` (the `account_status` approval gate, `admin_signup_available()`, `list_all_users()`, `set_user_status()`, and `delete_tenant()`). On a hosted project you can instead paste those migrations, or `supabase/setup.sql`, into the SQL editor and run it.
 3. Deploy all four functions: `invite-user`, `manage-admins`, `signup-admin`, and `manage-users` (`npx supabase functions deploy <name>`). Set `SUPABASE_SERVICE_ROLE_KEY` as a function secret only; it never reaches the browser. `signup-admin` must be deployed for the public Administrator signup option to work.
 4. In Auth settings set Site URL to the deployed web origin and add `https://<web-origin>` and `https://<web-origin>/reset-password` to redirect URLs.
 5. Copy the project URL and **anon** key into the web host's environment as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`, then build.
 6. Host `apps/web/dist` on any static host with SPA fallback to `index.html` (Vercel/Netlify/Cloudflare Pages). Set cache headers for hashed assets and no-cache for `index.html`.
 7. Demo seed accounts are local-only. Bootstrap the **first** platform admin from the public `/signup` page's **Administrator** mode (no existing session needed), or through the Supabase dashboard (Authentication → add user, then set the user's `raw_app_meta_data` to `{"sims_provisioned": true, "role": "platform_admin"}`). The signup Administrator option disappears once two admins exist and returns whenever one is deleted. After signing in, approve pending users from **Users** and manage admin peers from **Tenants → General admins**.
+=======
+2. Push schema: `npx supabase db push` (migrations) — do **not** push `seed.sql` to production. This includes `20261109000006_platform_admins.sql` (the `list_platform_admins()` RPC). On a hosted project you can instead paste that migration, or `supabase/setup.sql`, into the SQL editor and run it.
+3. Deploy both functions: `npx supabase functions deploy invite-user` and `npx supabase functions deploy manage-admins`. Set `SUPABASE_SERVICE_ROLE_KEY` as a function secret only; it never reaches the browser.
+4. In Auth settings set Site URL to the deployed web origin and add `https://<web-origin>` and `https://<web-origin>/reset-password` to redirect URLs.
+5. Copy the project URL and **anon** key into the web host's environment as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`, then build.
+6. Host `apps/web/dist` on any static host with SPA fallback to `index.html` (Vercel/Netlify/Cloudflare Pages). Set cache headers for hashed assets and no-cache for `index.html`.
+7. Demo seed accounts are local-only. Bootstrap the **first** platform admin through the Supabase dashboard (Authentication → add user, then set the user's `raw_app_meta_data` to `{"sims_provisioned": true, "role": "platform_admin"}`) or a one-off service-role script. Once one admin exists, sign in and use **Tenants → General admins** to create the second; the create option disappears at two and returns whenever one is deleted.
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 Storage buckets, RLS policies, and realtime publication are created by migrations — no manual dashboard setup is required.
 
@@ -339,6 +413,7 @@ Storage buckets, RLS policies, and realtime publication are created by migration
 | `npm run typecheck` | Pass (clean) |
 | `npm run build` | Pass (only Vite's >500 kB chunk-size warning) |
 | General-admin cap toggle (UI) | Verified on the real `GeneralAdmins` component: create button shown at 0–1, removed at 2, returns after a delete frees a slot |
+<<<<<<< HEAD
 | Admin signup option + live cap (UI) | Verified in-browser: Administrator mode shown below the cap, hidden at two, falls back to Student when the cap is reached while the page is open |
 | Users console (UI) | Verified in-browser: directory render, search/filter/sort, approve, suspend, reactivate, undo, detail drawer, delete-user, bulk approve |
 | Tenant deletion (UI) | Verified in-browser: delete-university and delete-company confirmation modals and optimistic removal |
@@ -349,6 +424,13 @@ Storage buckets, RLS policies, and realtime publication are created by migration
 | pgTAP suite | Not run — same reason |
 
 The web app was built against the migration-defined schema. The UI flows above were exercised in a real browser against a **mocked Supabase backend** (fetch interception), because Docker and a deployed project were unavailable in this environment — they confirm client behavior, not live RLS. Until the database is started on a Docker-capable machine (or the migrations + Edge Functions are deployed to the hosted project), the RLS suite, seed flow, and live admin/moderation loops remain unexecuted; run the commands above to validate them.
+=======
+| `manage-admins` live create/delete | Not exercised end-to-end here — requires the deployed function + a valid platform-admin session; server logic verified by inspection |
+| `supabase start` / `db reset` | Not run — Docker unavailable in this environment |
+| pgTAP suite | Not run — same reason |
+
+The web app was built against the migration-defined schema. Until the database is started on a Docker-capable machine (or the migration + `manage-admins` function are deployed to the hosted project), the RLS suite, seed flow, and live admin create/delete loop remain unexecuted; run the commands above to validate them.
+>>>>>>> fba9173f0122ed5a26f44448884296cbfccc75eb
 
 ---
 
