@@ -39,7 +39,7 @@ const iconMap: Record<NavIcon, LucideIcon> = {
 };
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const { profile, signOut } = useAuth();
+  const { profile, signout } = useAuth();
   if (!profile) return null;
 
   const tenant = profile.university?.name ?? profile.company?.name ?? 'Platform administration';
@@ -95,7 +95,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <button
             type="button"
             onClick={() => {
-              void signOut();
+              void signout();
             }}
             className='sidebar__signout'
             aria-label="Sign out"

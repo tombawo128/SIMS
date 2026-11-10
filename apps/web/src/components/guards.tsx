@@ -5,7 +5,7 @@ import { AccountGate } from '@/components/AccountGate';
 import { Button, FullPageSpinner } from '@/components/ui';
 
 export function ProtectedRoute() {
-  const { session, profile, loading, profileError, signOut } = useAuth();
+  const { session, profile, loading, profileError, signout } = useAuth();
 
   if (loading) {
     return (
@@ -29,7 +29,7 @@ export function ProtectedRoute() {
             className='route-error-action'
             variant="secondary"
             onClick={() => {
-              void signOut();
+              void signout();
             }}
           >
             Sign out
@@ -39,8 +39,10 @@ export function ProtectedRoute() {
     );
   }
 
-  if (profile.account_status !== 'active') {
-    return <AccountGate status={profile.account_status} />;
+  const status = profile.account_status ?? "active"
+
+  if (status !== 'active') {
+    return <AccountGate status={status} />;
   }
 
   return <Outlet />;

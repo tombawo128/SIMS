@@ -32,9 +32,10 @@ const COPY: Record<
 };
 
 export function AccountGate({ status }: { status: Exclude<AccountStatus, 'active'> }) {
-  const { profile, signOut, refreshProfile } = useAuth();
+  const { profile, signout, refreshProfile } = useAuth();
   const [checking, setChecking] = useState(false);
   const copy = COPY[status];
+  if (!copy) return null;
   const Icon = copy.icon;
 
   const checkAgain = async () => {
@@ -89,7 +90,7 @@ export function AccountGate({ status }: { status: Exclude<AccountStatus, 'active
           <Button
             variant="secondary"
             onClick={() => {
-              void signOut();
+              void signout();
             }}
           >
             <LogOut className='gate__action-icon' /> Sign out
