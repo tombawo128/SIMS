@@ -91,22 +91,22 @@ export function Placements() {
         actions={
           isCoordinator ? (
             <Button variant="secondary" onClick={exportCsv} disabled={!items.length}>
-              <Download className="h-4 w-4" /> Export CSV
+              <Download className='placements-h-4-1' /> Export CSV
             </Button>
           ) : undefined
         }
       />
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className='placements-mb-4-1'>
         <Tabs
           options={TABS.map((option) => ({ key: option.key, label: option.label, count: counts[option.key] ?? 0 }))}
           value={tab}
           onChange={(key) => setTab(key as PlacementStatus | 'all')}
         />
-        <div className="relative sm:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className='placements-relative-1'>
+          <Search className='placements-pointer-events-none-1' />
           <Input
-            className="pl-9"
+            className='placements-pl-9-1'
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search placements"
@@ -115,14 +115,14 @@ export function Placements() {
       </div>
 
       {placements.isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Spinner className="h-6 w-6" />
+        <div className='placements-flex-1'>
+          <Spinner className='placements-h-6-1' />
         </div>
       ) : placements.isError ? (
         <EmptyState title="Could not load placements" description="Refresh the page and try again." />
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon={<GraduationCap className="h-5 w-5" />}
+          icon={<GraduationCap className='placements-h-5-1' />}
           title="No placements found"
           description={
             isStudent
@@ -131,49 +131,49 @@ export function Placements() {
           }
         />
       ) : isStudent ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className='placements-grid-1'>
           {filtered.map((placement) => (
             <Link
               key={placement.id}
               to={`/placements/${placement.id}`}
-              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
+              className='group placements-rounded-2xl-1'
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className='placements-flex-2'>
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <p className='placements-text-xs-1'>
                     {placement.company?.name}
                   </p>
-                  <h2 className="mt-1 text-base font-semibold text-slate-900 group-hover:text-indigo-700">
+                  <h2 className='placements-mt-1-1'>
                     {placement.posting?.title}
                   </h2>
                 </div>
                 <StatusBadge status={placement.status} label={PLACEMENT_STATUS_LABELS[placement.status]} />
               </div>
-              <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-slate-500">
-                <CalendarDays className="h-3.5 w-3.5" />
+              <p className='placements-mt-3-1'>
+                <CalendarDays className='placements-h-35-1' />
                 {formatDate(placement.start_date)} – {formatDate(placement.end_date)}
               </p>
-              <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-xs">
+              <div className='placements-mt-4-1'>
                 <div>
-                  <p className="text-slate-400">Site supervisor</p>
-                  <p className="mt-0.5 font-medium text-slate-700">{placement.site_supervisor?.full_name ?? '—'}</p>
+                  <p className='placements-text-slate-400-1'>Site supervisor</p>
+                  <p className='placements-mt-05-1'>{placement.site_supervisor?.full_name ?? '—'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400">Faculty supervisor</p>
-                  <p className="mt-0.5 font-medium text-slate-700">
+                  <p className='placements-text-slate-400-1'>Faculty supervisor</p>
+                  <p className='placements-mt-05-1'>
                     {placement.faculty_supervisor?.full_name ?? 'Not assigned'}
                   </p>
                 </div>
               </div>
-              <p className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600">
-                Open placement <ArrowRight className="h-3.5 w-3.5" />
+              <p className='placements-mt-4-2'>
+                Open placement <ArrowRight className='placements-h-35-1' />
               </p>
             </Link>
           ))}
         </div>
       ) : (
-        <Card className="overflow-hidden">
-          <Table className="border-0">
+        <Card className='placements-overflow-hidden-1'>
+          <Table className='placements-border-0-1'>
             <thead>
               <tr>
                 <Th>Student</Th>
@@ -185,42 +185,42 @@ export function Placements() {
                 <Th />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className='placements-divide-y-1'>
               {filtered.map((placement) => (
-                <tr key={placement.id} className="hover:bg-slate-50/70">
+                <tr key={placement.id} className='placements-bg-slate-5070-1'>
                   <Td>
-                    <div className="flex items-center gap-3">
+                    <div className='placements-flex-3'>
                       <Avatar name={placement.student?.full_name ?? 'Student'} />
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{placement.student?.full_name ?? 'Student'}</p>
-                        <p className="text-xs text-slate-500">{placement.university?.name}</p>
+                        <p className='placements-text-sm-1'>{placement.student?.full_name ?? 'Student'}</p>
+                        <p className='placements-text-xs-2'>{placement.university?.name}</p>
                       </div>
                     </div>
                   </Td>
                   <Td>
-                    <p className="text-sm text-slate-800">{placement.posting?.title}</p>
-                    <p className="text-xs text-slate-500">{placement.company?.name}</p>
+                    <p className='placements-text-sm-2'>{placement.posting?.title}</p>
+                    <p className='placements-text-xs-2'>{placement.company?.name}</p>
                   </Td>
-                  <Td className="text-xs text-slate-500">
+                  <Td className='placements-text-xs-2'>
                     {formatDate(placement.start_date)}
                     <br />
                     {formatDate(placement.end_date)}
                   </Td>
-                  <Td className="text-xs">
-                    <p className="text-slate-700">Site: {placement.site_supervisor?.full_name ?? '—'}</p>
-                    <p className="text-slate-500">Faculty: {placement.faculty_supervisor?.full_name ?? 'Not assigned'}</p>
+                  <Td className='placements-text-xs-3'>
+                    <p className='placements-text-slate-700-1'>Site: {placement.site_supervisor?.full_name ?? '—'}</p>
+                    <p className='placements-text-slate-500-1'>Faculty: {placement.faculty_supervisor?.full_name ?? 'Not assigned'}</p>
                   </Td>
                   <Td>
                     <StatusBadge status={placement.status} label={PLACEMENT_STATUS_LABELS[placement.status]} />
                   </Td>
                   <Td>
                     {placement.final_grade !== null ? (
-                      <span className="text-sm font-semibold text-slate-900">{Number(placement.final_grade)}</span>
+                      <span className='placements-text-sm-3'>{Number(placement.final_grade)}</span>
                     ) : (
-                      <span className="text-xs text-slate-400">—</span>
+                      <span className='placements-text-xs-4'>—</span>
                     )}
                   </Td>
-                  <Td className="text-right">
+                  <Td className='placements-text-right-1'>
                     <Link to={`/placements/${placement.id}`}>
                       <Button size="sm" variant="secondary">
                         Open

@@ -38,14 +38,14 @@ export function Notifications() {
         actions={
           unread.length ? (
             <Button variant="secondary" onClick={() => markAll.mutate()} loading={markAll.isPending}>
-              <CheckCheck className="h-4 w-4" /> Mark all read
+              <CheckCheck className='notifications-h-4-1' /> Mark all read
             </Button>
           ) : undefined
         }
       />
 
       <Tabs
-        className="mb-4"
+        className='notifications-mb-4-1'
         options={[
           { key: 'all', label: 'All', count: items.length },
           { key: 'unread', label: 'Unread', count: unread.length },
@@ -55,18 +55,18 @@ export function Notifications() {
       />
 
       {notifications.isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Spinner className="h-6 w-6" />
+        <div className='notifications-flex-1'>
+          <Spinner className='notifications-h-6-1' />
         </div>
       ) : visible.length === 0 ? (
         <EmptyState
-          icon={<Bell className="h-5 w-5" />}
+          icon={<Bell className='notifications-h-5-1' />}
           title={tab === 'unread' ? 'No unread notifications' : "You're all caught up"}
           description="Updates about your applications, placements, and logs will appear here."
         />
       ) : (
-        <Card className="overflow-hidden">
-          <div className="divide-y divide-slate-100">
+        <Card className='notifications-overflow-hidden-1'>
+          <div className='notifications-divide-y-1'>
             {visible.map((notification) => (
               <button
                 key={notification.id}
@@ -76,22 +76,22 @@ export function Notifications() {
                   navigate(notification.link ?? '/dashboard');
                 }}
                 className={cn(
-                  'flex w-full items-start gap-3 px-5 py-4 text-left transition hover:bg-slate-50',
-                  !notification.read_at && 'bg-indigo-50/40',
+                  'notifications-flex-2',
+                  !notification.read_at && 'notifications-bg-indigo-5040-1',
                 )}
               >
                 <span
                   className={cn(
-                    'mt-1.5 h-2 w-2 shrink-0 rounded-full',
-                    notification.read_at ? 'bg-slate-200' : 'bg-indigo-500',
+                    'notifications-mt-15-1',
+                    notification.read_at ? 'notifications-bg-slate-200-1' : 'notifications-bg-indigo-500-1',
                   )}
                 />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-900">{notification.title}</p>
-                    <span className="text-xs text-slate-400">{formatDateTime(notification.created_at)}</span>
+                <div className='notifications-min-w-0-1'>
+                  <div className='notifications-flex-3'>
+                    <p className='notifications-text-sm-1'>{notification.title}</p>
+                    <span className='notifications-text-xs-1'>{formatDateTime(notification.created_at)}</span>
                   </div>
-                  <p className="mt-1 text-sm text-slate-600">{notification.body}</p>
+                  <p className='notifications-mt-1-1'>{notification.body}</p>
                 </div>
               </button>
             ))}

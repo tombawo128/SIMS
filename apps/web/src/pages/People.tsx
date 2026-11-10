@@ -150,15 +150,15 @@ export function People() {
           isCoordinator ? (
             <>
               <Button variant="secondary" onClick={exportStudents} disabled={!students.length}>
-                <Download className="h-4 w-4" /> Export students
+                <Download className='people-h-4-1' /> Export students
               </Button>
               <Button onClick={() => openInvite('faculty_supervisor')}>
-                <UserPlus className="h-4 w-4" /> Invite faculty
+                <UserPlus className='people-h-4-1' /> Invite faculty
               </Button>
             </>
           ) : isCompanyAdmin ? (
             <Button onClick={() => openInvite('site_supervisor')}>
-              <UserPlus className="h-4 w-4" /> Invite site supervisor
+              <UserPlus className='people-h-4-1' /> Invite site supervisor
             </Button>
           ) : undefined
         }
@@ -166,18 +166,18 @@ export function People() {
 
       {isCoordinator ? (
         <Tabs
-          className="mb-4"
+          className='people-mb-4-1'
           options={tabs.map((item) => ({ key: item.key, label: item.label, count: item.count }))}
           value={tab}
           onChange={(key) => setTab(key as TabKey)}
         />
       ) : null}
 
-      <div className="mb-4 flex justify-end">
-        <div className="relative w-full sm:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <div className='people-mb-4-2'>
+        <div className='people-relative-1'>
+          <Search className='people-pointer-events-none-1' />
           <Input
-            className="pl-9"
+            className='people-pl-9-1'
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by name or email"
@@ -189,15 +189,15 @@ export function People() {
         people.isLoading ? (
           <Loading />
         ) : (
-          <Card className="overflow-hidden">
+          <Card className='people-overflow-hidden-1'>
             {students.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
               <EmptyState
-                icon={<Users className="h-5 w-5" />}
+                icon={<Users className='people-h-5-1' />}
                 title="No students found"
                 description="Students appear here after they sign up with your university."
               />
             ) : (
-              <Table className="border-0">
+              <Table className='people-border-0-1'>
                 <thead>
                   <tr>
                     <Th>Student</Th>
@@ -207,42 +207,42 @@ export function People() {
                     <Th>Joined</Th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className='people-divide-y-1'>
                   {students
                     .filter((student) => filter(student.full_name, student.email))
                     .map((student) => (
-                      <tr key={student.id} className="hover:bg-slate-50/70">
+                      <tr key={student.id} className='people-bg-slate-5070-1'>
                         <Td>
-                          <div className="flex items-center gap-3">
+                          <div className='people-flex-1'>
                             <Avatar name={student.full_name} />
                             <div>
-                              <p className="text-sm font-medium text-slate-900">{student.full_name}</p>
-                              <p className="text-xs text-slate-500">{student.email}</p>
+                              <p className='people-text-sm-1'>{student.full_name}</p>
+                              <p className='people-text-xs-1'>{student.email}</p>
                             </div>
                           </div>
                         </Td>
-                        <Td className="text-sm text-slate-600">
+                        <Td className='people-text-sm-2'>
                           {student.student_profile?.student_id ?? '—'}
                         </Td>
-                        <Td className="text-sm text-slate-600">
+                        <Td className='people-text-sm-2'>
                           {student.student_profile?.program ?? '—'}
                           {student.student_profile?.year ? (
-                            <span className="text-xs text-slate-400"> · Year {student.student_profile.year}</span>
+                            <span className='people-text-xs-2'> · Year {student.student_profile.year}</span>
                           ) : null}
                         </Td>
                         <Td>
-                          <div className="flex max-w-xs flex-wrap gap-1">
+                          <div className='people-flex-2'>
                             {(student.student_profile?.skills ?? []).slice(0, 4).map((skill) => (
                               <Badge key={skill} tone="blue">
                                 {skill}
                               </Badge>
                             ))}
                             {(student.student_profile?.skills ?? []).length === 0 ? (
-                              <span className="text-xs text-slate-400">—</span>
+                              <span className='people-text-xs-2'>—</span>
                             ) : null}
                           </div>
                         </Td>
-                        <Td className="text-xs text-slate-500">{formatDate(student.created_at)}</Td>
+                        <Td className='people-text-xs-1'>{formatDate(student.created_at)}</Td>
                       </tr>
                     ))}
                 </tbody>
@@ -256,10 +256,10 @@ export function People() {
         people.isLoading ? (
           <Loading />
         ) : (
-          <Card className="overflow-hidden">
+          <Card className='people-overflow-hidden-1'>
             {facultyMembers.filter((faculty) => filter(faculty.full_name, faculty.email)).length === 0 ? (
               <EmptyState
-                icon={<Users className="h-5 w-5" />}
+                icon={<Users className='people-h-5-1' />}
                 title="No faculty supervisors yet"
                 description="Invite faculty so you can assign them to placements."
                 action={
@@ -269,37 +269,37 @@ export function People() {
                 }
               />
             ) : (
-              <Table className="border-0">
+              <Table className='people-border-0-1'>
                 <thead>
                   <tr>
                     <Th>Faculty supervisor</Th>
                     <Th>Role</Th>
                     <Th>Joined</Th>
-                    <Th className="text-right">Actions</Th>
+                    <Th className='people-text-right-1'>Actions</Th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className='people-divide-y-1'>
                   {facultyMembers
                     .filter((faculty) => filter(faculty.full_name, faculty.email))
                     .map((faculty) => (
-                      <tr key={faculty.id} className="hover:bg-slate-50/70">
+                      <tr key={faculty.id} className='people-bg-slate-5070-1'>
                         <Td>
-                          <div className="flex items-center gap-3">
+                          <div className='people-flex-1'>
                             <Avatar name={faculty.full_name} />
                             <div>
-                              <p className="text-sm font-medium text-slate-900">{faculty.full_name}</p>
-                              <p className="text-xs text-slate-500">{faculty.email}</p>
+                              <p className='people-text-sm-1'>{faculty.full_name}</p>
+                              <p className='people-text-xs-1'>{faculty.email}</p>
                             </div>
                           </div>
                         </Td>
                         <Td>
                           <Badge tone="violet">{ROLE_LABELS[faculty.role]}</Badge>
                         </Td>
-                        <Td className="text-xs text-slate-500">{formatDate(faculty.created_at)}</Td>
-                        <Td className="text-right">
+                        <Td className='people-text-xs-1'>{formatDate(faculty.created_at)}</Td>
+                        <Td className='people-text-right-1'>
                           <a href={`mailto:${faculty.email}`}>
                             <Button size="sm" variant="ghost">
-                              <Mail className="h-3.5 w-3.5" /> Email
+                              <Mail className='people-h-35-1' /> Email
                             </Button>
                           </a>
                         </Td>
@@ -313,13 +313,13 @@ export function People() {
       ) : null}
 
       {isCompanyAdmin ? (
-        <div className="space-y-4">
-          <Card className="overflow-hidden">
+        <div className='people-space-y-4-1'>
+          <Card className='people-overflow-hidden-1'>
             {team.isLoading ? (
               <Loading />
             ) : (team.data ?? []).filter((member) => filter(member.full_name, member.email)).length === 0 ? (
               <EmptyState
-                icon={<Users className="h-5 w-5" />}
+                icon={<Users className='people-h-5-1' />}
                 title="No team members found"
                 description="Invite site supervisors to review applications and supervise interns."
                 action={
@@ -329,26 +329,26 @@ export function People() {
                 }
               />
             ) : (
-              <Table className="border-0">
+              <Table className='people-border-0-1'>
                 <thead>
                   <tr>
                     <Th>Team member</Th>
                     <Th>Role</Th>
                     <Th>Joined</Th>
-                    <Th className="text-right">Actions</Th>
+                    <Th className='people-text-right-1'>Actions</Th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
+                <tbody className='people-divide-y-1'>
                   {(team.data ?? [])
                     .filter((member) => filter(member.full_name, member.email))
                     .map((member) => (
-                      <tr key={member.id} className="hover:bg-slate-50/70">
+                      <tr key={member.id} className='people-bg-slate-5070-1'>
                         <Td>
-                          <div className="flex items-center gap-3">
+                          <div className='people-flex-1'>
                             <Avatar name={member.full_name} />
                             <div>
-                              <p className="text-sm font-medium text-slate-900">{member.full_name}</p>
-                              <p className="text-xs text-slate-500">{member.email}</p>
+                              <p className='people-text-sm-1'>{member.full_name}</p>
+                              <p className='people-text-xs-1'>{member.email}</p>
                             </div>
                           </div>
                         </Td>
@@ -357,11 +357,11 @@ export function People() {
                             {ROLE_LABELS[member.role]}
                           </Badge>
                         </Td>
-                        <Td className="text-xs text-slate-500">{formatDate(member.created_at)}</Td>
-                        <Td className="text-right">
+                        <Td className='people-text-xs-1'>{formatDate(member.created_at)}</Td>
+                        <Td className='people-text-right-1'>
                           <a href={`mailto:${member.email}`}>
                             <Button size="sm" variant="ghost">
-                              <Mail className="h-3.5 w-3.5" /> Email
+                              <Mail className='people-h-35-1' /> Email
                             </Button>
                           </a>
                         </Td>
@@ -379,27 +379,27 @@ export function People() {
           <Loading />
         ) : facultyStudents.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
           <EmptyState
-            icon={<Users className="h-5 w-5" />}
+            icon={<Users className='people-h-5-1' />}
             title="No students assigned"
             description="Your coordinator will assign you to placements. Students will then appear here."
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className='people-grid-1'>
             {facultyStudents
               .filter((student) => filter(student.full_name, student.email))
               .map((student) => (
-                <Card key={student.id} className="p-5">
-                  <div className="flex items-center gap-3">
+                <Card key={student.id} className='people-p-5-1'>
+                  <div className='people-flex-1'>
                     <Avatar name={student.full_name} />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">{student.full_name}</p>
-                      <p className="truncate text-xs text-slate-500">{student.email}</p>
+                    <div className='people-min-w-0-1'>
+                      <p className='people-truncate-1'>{student.full_name}</p>
+                      <p className='people-truncate-2'>{student.email}</p>
                     </div>
                   </div>
-                  <p className="mt-3 text-sm text-slate-600">
+                  <p className='people-mt-3-1'>
                     {student.title} · {student.company}
                   </p>
-                  <Link to={`/placements/${student.placementId}`} className="mt-3 inline-block">
+                  <Link to={`/placements/${student.placementId}`} className='people-mt-3-2'>
                     <Button size="sm" variant="secondary">
                       Open placement
                     </Button>
@@ -434,18 +434,18 @@ export function People() {
           )
         }
       >
-        <div className="space-y-4">
+        <div className='people-space-y-4-1'>
           {inviteError ? <Alert tone="danger">{inviteError}</Alert> : null}
 
           {inviteResult ? (
             <Alert tone="success" title="Account created">
-              <div className="space-y-1">
+              <div className='people-space-y-1-1'>
                 <p>Email: <strong>{inviteResult.email}</strong></p>
                 <p>
                   Temporary password:{' '}
-                  <code className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-xs">{inviteResult.temporary_password}</code>
+                  <code className='people-rounded-1'>{inviteResult.temporary_password}</code>
                 </p>
-                <p className="text-xs">The user should sign in and change this password from their profile.</p>
+                <p className='people-text-xs-3'>The user should sign in and change this password from their profile.</p>
               </div>
             </Alert>
           ) : (
@@ -467,7 +467,7 @@ export function People() {
                   placeholder={inviteRole === 'faculty_supervisor' ? 'name@university.edu' : 'name@company.com'}
                 />
               </Field>
-              <p className="text-xs text-slate-500">
+              <p className='people-text-xs-1'>
                 The account is created in your {inviteRole === 'faculty_supervisor' ? 'university' : 'company'} tenant
                 with the {ROLE_LABELS[inviteRole]} role.
               </p>
@@ -481,8 +481,8 @@ export function People() {
 
 function Loading() {
   return (
-    <div className="flex items-center justify-center py-16">
-      <Spinner className="h-6 w-6" />
+    <div className='people-flex-3'>
+      <Spinner className='people-h-6-1' />
     </div>
   );
 }

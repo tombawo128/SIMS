@@ -201,40 +201,40 @@ export function Tenants() {
         description="Manage tenant workspaces, suspend access, and invite tenant administrators."
         actions={
           <Button onClick={openCreate}>
-            <Plus className="h-4 w-4" /> {tab === 'university' ? 'New university' : 'New company'}
+            <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'New university' : 'New company'}
           </Button>
         }
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className='tenants-mb-6-1'>
         <StatCard
           label="Universities"
           value={platformStats.data?.universities ?? '—'}
           hint={`${activeCounts.universities} active`}
-          icon={<GraduationCap className="h-5 w-5" />}
+          icon={<GraduationCap className='tenants-h-5-1' />}
         />
         <StatCard
           label="Companies"
           value={platformStats.data?.companies ?? '—'}
           hint={`${activeCounts.companies} active`}
-          icon={<Building2 className="h-5 w-5" />}
+          icon={<Building2 className='tenants-h-5-1' />}
         />
         <StatCard
           label="Students"
           value={platformStats.data?.students ?? '—'}
           hint="Across all universities"
-          icon={<GraduationCap className="h-5 w-5" />}
+          icon={<GraduationCap className='tenants-h-5-1' />}
         />
         <StatCard
           label="Active placements"
           value={platformStats.data?.active_placements ?? '—'}
           hint={`${platformStats.data?.completed_placements ?? 0} completed`}
-          icon={<Building2 className="h-5 w-5" />}
+          icon={<Building2 className='tenants-h-5-1' />}
         />
       </div>
 
       <Tabs
-        className="mb-4"
+        className='tenants-mb-4-1'
         options={[
           { key: 'university', label: 'Universities', count: universityList.length },
           { key: 'company', label: 'Companies', count: companyList.length },
@@ -244,8 +244,8 @@ export function Tenants() {
       />
 
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Spinner className="h-6 w-6" />
+        <div className='tenants-flex-1'>
+          <Spinner className='tenants-h-6-1' />
         </div>
       ) : list.length === 0 ? (
         <EmptyState
@@ -258,17 +258,17 @@ export function Tenants() {
           }
         />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className='tenants-grid-1'>
           {list.map((tenant) => (
-            <Card key={tenant.id} className="flex flex-col p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                    {tab === 'university' ? <GraduationCap className="h-5 w-5" /> : <Building2 className="h-5 w-5" />}
+            <Card key={tenant.id} className='tenants-flex-2'>
+              <div className='tenants-flex-3'>
+                <div className='tenants-flex-4'>
+                  <span className='tenants-flex-5'>
+                    {tab === 'university' ? <GraduationCap className='tenants-h-5-1' /> : <Building2 className='tenants-h-5-1' />}
                   </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-900">{tenant.name}</p>
-                    <p className="truncate text-xs text-slate-500">
+                  <div className='tenants-min-w-0-1'>
+                    <p className='tenants-truncate-1'>{tenant.name}</p>
+                    <p className='tenants-truncate-2'>
                       {'domain' in tenant ? tenant.domain || tenant.slug : tenant.industry || tenant.slug}
                     </p>
                   </div>
@@ -276,20 +276,20 @@ export function Tenants() {
                 <StatusBadge status={tenant.status} />
               </div>
 
-              <div className="mt-3 space-y-1 text-xs text-slate-500">
+              <div className='tenants-mt-3-1'>
                 <p>
-                  Slug: <span className="font-mono text-slate-600">{tenant.slug}</span>
+                  Slug: <span className='tenants-font-mono-1'>{tenant.slug}</span>
                 </p>
                 {'website' in tenant && tenant.website ? <p>Website: {tenant.website}</p> : null}
                 <p>Created {formatDate(tenant.created_at)}</p>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+              <div className='tenants-mt-4-1'>
                 <Button size="sm" variant="secondary" onClick={() => openEdit(tenant)}>
-                  <Pencil className="h-3.5 w-3.5" /> Edit
+                  <Pencil className='tenants-h-35-1' /> Edit
                 </Button>
                 <Button size="sm" variant="secondary" onClick={() => openInvite(tenant)}>
-                  <UserPlus className="h-3.5 w-3.5" /> Invite admin
+                  <UserPlus className='tenants-h-35-1' /> Invite admin
                 </Button>
                 <Button
                   size="sm"
@@ -297,7 +297,7 @@ export function Tenants() {
                   onClick={() => toggleStatus(tenant)}
                   loading={saveUniversity.isPending || saveCompany.isPending}
                 >
-                  <Power className="h-3.5 w-3.5" />
+                  <Power className='tenants-h-35-1' />
                   {tenant.status === 'active' ? 'Suspend' : 'Activate'}
                 </Button>
               </div>
@@ -330,10 +330,10 @@ export function Tenants() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='tenants-space-y-4-1'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Name" htmlFor="tenant-name" required className="sm:col-span-2">
+          <div className='tenants-grid-2'>
+            <Field label="Name" htmlFor="tenant-name" required className='tenants-col-span-2-1'>
               <Input
                 id="tenant-name"
                 value={form.name}
@@ -376,7 +376,7 @@ export function Tenants() {
               </Field>
             )}
             {tab === 'company' ? (
-              <Field label="Website" htmlFor="tenant-website" className="sm:col-span-2">
+              <Field label="Website" htmlFor="tenant-website" className='tenants-col-span-2-1'>
                 <Input
                   id="tenant-website"
                   value={form.website}
@@ -385,7 +385,7 @@ export function Tenants() {
                 />
               </Field>
             ) : null}
-            <Field label="Logo URL" htmlFor="tenant-logo" hint="Optional public image URL." className="sm:col-span-2">
+            <Field label="Logo URL" htmlFor="tenant-logo" hint="Optional public image URL." className='tenants-col-span-2-1'>
               <Input
                 id="tenant-logo"
                 value={form.logoUrl}
@@ -417,17 +417,17 @@ export function Tenants() {
           )
         }
       >
-        <div className="space-y-4">
+        <div className='tenants-space-y-4-1'>
           {inviteError ? <Alert tone="danger">{inviteError}</Alert> : null}
           {inviteResult ? (
             <Alert tone="success" title="Administrator created">
-              <div className="space-y-1">
+              <div className='tenants-space-y-1-1'>
                 <p>Email: <strong>{inviteResult.email}</strong></p>
                 <p>
                   Temporary password:{' '}
-                  <code className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-xs">{inviteResult.temporary_password}</code>
+                  <code className='tenants-rounded-1'>{inviteResult.temporary_password}</code>
                 </p>
-                <p className="text-xs">Share these credentials over a secure channel.</p>
+                <p className='tenants-text-xs-1'>Share these credentials over a secure channel.</p>
               </div>
             </Alert>
           ) : (
@@ -449,9 +449,9 @@ export function Tenants() {
                   placeholder={tab === 'university' ? 'coordinator@university.edu' : 'admin@company.com'}
                 />
               </Field>
-              <div className="rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-500">
+              <div className='tenants-rounded-xl-1'>
                 <Badge tone="violet">{tab === 'university' ? 'Coordinator' : 'Company admin'}</Badge>
-                <span className="ml-2">Scoped to {inviteTenant?.name}. The account is created by the invite-user function.</span>
+                <span className='tenants-ml-2-1'>Scoped to {inviteTenant?.name}. The account is created by the invite-user function.</span>
               </div>
             </>
           )}

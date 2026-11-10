@@ -146,8 +146,8 @@ export function PlacementDetail() {
 
   if (placementQuery.isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Spinner className="h-6 w-6" />
+      <div className='placement-detail-flex-1'>
+        <Spinner className='placement-detail-h-6-1' />
       </div>
     );
   }
@@ -390,9 +390,9 @@ export function PlacementDetail() {
     <div>
       <Link
         to="/placements"
-        className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-800"
+        className='placement-detail-mb-4-1'
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> All placements
+        <ArrowLeft className='placement-detail-h-35-1' /> All placements
       </Link>
 
       <PageHeader
@@ -403,12 +403,12 @@ export function PlacementDetail() {
             <StatusBadge status={placement.status} label={PLACEMENT_STATUS_LABELS[placement.status]} />
             {isStudent && placement.status === 'active' ? (
               <Button onClick={() => openLogModal()}>
-                <Plus className="h-4 w-4" /> Add weekly log
+                <Plus className='placement-detail-h-4-1' /> Add weekly log
               </Button>
             ) : null}
             {isCoordinator && !placement.faculty_supervisor_id ? (
               <Button onClick={() => setAssignOpen(true)}>
-                <UserCheck className="h-4 w-4" /> Assign faculty
+                <UserCheck className='placement-detail-h-4-1' /> Assign faculty
               </Button>
             ) : null}
             {canGrade ? (
@@ -421,43 +421,43 @@ export function PlacementDetail() {
                   setGradeOpen(true);
                 }}
               >
-                <GraduationCap className="h-4 w-4" /> {placement.final_grade !== null ? 'Update grade' : 'Record grade'}
+                <GraduationCap className='placement-detail-h-4-1' /> {placement.final_grade !== null ? 'Update grade' : 'Record grade'}
               </Button>
             ) : null}
           </>
         }
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className='placement-detail-mb-6-1'>
         <SummaryCard
-          icon={<CalendarDays className="h-4 w-4" />}
+          icon={<CalendarDays className='placement-detail-h-4-1' />}
           label="Placement dates"
           value={`${formatDate(placement.start_date)} – ${formatDate(placement.end_date)}`}
         />
         <SummaryCard
-          icon={<UserRound className="h-4 w-4" />}
+          icon={<UserRound className='placement-detail-h-4-1' />}
           label="Site supervisor"
           value={placement.site_supervisor?.full_name ?? '—'}
         />
         <SummaryCard
-          icon={<UserCheck className="h-4 w-4" />}
+          icon={<UserCheck className='placement-detail-h-4-1' />}
           label="Faculty supervisor"
           value={placement.faculty_supervisor?.full_name ?? 'Not assigned'}
         />
         <SummaryCard
-          icon={<GraduationCap className="h-4 w-4" />}
+          icon={<GraduationCap className='placement-detail-h-4-1' />}
           label="Final grade"
           value={placement.final_grade !== null ? String(Number(placement.final_grade)) : 'Pending'}
         />
       </div>
 
-      <Tabs className="mb-5" options={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} />
+      <Tabs className='placement-detail-mb-5-1' options={tabs} value={tab} onChange={(key) => setTab(key as TabKey)} />
 
       {tab === 'overview' ? (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-2">
+        <div className='placement-detail-grid-1'>
+          <Card className='placement-detail-col-span-2-1'>
             <CardHeader title="Placement details" />
-            <dl className="grid gap-5 px-5 py-5 sm:grid-cols-2">
+            <dl className='placement-detail-grid-2'>
               <Detail label="Student" value={placement.student?.full_name ?? '—'} />
               <Detail label="Student email" value={placement.student?.email ?? '—'} />
               <Detail label="University" value={placement.university?.name ?? '—'} />
@@ -474,20 +474,20 @@ export function PlacementDetail() {
               <Detail label="Check-ins" value={String(placement.check_ins?.length ?? 0)} />
             </dl>
             {placement.grade_notes ? (
-              <div className="border-t border-slate-100 px-5 py-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Grade notes</p>
-                <p className="mt-1 whitespace-pre-line text-sm text-slate-600">{placement.grade_notes}</p>
-                <p className="mt-2 text-xs text-slate-400">
+              <div className='placement-detail-border-t-1'>
+                <p className='placement-detail-text-xs-1'>Grade notes</p>
+                <p className='placement-detail-mt-1-1'>{placement.grade_notes}</p>
+                <p className='placement-detail-mt-2-1'>
                   Recorded {placement.graded_at ? formatDateTime(placement.graded_at) : ''}
                 </p>
               </div>
             ) : null}
           </Card>
 
-          <div className="space-y-4">
+          <div className='placement-detail-space-y-4-1'>
             <Card>
               <CardHeader title="Progress" />
-              <div className="space-y-3 px-5 py-4 text-sm">
+              <div className='placement-detail-space-y-3-1'>
                 <ProgressRow label="Logs approved" value={approvedLogs} total={sortedLogs.length} />
                 <ProgressRow
                   label="Evaluations in"
@@ -512,11 +512,11 @@ export function PlacementDetail() {
                     </Button>
                   }
                 />
-                <div className="px-5 py-4 text-sm">
-                  <p className="font-medium text-slate-800">
+                <div className='placement-detail-px-5-1'>
+                  <p className='placement-detail-font-medium-1'>
                     {placement.faculty_supervisor?.full_name ?? 'No faculty supervisor assigned'}
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className='placement-detail-mt-05-1'>
                     {placement.faculty_supervisor?.email ?? 'Assign a supervisor to enable grades and check-ins.'}
                   </p>
                 </div>
@@ -526,15 +526,15 @@ export function PlacementDetail() {
             {isStudent ? (
               <Card>
                 <CardHeader title="Next steps" />
-                <div className="space-y-2 px-5 py-4 text-sm text-slate-600">
+                <div className='placement-detail-space-y-2-1'>
                   {placement.status === 'active' ? (
                     <>
-                      <p className="flex items-start gap-2">
-                        <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                      <p className='placement-detail-flex-2'>
+                        <ClipboardList className='placement-detail-mt-05-2' />
                         Submit a weekly log every week. Logs can be edited until a supervisor reviews them.
                       </p>
-                      <p className="flex items-start gap-2">
-                        <FileText className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                      <p className='placement-detail-flex-2'>
+                        <FileText className='placement-detail-mt-05-2' />
                         Upload your final report from the Documents tab when it is ready.
                       </p>
                     </>
@@ -549,21 +549,21 @@ export function PlacementDetail() {
       ) : null}
 
       {tab === 'logs' ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-slate-500">
+        <div className='placement-detail-space-y-4-1'>
+          <div className='placement-detail-flex-3'>
+            <p className='placement-detail-text-sm-1'>
               {sortedLogs.length} log{sortedLogs.length === 1 ? '' : 's'} · {approvedLogs} approved
             </p>
             {isStudent && placement.status === 'active' ? (
               <Button size="sm" onClick={() => openLogModal()}>
-                <Plus className="h-4 w-4" /> Add weekly log
+                <Plus className='placement-detail-h-4-1' /> Add weekly log
               </Button>
             ) : null}
           </div>
 
           {sortedLogs.length === 0 ? (
             <EmptyState
-              icon={<ClipboardList className="h-5 w-5" />}
+              icon={<ClipboardList className='placement-detail-h-5-1' />}
               title="No weekly logs yet"
               description={isStudent ? 'Add your first weekly log to start the supervision trail.' : 'The student has not submitted any logs yet.'}
               action={
@@ -579,25 +579,25 @@ export function PlacementDetail() {
               const editable = isStudent && ['draft', 'needs_revision'].includes(log.status) && placement.status === 'active';
               return (
                 <Card key={log.id}>
-                  <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+                  <div className='placement-detail-flex-4'>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-slate-900">Week {log.week_number}</h3>
+                      <div className='placement-detail-flex-5'>
+                        <h3 className='placement-detail-text-sm-2'>Week {log.week_number}</h3>
                         <StatusBadge status={log.status} label={LOG_STATUS_LABELS[log.status]} />
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className='placement-detail-mt-1-2'>
                         {formatHours(Number(log.hours))} hours
                         {log.submitted_at ? ` · submitted ${formatDateTime(log.submitted_at)}` : ' · not submitted'}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className='placement-detail-flex-6'>
                       {editable ? (
                         <>
                           <Button size="sm" variant="secondary" onClick={() => openLogModal(log)}>
                             Edit
                           </Button>
                           <Button size="sm" onClick={() => submitExistingLog(log)} loading={submitLog.isPending}>
-                            <Send className="h-3.5 w-3.5" /> Submit
+                            <Send className='placement-detail-h-35-1' /> Submit
                           </Button>
                         </>
                       ) : null}
@@ -616,20 +616,20 @@ export function PlacementDetail() {
                       ) : null}
                     </div>
                   </div>
-                  <div className="grid gap-4 px-5 py-4 sm:grid-cols-2">
+                  <div className='placement-detail-grid-3'>
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Tasks</p>
-                      <p className="mt-1 whitespace-pre-line text-sm text-slate-600">{log.tasks || '—'}</p>
+                      <p className='placement-detail-text-xs-1'>Tasks</p>
+                      <p className='placement-detail-mt-1-1'>{log.tasks || '—'}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Learning outcomes</p>
-                      <p className="mt-1 whitespace-pre-line text-sm text-slate-600">{log.learning_outcomes || '—'}</p>
+                      <p className='placement-detail-text-xs-1'>Learning outcomes</p>
+                      <p className='placement-detail-mt-1-1'>{log.learning_outcomes || '—'}</p>
                     </div>
                   </div>
                   {log.supervisor_comment ? (
-                    <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-3">
-                      <p className="text-xs font-medium text-slate-500">Supervisor comment</p>
-                      <p className="mt-1 text-sm text-slate-700">{log.supervisor_comment}</p>
+                    <div className='placement-detail-border-t-2'>
+                      <p className='placement-detail-text-xs-2'>Supervisor comment</p>
+                      <p className='placement-detail-mt-1-3'>{log.supervisor_comment}</p>
                     </div>
                   ) : null}
                 </Card>
@@ -640,26 +640,26 @@ export function PlacementDetail() {
       ) : null}
 
       {tab === 'evaluations' ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-slate-500">
+        <div className='placement-detail-space-y-4-1'>
+          <div className='placement-detail-flex-3'>
+            <p className='placement-detail-text-sm-1'>
               Midterm and final evaluations recorded against the rubric.
             </p>
             {canSubmitEvaluation ? (
               <Button size="sm" onClick={openEvaluation}>
-                <Star className="h-4 w-4" /> Submit evaluation
+                <Star className='placement-detail-h-4-1' /> Submit evaluation
               </Button>
             ) : null}
           </div>
 
           {(placement.evaluations ?? []).length === 0 ? (
             <EmptyState
-              icon={<Star className="h-5 w-5" />}
+              icon={<Star className='placement-detail-h-5-1' />}
               title="No evaluations yet"
               description="Site and faculty supervisors can record evaluations when the time comes."
             />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className='placement-detail-grid-4'>
               {(placement.evaluations ?? []).map((evaluation) => (
                 <Card key={evaluation.id}>
                   <CardHeader
@@ -671,24 +671,24 @@ export function PlacementDetail() {
                       </Badge>
                     }
                   />
-                  <div className="space-y-2 px-5 py-4">
+                  <div className='placement-detail-space-y-2-2'>
                     {RUBRIC_CRITERIA.map((criterion) => {
                       const score = Number(evaluation.rubric_scores?.[criterion.key] ?? 0);
                       return (
-                        <div key={criterion.key} className="flex items-center gap-3">
-                          <span className="w-32 text-xs text-slate-500">{criterion.label}</span>
-                          <div className="flex-1 overflow-hidden rounded-full bg-slate-100">
+                        <div key={criterion.key} className='placement-detail-flex-7'>
+                          <span className='placement-detail-w-32-1'>{criterion.label}</span>
+                          <div className='placement-detail-flex-1-1'>
                             <div
-                              className="h-1.5 rounded-full bg-indigo-500"
+                              className='placement-detail-h-15-1'
                               style={{ width: `${Math.max(0, Math.min(5, score)) * 20}%` }}
                             />
                           </div>
-                          <span className="w-6 text-right text-xs font-medium text-slate-700">{score || '—'}</span>
+                          <span className='placement-detail-w-6-1'>{score || '—'}</span>
                         </div>
                       );
                     })}
                     {evaluation.comments ? (
-                      <p className="mt-3 whitespace-pre-line border-t border-slate-100 pt-3 text-sm text-slate-600">
+                      <p className='placement-detail-mt-3-1'>
                         {evaluation.comments}
                       </p>
                     ) : null}
@@ -701,9 +701,9 @@ export function PlacementDetail() {
       ) : null}
 
       {tab === 'checkins' ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-slate-500">Supervision check-ins recorded by the faculty supervisor.</p>
+        <div className='placement-detail-space-y-4-1'>
+          <div className='placement-detail-flex-3'>
+            <p className='placement-detail-text-sm-1'>Supervision check-ins recorded by the faculty supervisor.</p>
             {isFaculty ? (
               <Button
                 size="sm"
@@ -713,30 +713,30 @@ export function PlacementDetail() {
                   setCheckInOpen(true);
                 }}
               >
-                <Plus className="h-4 w-4" /> Log check-in
+                <Plus className='placement-detail-h-4-1' /> Log check-in
               </Button>
             ) : null}
           </div>
 
           {(placement.check_ins ?? []).length === 0 ? (
             <EmptyState
-              icon={<MessageSquare className="h-5 w-5" />}
+              icon={<MessageSquare className='placement-detail-h-5-1' />}
               title="No check-ins logged"
               description="Site visits, calls, and emails will appear here."
             />
           ) : (
-            <div className="space-y-3">
+            <div className='placement-detail-space-y-3-2'>
               {[...(placement.check_ins ?? [])]
                 .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime())
                 .map((checkIn) => (
                   <Card key={checkIn.id}>
-                    <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
+                    <div className='placement-detail-flex-8'>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className='placement-detail-flex-5'>
                           <Badge tone="blue">{CHECK_IN_TYPE_LABELS[checkIn.type]}</Badge>
-                          <span className="text-xs text-slate-500">{formatDateTime(checkIn.occurred_at)}</span>
+                          <span className='placement-detail-text-xs-3'>{formatDateTime(checkIn.occurred_at)}</span>
                         </div>
-                        <p className="mt-2 whitespace-pre-line text-sm text-slate-600">{checkIn.notes}</p>
+                        <p className='placement-detail-mt-2-2'>{checkIn.notes}</p>
                       </div>
                     </div>
                   </Card>
@@ -747,9 +747,9 @@ export function PlacementDetail() {
       ) : null}
 
       {tab === 'documents' ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-slate-500">
+        <div className='placement-detail-space-y-4-1'>
+          <div className='placement-detail-flex-3'>
+            <p className='placement-detail-text-sm-1'>
               Private CVs and final reports. Files are shared only with placement supervisors and tenant admins.
             </p>
             {isStudent ? (
@@ -758,7 +758,7 @@ export function PlacementDetail() {
                   ref={reportInput}
                   type="file"
                   accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  className="hidden"
+                  className='placement-detail-hidden-1'
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     if (file) void uploadReportFile(file);
@@ -769,7 +769,7 @@ export function PlacementDetail() {
                   loading={uploading}
                   onClick={() => reportInput.current?.click()}
                 >
-                  <Upload className="h-4 w-4" /> Upload report
+                  <Upload className='placement-detail-h-4-1' /> Upload report
                 </Button>
               </div>
             ) : null}
@@ -779,30 +779,30 @@ export function PlacementDetail() {
             <CardHeader title="Documents" />
             {(placement.documents ?? []).length === 0 ? (
               <EmptyState
-                icon={<Paperclip className="h-5 w-5" />}
+                icon={<Paperclip className='placement-detail-h-5-1' />}
                 title="No documents yet"
                 description={isStudent ? 'Upload your final report when it is ready.' : 'Uploaded reports will appear here.'}
               />
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className='placement-detail-divide-y-1'>
                 {[...(placement.documents ?? [])]
                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                   .map((document) => (
-                    <div key={document.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                          <FileText className="h-4 w-4" />
+                    <div key={document.id} className='placement-detail-flex-9'>
+                      <div className='placement-detail-flex-10'>
+                        <span className='placement-detail-flex-11'>
+                          <FileText className='placement-detail-h-4-1' />
                         </span>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-slate-900">{document.file_name}</p>
-                          <p className="text-xs text-slate-500">
+                        <div className='placement-detail-min-w-0-1'>
+                          <p className='placement-detail-truncate-1'>{document.file_name}</p>
+                          <p className='placement-detail-text-xs-3'>
                             {document.type.toUpperCase()} ·{' '}
                             {document.owner?.full_name ? `${document.owner.full_name} · ` : ''}
                             {formatDate(document.created_at)}
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className='placement-detail-flex-12'>
                         <Button
                           size="sm"
                           variant="secondary"
@@ -841,7 +841,7 @@ export function PlacementDetail() {
                               }
                             }}
                           >
-                            <Trash2 className="h-3.5 w-3.5" /> Delete
+                            <Trash2 className='placement-detail-h-35-1' /> Delete
                           </Button>
                         ) : null}
                       </div>
@@ -872,9 +872,9 @@ export function PlacementDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className='placement-detail-grid-5'>
             <Field label="Week number" htmlFor="log-week" required>
               <Input
                 id="log-week"
@@ -934,7 +934,7 @@ export function PlacementDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
           <Field label="Decision" htmlFor="review-decision">
             <Select
@@ -975,7 +975,7 @@ export function PlacementDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
           <Field label="Evaluation type" htmlFor="evaluation-type">
             <Select
@@ -988,7 +988,7 @@ export function PlacementDetail() {
             </Select>
           </Field>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className='placement-detail-grid-5'>
             {RUBRIC_CRITERIA.map((criterion) => (
               <Field key={criterion.key} label={criterion.label} htmlFor={`rubric-${criterion.key}`}>
                 <Select
@@ -1018,8 +1018,8 @@ export function PlacementDetail() {
             />
           </Field>
 
-          <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            Overall score: <strong className="text-slate-900">{averageScore(rubric) ?? '—'} / 5</strong>
+          <div className='placement-detail-rounded-xl-1'>
+            Overall score: <strong className='placement-detail-text-slate-900-1'>{averageScore(rubric) ?? '—'} / 5</strong>
           </div>
         </div>
       </Modal>
@@ -1040,9 +1040,9 @@ export function PlacementDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className='placement-detail-grid-5'>
             <Field label="Type" htmlFor="checkin-type">
               <Select
                 id="checkin-type"
@@ -1093,7 +1093,7 @@ export function PlacementDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
           <Field label="Faculty supervisor" htmlFor="assign-faculty" required>
             <Select id="assign-faculty" value={facultyId} onChange={(event) => setFacultyId(event.target.value)}>
@@ -1124,7 +1124,7 @@ export function PlacementDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
           <Field label="Final grade (0–100)" htmlFor="grade-value" required>
             <Input
@@ -1154,12 +1154,12 @@ export function PlacementDetail() {
 
 function SummaryCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">{icon}</span>
-        <div className="min-w-0">
-          <p className="text-xs text-slate-500">{label}</p>
-          <p className="truncate text-sm font-semibold text-slate-900">{value}</p>
+    <Card className='placement-detail-p-4-1'>
+      <div className='placement-detail-flex-7'>
+        <span className='placement-detail-flex-13'>{icon}</span>
+        <div className='placement-detail-min-w-0-1'>
+          <p className='placement-detail-text-xs-3'>{label}</p>
+          <p className='placement-detail-truncate-2'>{value}</p>
         </div>
       </div>
     </Card>
@@ -1169,8 +1169,8 @@ function SummaryCard({ icon, label, value }: { icon: ReactNode; label: string; v
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</dt>
-      <dd className="mt-1 text-sm text-slate-800">{value}</dd>
+      <dt className='placement-detail-text-xs-1'>{label}</dt>
+      <dd className='placement-detail-mt-1-4'>{value}</dd>
     </div>
   );
 }
@@ -1179,16 +1179,16 @@ function ProgressRow({ label, value, total }: { label: string; value: number; to
   const percent = total && total > 0 ? Math.min(100, Math.round((value / total) * 100)) : null;
   return (
     <div>
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-slate-500">{label}</span>
-        <span className="font-medium text-slate-800">
+      <div className='placement-detail-flex-14'>
+        <span className='placement-detail-text-slate-500-1'>{label}</span>
+        <span className='placement-detail-font-medium-1'>
           {value}
           {total ? ` / ${total}` : ''}
         </span>
       </div>
       {percent !== null ? (
-        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-emerald-500" style={{ width: `${percent}%` }} />
+        <div className='placement-detail-mt-15-1'>
+          <div className='placement-detail-h-full-1' style={{ width: `${percent}%` }} />
         </div>
       ) : null}
     </div>

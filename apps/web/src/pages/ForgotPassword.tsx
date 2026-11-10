@@ -29,16 +29,16 @@ export function ForgotPassword() {
   return (
     <AuthShell title="Reset your password" subtitle="We will email you a secure link to choose a new password.">
       {sent ? (
-        <div className="space-y-4">
+        <div className='forgot-password-space-y-4-1'>
           <Alert tone="success" title="Check your email">
             If an account exists for <strong>{email}</strong>, a reset link is on its way.
           </Alert>
-          <Link to="/login" className="block">
-            <Button className="w-full">Back to sign in</Button>
+          <Link to="/login" className='forgot-password-block-1'>
+            <Button className='forgot-password-w-full-1'>Back to sign in</Button>
           </Link>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className='forgot-password-space-y-4-1'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
           <Field label="Email" htmlFor="email" required>
             <Input
@@ -51,11 +51,11 @@ export function ForgotPassword() {
               placeholder="you@university.edu"
             />
           </Field>
-          <Button type="submit" className="w-full" loading={submitting}>
+          <Button type="submit" className='forgot-password-w-full-1' loading={submitting}>
             Send reset link
           </Button>
-          <p className="text-center text-xs text-slate-500">
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
+          <p className='forgot-password-text-center-1'>
+            <Link to="/login" className='forgot-password-font-medium-1'>
               Back to sign in
             </Link>
           </p>

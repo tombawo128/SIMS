@@ -159,13 +159,13 @@ export function ProfilePage() {
     <div>
       <PageHeader title="Profile" description="Manage your personal details, CV, and password." />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className='profile-grid-1'>
+        <div className='profile-space-y-6-1'>
           <Card>
             <CardHeader title="Personal details" description="Visible to your university or company workspace." />
-            <form onSubmit={saveProfile} className="space-y-4 px-5 py-5">
+            <form onSubmit={saveProfile} className='profile-space-y-4-1'>
               {profileError ? <Alert tone="danger">{profileError}</Alert> : null}
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className='profile-grid-2'>
                 <Field label="Full name" htmlFor="full-name" required>
                   <Input
                     id="full-name"
@@ -186,7 +186,7 @@ export function ProfilePage() {
                 </Field>
               </div>
               <Button type="submit" loading={savingProfile}>
-                <Save className="h-4 w-4" /> Save profile
+                <Save className='profile-h-4-1' /> Save profile
               </Button>
             </form>
           </Card>
@@ -209,14 +209,14 @@ export function ProfilePage() {
                         }
                       }}
                     >
-                      <FileText className="h-3.5 w-3.5" /> View CV
+                      <FileText className='profile-h-35-1' /> View CV
                     </Button>
                   ) : undefined
                 }
               />
-              <form onSubmit={saveStudentDetails} className="space-y-4 px-5 py-5">
+              <form onSubmit={saveStudentDetails} className='profile-space-y-4-1'>
                 {studentError ? <Alert tone="danger">{studentError}</Alert> : null}
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className='profile-grid-2'>
                   <Field label="Student ID" htmlFor="student-id">
                     <Input
                       id="student-id"
@@ -257,35 +257,35 @@ export function ProfilePage() {
                   </Field>
                 </div>
 
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-4">
-                  <p className="text-sm font-medium text-slate-800">CV</p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                <div className='profile-rounded-xl-1'>
+                  <p className='profile-text-sm-1'>CV</p>
+                  <p className='profile-mt-05-1'>
                     PDF or Word up to 5 MB. {studentProfile.data?.cv_path ? 'A CV is on file.' : 'No CV uploaded yet.'}
                   </p>
                   <input
                     ref={fileInput}
                     type="file"
                     accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    className="hidden"
+                    className='profile-hidden-1'
                     onChange={(event) => {
                       const file = event.target.files?.[0];
                       if (file) void uploadNewCv(file);
                     }}
                   />
                   <Button
-                    className="mt-3"
+                    className='profile-mt-3-1'
                     size="sm"
                     variant="secondary"
                     type="button"
                     loading={uploading}
                     onClick={() => fileInput.current?.click()}
                   >
-                    <Upload className="h-3.5 w-3.5" /> {studentProfile.data?.cv_path ? 'Replace CV' : 'Upload CV'}
+                    <Upload className='profile-h-35-1' /> {studentProfile.data?.cv_path ? 'Replace CV' : 'Upload CV'}
                   </Button>
                 </div>
 
                 <Button type="submit" loading={savingStudent}>
-                  <Save className="h-4 w-4" /> Save student details
+                  <Save className='profile-h-4-1' /> Save student details
                 </Button>
               </form>
             </Card>
@@ -293,9 +293,9 @@ export function ProfilePage() {
 
           <Card>
             <CardHeader title="Password" description="Choose a strong password with at least 8 characters." />
-            <form onSubmit={changePassword} className="space-y-4 px-5 py-5">
+            <form onSubmit={changePassword} className='profile-space-y-4-1'>
               {passwordError ? <Alert tone="danger">{passwordError}</Alert> : null}
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className='profile-grid-2'>
                 <Field label="New password" htmlFor="new-password" required>
                   <Input
                     id="new-password"
@@ -316,46 +316,46 @@ export function ProfilePage() {
                 </Field>
               </div>
               <Button type="submit" variant="secondary" loading={savingPassword}>
-                <KeyRound className="h-4 w-4" /> Update password
+                <KeyRound className='profile-h-4-1' /> Update password
               </Button>
             </form>
           </Card>
         </div>
 
-        <div className="space-y-4">
-          <Card className="p-5">
-            <div className="flex items-center gap-3">
-              <Avatar name={profile.full_name} className="h-12 w-12 text-sm" />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-900">{profile.full_name}</p>
-                <p className="truncate text-xs text-slate-500">{profile.email}</p>
+        <div className='profile-space-y-4-2'>
+          <Card className='profile-p-5-1'>
+            <div className='profile-flex-1'>
+              <Avatar name={profile.full_name} className='profile-h-12-1' />
+              <div className='profile-min-w-0-1'>
+                <p className='profile-truncate-1'>{profile.full_name}</p>
+                <p className='profile-truncate-2'>{profile.email}</p>
               </div>
             </div>
-            <div className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">Role</span>
+            <div className='profile-mt-4-1'>
+              <div className='profile-flex-2'>
+                <span className='profile-text-slate-500-1'>Role</span>
                 <Badge tone="violet">{ROLE_LABELS[profile.role]}</Badge>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">Workspace</span>
-                <span className="text-right text-slate-800">{tenant}</span>
+              <div className='profile-flex-2'>
+                <span className='profile-text-slate-500-1'>Workspace</span>
+                <span className='profile-text-right-1'>{tenant}</span>
               </div>
               {isStudent && studentProfile.data?.student_id ? (
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-500">Student ID</span>
-                  <span className="text-slate-800">{studentProfile.data.student_id}</span>
+                <div className='profile-flex-2'>
+                  <span className='profile-text-slate-500-1'>Student ID</span>
+                  <span className='profile-text-slate-800-1'>{studentProfile.data.student_id}</span>
                 </div>
               ) : null}
             </div>
-            <div className="mt-4 flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
-              <UserRound className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <div className='profile-mt-4-2'>
+              <UserRound className='profile-mt-05-2' />
               Roles and tenant assignments can only be changed by a platform or tenant administrator.
             </div>
           </Card>
 
           {isStudent && studentProfile.isLoading ? (
-            <div className="flex justify-center py-4">
-              <Spinner className="h-5 w-5" />
+            <div className='profile-flex-3'>
+              <Spinner className='profile-h-5-1' />
             </div>
           ) : null}
         </div>

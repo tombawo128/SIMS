@@ -62,18 +62,18 @@ export function Postings() {
         }
       />
 
-      <Card className="mb-6 p-4 sm:p-5">
-        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-700">
-          <SlidersHorizontal className="h-4 w-4 text-slate-400" />
+      <Card className='postings-mb-6-1'>
+        <div className='postings-mb-3-1'>
+          <SlidersHorizontal className='postings-h-4-1' />
           Filter opportunities
         </div>
-        <div className="grid gap-3 md:grid-cols-4">
-          <Field label="Search" htmlFor="posting-search" className="md:col-span-2">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className='postings-grid-1'>
+          <Field label="Search" htmlFor="posting-search" className='postings-col-span-2-1'>
+            <div className='postings-relative-1'>
+              <Search className='postings-pointer-events-none-1' />
               <Input
                 id="posting-search"
-                className="pl-9"
+                className='postings-pl-9-1'
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Title, keywords, or description"
@@ -102,10 +102,10 @@ export function Postings() {
             />
           </Field>
         </div>
-        <label className="mt-3 inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+        <label className='postings-mt-3-1'>
           <input
             type="checkbox"
-            className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            className='postings-h-4-2'
             checked={remoteOnly}
             onChange={(event) => setRemoteOnly(event.target.checked)}
           />
@@ -114,79 +114,79 @@ export function Postings() {
       </Card>
 
       {postings.isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Spinner className="h-6 w-6" />
+        <div className='postings-flex-1'>
+          <Spinner className='postings-h-6-1' />
         </div>
       ) : postings.isError ? (
         <EmptyState title="Could not load opportunities" description="Please refresh the page and try again." />
       ) : items.length === 0 ? (
         <EmptyState
-          icon={<Briefcase className="h-5 w-5" />}
+          icon={<Briefcase className='postings-h-5-1' />}
           title="No opportunities match those filters"
           description="Try clearing the search or widening the filters."
         />
       ) : (
         <>
-          <p className="mb-3 text-sm text-slate-500">
+          <p className='postings-mb-3-2'>
             {items.length} opportunit{items.length === 1 ? 'y' : 'ies'}
           </p>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className='postings-grid-2'>
             {items.map((posting) => {
               const closed = isDeadlinePassed(posting.deadline);
               return (
                 <Link
                   key={posting.id}
                   to={`/postings/${posting.id}`}
-                  className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
+                  className='group postings-flex-2'
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className='postings-flex-3'>
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      <p className='postings-text-xs-1'>
                         {posting.company?.name ?? 'Company'}
                       </p>
-                      <h2 className="mt-1 line-clamp-2 text-base font-semibold text-slate-900 group-hover:text-indigo-700">
+                      <h2 className='postings-mt-1-1'>
                         {posting.title}
                       </h2>
                     </div>
                     <Badge tone="blue">{POSTING_TYPE_LABELS[posting.type]}</Badge>
                   </div>
 
-                  <p className="mt-2 line-clamp-2 text-sm text-slate-500">{posting.description}</p>
+                  <p className='postings-mt-2-1'>{posting.description}</p>
 
-                  <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
-                    <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5" />
+                  <div className='postings-mt-4-1'>
+                    <span className='postings-inline-flex-1'>
+                      <MapPin className='postings-h-35-1' />
                       {posting.is_remote ? 'Remote' : posting.location || 'Location flexible'}
                     </span>
                     {posting.is_remote ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Wifi className="h-3.5 w-3.5" /> Remote friendly
+                      <span className='postings-inline-flex-1'>
+                        <Wifi className='postings-h-35-1' /> Remote friendly
                       </span>
                     ) : null}
                     {posting.duration_months ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <CalendarClock className="h-3.5 w-3.5" />
+                      <span className='postings-inline-flex-1'>
+                        <CalendarClock className='postings-h-35-1' />
                         {posting.duration_months} month{posting.duration_months === 1 ? '' : 's'}
                       </span>
                     ) : null}
                     {posting.stipend ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Banknote className="h-3.5 w-3.5" />
+                      <span className='postings-inline-flex-1'>
+                        <Banknote className='postings-h-35-1' />
                         {posting.stipend}
                       </span>
                     ) : null}
                   </div>
 
-                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                    <span className="text-xs text-slate-500">
+                  <div className='postings-mt-auto-1'>
+                    <span className='postings-text-xs-2'>
                       {posting.deadline
                         ? closed
                           ? 'Applications closed'
                           : `Apply by ${formatDate(posting.deadline)}`
                         : 'Rolling applications'}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600">
-                      View <ArrowRight className="h-3.5 w-3.5" />
+                    <span className='postings-inline-flex-2'>
+                      View <ArrowRight className='postings-h-35-1' />
                     </span>
                   </div>
                 </Link>
@@ -197,14 +197,14 @@ export function Postings() {
       )}
 
       {profile?.role === 'company_admin' || profile?.role === 'site_supervisor' ? (
-        <div className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
-          <p className="text-sm font-semibold text-indigo-950">Publishing on behalf of your company?</p>
-          <p className="mt-1 text-sm text-indigo-900/70">
+        <div className='postings-mt-8-1'>
+          <p className='postings-text-sm-1'>Publishing on behalf of your company?</p>
+          <p className='postings-mt-1-2'>
             Manage drafts, visibility, and deadlines from your company workspace.
           </p>
-          <Link to="/manage/postings" className="mt-3 inline-block">
+          <Link to="/manage/postings" className='postings-mt-3-2'>
             <Button size="sm" variant="outline">
-              Manage postings <ArrowRight className="h-3.5 w-3.5" />
+              Manage postings <ArrowRight className='postings-h-35-1' />
             </Button>
           </Link>
         </div>

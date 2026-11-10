@@ -78,8 +78,8 @@ export function PostingDetail() {
 
   if (posting.isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Spinner className="h-6 w-6" />
+      <div className='posting-detail-flex-1'>
+        <Spinner className='posting-detail-h-6-1' />
       </div>
     );
   }
@@ -156,9 +156,9 @@ export function PostingDetail() {
     <div>
       <Link
         to="/postings"
-        className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-800"
+        className='posting-detail-mb-4-1'
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> All opportunities
+        <ArrowLeft className='posting-detail-h-35-1' /> All opportunities
       </Link>
 
       <PageHeader
@@ -169,7 +169,7 @@ export function PostingDetail() {
             <>
               <Link to={`/manage/postings/${data.id}/edit`}>
                 <Button variant="secondary">
-                  <Pencil className="h-4 w-4" /> Edit posting
+                  <Pencil className='posting-detail-h-4-1' /> Edit posting
                 </Button>
               </Link>
               <Link to="/applications">
@@ -178,19 +178,19 @@ export function PostingDetail() {
             </>
           ) : canApply ? (
             <Button onClick={() => setOpen(true)}>
-              <Send className="h-4 w-4" /> Apply now
+              <Send className='posting-detail-h-4-1' /> Apply now
             </Button>
           ) : undefined
         }
       />
 
       {existingApplication ? (
-        <div className="mb-5">
+        <div className='posting-detail-mb-5-1'>
           <Alert
             tone={existingApplication.status === 'accepted' ? 'success' : existingApplication.status === 'rejected' ? 'warning' : 'info'}
             title={`You applied on ${formatDate(existingApplication.created_at)}`}
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className='posting-detail-flex-2'>
               <span>
                 Current status: <strong>{APPLICATION_STATUS_LABELS[existingApplication.status]}</strong>
                 {existingApplication.rejection_reason ? ` — ${existingApplication.rejection_reason}` : ''}
@@ -218,20 +218,20 @@ export function PostingDetail() {
       ) : null}
 
       {closed && isStudent && !existingApplication ? (
-        <div className="mb-5">
+        <div className='posting-detail-mb-5-1'>
           <Alert tone="warning" title="Applications closed">
             The deadline for this opportunity has passed.
           </Alert>
         </div>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className='posting-detail-grid-1'>
+        <div className='posting-detail-space-y-6-1'>
           <Card>
             <CardHeader title="About the role" />
-            <div className="space-y-4 px-5 py-4 text-sm leading-relaxed text-slate-600">
+            <div className='posting-detail-space-y-4-1'>
               {data.description.split(/\n{2,}/).map((paragraph, index) => (
-                <p key={index} className="whitespace-pre-line">
+                <p key={index} className='posting-detail-whitespace-pre-line-1'>
                   {paragraph}
                 </p>
               ))}
@@ -240,22 +240,22 @@ export function PostingDetail() {
 
           <Card>
             <CardHeader title="What we're looking for" />
-            <div className="px-5 py-4">
+            <div className='posting-detail-px-5-1'>
               {data.requirements.trim() ? (
-                <ul className="space-y-2 text-sm text-slate-600">
+                <ul className='posting-detail-space-y-2-1'>
                   {data.requirements
                     .split('\n')
                     .map((line) => line.replace(/^[-*]\s*/, '').trim())
                     .filter(Boolean)
                     .map((line, index) => (
-                      <li key={index} className="flex gap-2">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                      <li key={index} className='posting-detail-flex-3'>
+                        <CheckCircle2 className='posting-detail-mt-05-1' />
                         <span>{line}</span>
                       </li>
                     ))}
                 </ul>
               ) : (
-                <p className="text-sm text-slate-500">No specific requirements listed.</p>
+                <p className='posting-detail-text-sm-1'>No specific requirements listed.</p>
               )}
             </div>
           </Card>
@@ -277,47 +277,47 @@ export function PostingDetail() {
                       }
                     }}
                   >
-                    <Download className="h-3.5 w-3.5" /> View CV
+                    <Download className='posting-detail-h-35-1' /> View CV
                   </Button>
                 }
               />
-              <p className="px-5 py-4 text-xs text-slate-500">
+              <p className='posting-detail-px-5-2'>
                 Update your CV or profile details from the Profile page.
               </p>
             </Card>
           ) : null}
         </div>
 
-        <div className="space-y-4">
+        <div className='posting-detail-space-y-4-2'>
           <Card>
             <CardHeader title="At a glance" />
-            <dl className="space-y-3 px-5 py-4 text-sm">
-              <Detail icon={<Building2 className="h-4 w-4" />} label="Company" value={data.company?.name ?? '—'} />
-              <Detail icon={<Briefcase className="h-4 w-4" />} label="Type" value={POSTING_TYPE_LABELS[data.type]} />
+            <dl className='posting-detail-space-y-3-1'>
+              <Detail icon={<Building2 className='posting-detail-h-4-1' />} label="Company" value={data.company?.name ?? '—'} />
+              <Detail icon={<Briefcase className='posting-detail-h-4-1' />} label="Type" value={POSTING_TYPE_LABELS[data.type]} />
               <Detail
-                icon={<MapPin className="h-4 w-4" />}
+                icon={<MapPin className='posting-detail-h-4-1' />}
                 label="Location"
                 value={data.is_remote ? 'Remote' : data.location || 'Flexible'}
               />
-              {data.is_remote ? <Detail icon={<Wifi className="h-4 w-4" />} label="Remote" value="Yes" /> : null}
+              {data.is_remote ? <Detail icon={<Wifi className='posting-detail-h-4-1' />} label="Remote" value="Yes" /> : null}
               <Detail
-                icon={<CalendarClock className="h-4 w-4" />}
+                icon={<CalendarClock className='posting-detail-h-4-1' />}
                 label="Duration"
                 value={data.duration_months ? `${data.duration_months} months` : 'Not specified'}
               />
               <Detail
-                icon={<Banknote className="h-4 w-4" />}
+                icon={<Banknote className='posting-detail-h-4-1' />}
                 label="Stipend"
                 value={data.stipend || 'Not specified'}
               />
               <Detail
-                icon={<CalendarX2 className="h-4 w-4" />}
+                icon={<CalendarX2 className='posting-detail-h-4-1' />}
                 label="Deadline"
                 value={data.deadline ? formatDate(data.deadline) : 'Rolling'}
               />
             </dl>
-            <div className="border-t border-slate-100 px-5 py-3">
-              <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className='posting-detail-border-t-1'>
+              <div className='posting-detail-flex-4'>
                 <span>Status</span>
                 <StatusBadge status={data.status} label={POSTING_STATUS_LABELS[data.status]} />
               </div>
@@ -326,19 +326,19 @@ export function PostingDetail() {
 
           <Card>
             <CardHeader title="Who can apply" />
-            <div className="px-5 py-4 text-sm text-slate-600">
+            <div className='posting-detail-px-5-3'>
               {data.visibility === 'all_universities' ? (
-                <p className="flex items-start gap-2">
-                  <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                <p className='posting-detail-flex-5'>
+                  <GraduationCap className='posting-detail-mt-05-2' />
                   Open to students from every partner university.
                 </p>
               ) : (
                 <div>
-                  <p className="flex items-start gap-2">
-                    <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+                  <p className='posting-detail-flex-5'>
+                    <GraduationCap className='posting-detail-mt-05-2' />
                     Targeted at selected universities:
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
+                  <div className='posting-detail-mt-2-1'>
                     {targetedUniversities.length ? (
                       targetedUniversities.map((university) => (
                         <Badge key={university.id} tone="violet">
@@ -346,7 +346,7 @@ export function PostingDetail() {
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-xs text-slate-500">No universities selected yet.</span>
+                      <span className='posting-detail-text-xs-1'>No universities selected yet.</span>
                     )}
                   </div>
                 </div>
@@ -372,7 +372,7 @@ export function PostingDetail() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='posting-detail-space-y-4-2'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
 
           <Field label="Cover letter" htmlFor="cover-letter" required hint="Tell the company why you're a strong fit.">
@@ -396,13 +396,13 @@ export function PostingDetail() {
               ref={fileInput}
               type="file"
               accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+              className='posting-detail-block-1'
               onChange={(event) => setCvFile(event.target.files?.[0] ?? null)}
             />
           </Field>
 
           {studentProfile.data?.cv_path ? (
-            <p className="text-xs text-slate-500">
+            <p className='posting-detail-text-xs-1'>
               If you don't upload a new file, we'll send your CV already on file.
             </p>
           ) : null}
@@ -414,12 +414,12 @@ export function PostingDetail() {
 
 function Detail({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-3">
-      <dt className="inline-flex items-center gap-2 text-slate-500">
-        <span className="text-slate-400">{icon}</span>
+    <div className='posting-detail-flex-6'>
+      <dt className='posting-detail-inline-flex-1'>
+        <span className='posting-detail-text-slate-400-1'>{icon}</span>
         {label}
       </dt>
-      <dd className="text-right font-medium text-slate-800">{value}</dd>
+      <dd className='posting-detail-text-right-1'>{value}</dd>
     </div>
   );
 }

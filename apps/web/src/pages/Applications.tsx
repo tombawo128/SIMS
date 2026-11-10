@@ -199,14 +199,14 @@ export function Applications() {
         actions={
           isCoordinator ? (
             <Button variant="secondary" onClick={exportCsv} disabled={!items.length}>
-              <Download className="h-4 w-4" /> Export CSV
+              <Download className='applications-h-4-1' /> Export CSV
             </Button>
           ) : undefined
         }
       />
 
       <Tabs
-        className="mb-5"
+        className='applications-mb-5-1'
         options={STATUS_TABS.map((option) => ({
           key: option.key,
           label: option.label,
@@ -217,14 +217,14 @@ export function Applications() {
       />
 
       {applications.isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Spinner className="h-6 w-6" />
+        <div className='applications-flex-1'>
+          <Spinner className='applications-h-6-1' />
         </div>
       ) : applications.isError ? (
         <EmptyState title="Could not load applications" description="Refresh the page and try again." />
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon={<FileText className="h-5 w-5" />}
+          icon={<FileText className='applications-h-5-1' />}
           title="No applications here"
           description={isStudent ? 'Browse opportunities and submit your first application.' : 'Applications will appear as students apply.'}
           action={
@@ -236,49 +236,49 @@ export function Applications() {
           }
         />
       ) : (
-        <Card className="overflow-hidden">
-          <Table className="border-0">
+        <Card className='applications-overflow-hidden-1'>
+          <Table className='applications-border-0-1'>
             <thead>
               <tr>
                 <Th>{isStudent ? 'Opportunity' : 'Applicant'}</Th>
                 <Th>Context</Th>
                 <Th>Status</Th>
                 <Th>Applied</Th>
-                <Th className="text-right">Actions</Th>
+                <Th className='applications-text-right-1'>Actions</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className='applications-divide-y-1'>
               {filtered.map((application) => (
-                <tr key={application.id} className="hover:bg-slate-50/70">
+                <tr key={application.id} className='applications-bg-slate-5070-1'>
                   <Td>
-                    <div className="flex items-center gap-3">
+                    <div className='applications-flex-2'>
                       <Avatar name={isStudent ? application.posting?.title ?? 'Role' : application.student?.full_name ?? 'Applicant'} />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-900">
+                      <div className='applications-min-w-0-1'>
+                        <p className='applications-truncate-1'>
                           {isStudent ? application.posting?.title ?? 'Opportunity' : application.student?.full_name ?? 'Applicant'}
                         </p>
-                        <p className="truncate text-xs text-slate-500">
+                        <p className='applications-truncate-2'>
                           {isStudent ? application.company?.name : application.student?.email}
                         </p>
                       </div>
                     </div>
                   </Td>
                   <Td>
-                    <p className="text-xs text-slate-600">
+                    <p className='applications-text-xs-1'>
                       {isStudent ? application.university?.name : application.posting?.title}
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className='applications-text-11px-1'>
                       {application.posting ? POSTING_TYPE_LABELS[application.posting.type] : ''}
                     </p>
                   </Td>
                   <Td>
                     <StatusBadge status={application.status} label={APPLICATION_STATUS_LABELS[application.status]} />
                   </Td>
-                  <Td className="text-xs text-slate-500">{formatDate(application.created_at)}</Td>
+                  <Td className='applications-text-xs-2'>{formatDate(application.created_at)}</Td>
                   <Td>
-                    <div className="flex justify-end gap-1.5">
+                    <div className='applications-flex-3'>
                       <Button size="sm" variant="ghost" onClick={() => setSelected(application)}>
-                        <Eye className="h-3.5 w-3.5" /> View
+                        <Eye className='applications-h-35-1' /> View
                       </Button>
 
                       {isStudent && ACTIVE_STATUSES.includes(application.status) ? (
@@ -312,7 +312,7 @@ export function Applications() {
                             </Button>
                           ) : null}
                           <Button size="sm" variant="outline" onClick={() => openAccept(application)}>
-                            <Check className="h-3.5 w-3.5" /> Accept
+                            <Check className='applications-h-35-1' /> Accept
                           </Button>
                           <Button
                             size="sm"
@@ -323,7 +323,7 @@ export function Applications() {
                               setActionError('');
                             }}
                           >
-                            <X className="h-3.5 w-3.5" /> Reject
+                            <X className='applications-h-35-1' /> Reject
                           </Button>
                         </>
                       ) : null}
@@ -349,8 +349,8 @@ export function Applications() {
         }
       >
         {selected ? (
-          <div className="space-y-5">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <div className='applications-space-y-5-1'>
+            <div className='applications-grid-1'>
               <Info label="Applicant" value={selected.student?.full_name ?? '—'} />
               <Info label="Email" value={selected.student?.email ?? '—'} />
               <Info label="Student ID" value={selected.student?.student_profile?.student_id ?? '—'} />
@@ -367,16 +367,16 @@ export function Applications() {
             </div>
 
             <div>
-              <p className="mb-1.5 text-sm font-medium text-slate-700">Cover letter</p>
-              <div className="max-h-64 overflow-y-auto whitespace-pre-line rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">
+              <p className='applications-mb-15-1'>Cover letter</p>
+              <div className='applications-max-h-64-1'>
                 {selected.cover_letter || 'No cover letter provided.'}
               </div>
             </div>
 
             {selected.student?.student_profile?.skills?.length ? (
               <div>
-                <p className="mb-1.5 text-sm font-medium text-slate-700">Skills</p>
-                <div className="flex flex-wrap gap-1.5">
+                <p className='applications-mb-15-1'>Skills</p>
+                <div className='applications-flex-4'>
                   {selected.student.student_profile.skills.map((skill) => (
                     <Badge key={skill} tone="blue">
                       {skill}
@@ -392,7 +392,7 @@ export function Applications() {
               </Alert>
             ) : null}
 
-            <div className="flex flex-wrap gap-2">
+            <div className='applications-flex-5'>
               {selected.cv_path ? (
                 <Button
                   variant="secondary"
@@ -404,14 +404,14 @@ export function Applications() {
                     }
                   }}
                 >
-                  <FileText className="h-4 w-4" /> Open CV
+                  <FileText className='applications-h-4-1' /> Open CV
                 </Button>
               ) : (
-                <p className="text-xs text-slate-500">No CV attached to this application.</p>
+                <p className='applications-text-xs-2'>No CV attached to this application.</p>
               )}
               <a href={`mailto:${selected.student?.email ?? ''}`}>
                 <Button variant="ghost">
-                  <Mail className="h-4 w-4" /> Email applicant
+                  <Mail className='applications-h-4-1' /> Email applicant
                 </Button>
               </a>
             </div>
@@ -439,7 +439,7 @@ export function Applications() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='applications-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
           <Alert tone="info">
             Accepting this application closes the student's other open applications and notifies the student, site
@@ -463,7 +463,7 @@ export function Applications() {
             </Select>
           </Field>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className='applications-grid-2'>
             <Field label="Start date" htmlFor="start-date" required>
               <Input
                 id="start-date"
@@ -500,7 +500,7 @@ export function Applications() {
           </>
         }
       >
-        <div className="space-y-4">
+        <div className='applications-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
           <Field
             label="Reason shared with the student"
@@ -524,9 +524,9 @@ export function Applications() {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-0.5 flex items-center gap-1.5 text-sm text-slate-800">
-        <UserRound className="h-3.5 w-3.5 text-slate-300" />
+      <p className='applications-text-xs-3'>{label}</p>
+      <p className='applications-mt-05-1'>
+        <UserRound className='applications-h-35-2' />
         {value}
       </p>
     </div>

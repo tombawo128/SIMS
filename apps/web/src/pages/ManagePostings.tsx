@@ -100,22 +100,22 @@ export function ManagePostings() {
         actions={
           <Link to="/manage/postings/new">
             <Button>
-              <Plus className="h-4 w-4" /> New posting
+              <Plus className='manage-postings-h-4-1' /> New posting
             </Button>
           </Link>
         }
       />
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className='manage-postings-mb-4-1'>
         <Tabs
           options={TABS.map((option) => ({ key: option.key, label: option.label, count: counts[option.key] ?? 0 }))}
           value={tab}
           onChange={(key) => setTab(key as PostingStatus | 'all')}
         />
-        <div className="relative sm:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <div className='manage-postings-relative-1'>
+          <Search className='manage-postings-pointer-events-none-1' />
           <Input
-            className="pl-9"
+            className='manage-postings-pl-9-1'
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search postings"
@@ -124,14 +124,14 @@ export function ManagePostings() {
       </div>
 
       {postings.isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Spinner className="h-6 w-6" />
+        <div className='manage-postings-flex-1'>
+          <Spinner className='manage-postings-h-6-1' />
         </div>
       ) : postings.isError ? (
         <EmptyState title="Could not load postings" description="Refresh the page and try again." />
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon={<Briefcase className="h-5 w-5" />}
+          icon={<Briefcase className='manage-postings-h-5-1' />}
           title="No postings in this view"
           description="Create a posting to start receiving applications."
           action={
@@ -141,8 +141,8 @@ export function ManagePostings() {
           }
         />
       ) : (
-        <Card className="overflow-hidden">
-          <Table className="border-0">
+        <Card className='manage-postings-overflow-hidden-1'>
+          <Table className='manage-postings-border-0-1'>
             <thead>
               <tr>
                 <Th>Posting</Th>
@@ -150,18 +150,18 @@ export function ManagePostings() {
                 <Th>Deadline</Th>
                 <Th>Applicants</Th>
                 <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
+                <Th className='manage-postings-text-right-1'>Actions</Th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className='manage-postings-divide-y-1'>
               {filtered.map((posting) => {
                 const closed = isDeadlinePassed(posting.deadline);
                 const targeted = posting.posting_universities?.length ?? 0;
                 return (
-                  <tr key={posting.id} className="hover:bg-slate-50/70">
+                  <tr key={posting.id} className='manage-postings-bg-slate-5070-1'>
                     <Td>
-                      <p className="text-sm font-medium text-slate-900">{posting.title}</p>
-                      <p className="text-xs text-slate-500">{POSTING_TYPE_LABELS[posting.type]}</p>
+                      <p className='manage-postings-text-sm-1'>{posting.title}</p>
+                      <p className='manage-postings-text-xs-1'>{POSTING_TYPE_LABELS[posting.type]}</p>
                     </Td>
                     <Td>
                       <Badge tone={posting.visibility === 'all_universities' ? 'blue' : 'violet'}>
@@ -170,16 +170,16 @@ export function ManagePostings() {
                           : `${targeted} universit${targeted === 1 ? 'y' : 'ies'}`}
                       </Badge>
                     </Td>
-                    <Td className="text-xs">
-                      <span className={closed ? 'text-rose-600' : 'text-slate-600'}>
+                    <Td className='manage-postings-text-xs-2'>
+                      <span className={closed ? 'manage-postings-text-rose-600-1' : 'manage-postings-text-slate-600-1'}>
                         {posting.deadline ? formatDate(posting.deadline) : 'Rolling'}
                       </span>
                       {closed && posting.status === 'published' ? (
-                        <p className="text-[11px] text-rose-500">Deadline passed</p>
+                        <p className='manage-postings-text-11px-1'>Deadline passed</p>
                       ) : null}
                     </Td>
                     <Td>
-                      <span className="text-sm font-medium text-slate-800">
+                      <span className='manage-postings-text-sm-2'>
                         {applicationCounts[posting.id] ?? 0}
                       </span>
                     </Td>
@@ -187,15 +187,15 @@ export function ManagePostings() {
                       <StatusBadge status={posting.status} label={POSTING_STATUS_LABELS[posting.status]} />
                     </Td>
                     <Td>
-                      <div className="flex justify-end gap-1.5">
+                      <div className='manage-postings-flex-2'>
                         <Link to={`/postings/${posting.id}`}>
                           <Button size="sm" variant="ghost">
-                            <Eye className="h-3.5 w-3.5" /> View
+                            <Eye className='manage-postings-h-35-1' /> View
                           </Button>
                         </Link>
                         <Link to={`/manage/postings/${posting.id}/edit`}>
                           <Button size="sm" variant="secondary">
-                            <Pencil className="h-3.5 w-3.5" /> Edit
+                            <Pencil className='manage-postings-h-35-1' /> Edit
                           </Button>
                         </Link>
                         {posting.status !== 'published' ? (
@@ -222,7 +222,7 @@ export function ManagePostings() {
                           onClick={() => deletePosting(posting.id, posting.title)}
                           loading={removePosting.isPending}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className='manage-postings-h-35-1' />
                         </Button>
                       </div>
                     </Td>

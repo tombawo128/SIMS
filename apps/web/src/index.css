@@ -1,31 +1,23 @@
-@import "tailwindcss";
-
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-@layer base {
-  html {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  body {
-    @apply bg-slate-50 text-slate-900;
-  }
-
-  ::selection {
-    @apply bg-indigo-100 text-indigo-950;
-  }
-
-  :focus-visible {
-    outline: none;
-  }
-}
-
-@layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(203 213 225) transparent;
-  }
-}
+/* SIMS stylesheet entry. Import order matters: tokens -> base -> components -> layout -> pages. */
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/components.css';
+@import './styles/layout.css';
+@import './styles/pages/landing.css';
+@import './styles/pages/login.css';
+@import './styles/pages/signup.css';
+@import './styles/pages/forgot-password.css';
+@import './styles/pages/reset-password.css';
+@import './styles/pages/dashboard.css';
+@import './styles/pages/postings.css';
+@import './styles/pages/posting-detail.css';
+@import './styles/pages/posting-editor.css';
+@import './styles/pages/manage-postings.css';
+@import './styles/pages/applications.css';
+@import './styles/pages/placements.css';
+@import './styles/pages/placement-detail.css';
+@import './styles/pages/people.css';
+@import './styles/pages/tenants.css';
+@import './styles/pages/profile.css';
+@import './styles/pages/notifications.css';
+@import './styles/pages/not-found.css';

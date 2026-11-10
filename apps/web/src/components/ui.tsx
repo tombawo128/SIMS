@@ -20,19 +20,19 @@ type ButtonSize = 'sm' | 'md' | 'lg';
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    'bg-indigo-600 text-white shadow-sm hover:bg-indigo-500 focus-visible:ring-indigo-500/40',
+    'btn--primary',
   secondary:
-    'border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:ring-slate-400/40',
-  ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-slate-400/30',
-  danger: 'bg-rose-600 text-white shadow-sm hover:bg-rose-500 focus-visible:ring-rose-500/40',
+    'btn--secondary',
+  ghost: 'btn--ghost',
+  danger: 'btn--danger',
   outline:
-    'border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus-visible:ring-indigo-500/30',
+    'btn--outline',
 };
 
 const buttonSizes: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs',
-  md: 'h-10 px-4 text-sm',
-  lg: 'h-11 px-5 text-sm',
+  sm: 'btn--sm',
+  md: 'btn--md',
+  lg: 'btn--lg',
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -56,14 +56,14 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60',
+        'btn',
         buttonVariants[variant],
         buttonSizes[size],
         className,
       )}
       {...props}
     >
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+      {loading ? <Loader2 className='btn__spinner' aria-hidden /> : null}
       {children}
     </button>
   );
@@ -71,7 +71,7 @@ export function Button({
 
 export function Label({ className, children, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
   return (
-    <label className={cn('mb-1.5 block text-sm font-medium text-slate-700', className)} {...props}>
+    <label className={cn('label', className)} {...props}>
       {children}
     </label>
   );
@@ -81,7 +81,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cn(
-        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:bg-slate-50 disabled:text-slate-500',
+        'input',
         className,
       )}
       {...props}
@@ -93,7 +93,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
   return (
     <textarea
       className={cn(
-        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:bg-slate-50',
+        'textarea',
         className,
       )}
       {...props}
@@ -105,7 +105,7 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
   return (
     <select
       className={cn(
-        'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:bg-slate-50',
+        'select',
         className,
       )}
       {...props}
@@ -136,18 +136,18 @@ export function Field({
     <div className={className}>
       <Label htmlFor={htmlFor}>
         {label}
-        {required ? <span className="ml-0.5 text-rose-500">*</span> : null}
+        {required ? <span className='field__required'>*</span> : null}
       </Label>
       {children}
-      {error ? <p className="mt-1 text-xs text-rose-600">{error}</p> : null}
-      {!error && hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
+      {error ? <p className='field__error'>{error}</p> : null}
+      {!error && hint ? <p className='stat-card__hint'>{hint}</p> : null}
     </div>
   );
 }
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={cn('rounded-2xl border border-slate-200 bg-white shadow-sm', className)}>
+    <div className={cn('card', className)}>
       {children}
     </div>
   );
@@ -165,23 +165,23 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={cn('flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4', className)}>
+    <div className={cn('card__header', className)}>
       <div>
-        <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
-        {description ? <p className="mt-0.5 text-sm text-slate-500">{description}</p> : null}
+        <h2 className='heading-sm'>{title}</h2>
+        {description ? <p className='card__description'>{description}</p> : null}
       </div>
-      {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+      {actions ? <div className='card__actions'>{actions}</div> : null}
     </div>
   );
 }
 
 const badgeTones: Record<BadgeTone, string> = {
-  slate: 'bg-slate-100 text-slate-700 ring-slate-200',
-  blue: 'bg-blue-50 text-blue-700 ring-blue-200',
-  amber: 'bg-amber-50 text-amber-800 ring-amber-200',
-  violet: 'bg-violet-50 text-violet-700 ring-violet-200',
-  emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  rose: 'bg-rose-50 text-rose-700 ring-rose-200',
+  slate: 'badge--slate',
+  blue: 'badge--blue',
+  amber: 'badge--amber',
+  violet: 'badge--violet',
+  emerald: 'badge--emerald',
+  rose: 'badge--rose',
 };
 
 export function Badge({
@@ -196,7 +196,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset',
+        'badge',
         badgeTones[tone],
         className,
       )}
@@ -239,12 +239,12 @@ export function Modal({
 
   if (!open) return null;
 
-  const width = size === 'sm' ? 'sm:max-w-md' : size === 'lg' ? 'sm:max-w-3xl' : 'sm:max-w-xl';
+  const width = size === 'sm' ? 'modal__panel--sm' : size === 'lg' ? 'modal__panel--lg' : 'modal__panel--md';
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6">
+    <div className='modal'>
       <div
-        className="absolute inset-0 bg-slate-950/50 backdrop-blur-[2px]"
+        className='modal__backdrop'
         onClick={onClose}
         aria-hidden
       />
@@ -253,27 +253,27 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'relative max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl',
+          'modal__panel',
           width,
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
+        <div className='modal__header'>
           <div>
-            <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-            {description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}
+            <h2 className='modal__title'>{title}</h2>
+            {description ? <p className='modal__description'>{description}</p> : null}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className='modal__close'
             aria-label="Close dialog"
           >
-            <X className="h-4 w-4" />
+            <X className='icon' />
           </button>
         </div>
-        <div className="px-6 py-5">{children}</div>
+        <div className='modal__body'>{children}</div>
         {footer ? (
-          <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-slate-50/60 px-6 py-4">
+          <div className='modal__footer'>
             {footer}
           </div>
         ) : null}
@@ -284,13 +284,13 @@ export function Modal({
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn('h-5 w-5 animate-spin text-indigo-600', className)} aria-label="Loading" />;
+  return <Loader2 className={cn('spinner', className)} aria-label="Loading" />;
 }
 
 export function FullPageSpinner({ label = 'Loading' }: { label?: string }) {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-sm text-slate-500">
-      <Spinner className="h-6 w-6" />
+    <div className='full-page-spinner'>
+      <Spinner className='icon-xl' />
       <span>{label}</span>
     </div>
   );
@@ -310,15 +310,15 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn('flex flex-col items-center justify-center px-6 py-14 text-center', className)}>
+    <div className={cn('empty-state', className)}>
       {icon ? (
-        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+        <div className='empty-state__icon'>
           {icon}
         </div>
       ) : null}
-      <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-      {description ? <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p> : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+      <h3 className='heading-sm'>{title}</h3>
+      {description ? <p className='empty-state__description'>{description}</p> : null}
+      {action ? <div className='empty-state__action'>{action}</div> : null}
     </div>
   );
 }
@@ -337,15 +337,15 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <Card className={cn('p-5', className)}>
-      <div className="flex items-start justify-between gap-3">
+    <Card className={cn('stat-card', className)}>
+      <div className='stat-card__row'>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
-          {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
+          <p className='stat-card__label'>{label}</p>
+          <p className='stat-card__value'>{value}</p>
+          {hint ? <p className='stat-card__hint'>{hint}</p> : null}
         </div>
         {icon ? (
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+          <div className='stat-card__icon'>
             {icon}
           </div>
         ) : null}
@@ -366,7 +366,7 @@ export function Tabs({
   className?: string;
 }) {
   return (
-    <div className={cn('flex flex-wrap gap-1 border-b border-slate-200', className)}>
+    <div className={cn('tabs', className)}>
       {options.map((option) => {
         const active = option.key === value;
         return (
@@ -375,18 +375,18 @@ export function Tabs({
             type="button"
             onClick={() => onChange(option.key)}
             className={cn(
-              '-mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition',
+              'tabs__item',
               active
-                ? 'border-indigo-600 text-indigo-700'
-                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700',
+                ? 'tabs__item--active'
+                : 'tabs__item--inactive',
             )}
           >
             {option.label}
             {typeof option.count === 'number' ? (
               <span
                 className={cn(
-                  'rounded-full px-1.5 py-0.5 text-xs',
-                  active ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600',
+                  'tabs__count',
+                  active ? 'tabs__count--active' : 'tabs__count--inactive',
                 )}
               >
                 {option.count}
@@ -415,7 +415,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700',
+        'avatar',
         className,
       )}
     >
@@ -434,15 +434,15 @@ export function Alert({
   children: ReactNode;
 }) {
   const tones = {
-    info: 'border-blue-200 bg-blue-50 text-blue-900',
-    success: 'border-emerald-200 bg-emerald-50 text-emerald-900',
-    warning: 'border-amber-200 bg-amber-50 text-amber-900',
-    danger: 'border-rose-200 bg-rose-50 text-rose-900',
+    info: 'alert--info',
+    success: 'alert--success',
+    warning: 'alert--warning',
+    danger: 'alert--danger',
   } as const;
   return (
-    <div className={cn('rounded-xl border px-4 py-3 text-sm', tones[tone])}>
-      {title ? <p className="font-semibold">{title}</p> : null}
-      <div className={cn(title && 'mt-0.5', 'text-[13px] leading-relaxed')}>{children}</div>
+    <div className={cn('alert', tones[tone])}>
+      {title ? <p className='alert__title'>{title}</p> : null}
+      <div className={cn(title && 'alert__body--spaced', 'alert__body')}>{children}</div>
     </div>
   );
 }
@@ -457,20 +457,20 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div className='page-header'>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {description ? <p className="mt-1 max-w-2xl text-sm text-slate-500">{description}</p> : null}
+        <h1 className='page-header__title'>{title}</h1>
+        {description ? <p className='page-header__description'>{description}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div className='page-header__actions'>{actions}</div> : null}
     </div>
   );
 }
 
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('overflow-x-auto rounded-xl border border-slate-200', className)}>
-      <table className="min-w-full divide-y divide-slate-200 text-sm">{children}</table>
+    <div className={cn('table-wrap', className)}>
+      <table className='table'>{children}</table>
     </div>
   );
 }
@@ -479,7 +479,7 @@ export function Th({ children, className }: { children?: ReactNode; className?: 
   return (
     <th
       className={cn(
-        'whitespace-nowrap bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500',
+        'th',
         className,
       )}
     >
@@ -489,7 +489,7 @@ export function Th({ children, className }: { children?: ReactNode; className?: 
 }
 
 export function Td({ children, className }: { children?: ReactNode; className?: string }) {
-  return <td className={cn('whitespace-nowrap px-4 py-3 align-middle', className)}>{children}</td>;
+  return <td className={cn('td', className)}>{children}</td>;
 }
 
 type ToastTone = 'success' | 'error' | 'info';
@@ -524,40 +524,40 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   const tones: Record<ToastTone, string> = {
-    success: 'border-emerald-200 bg-white text-emerald-900',
-    error: 'border-rose-200 bg-white text-rose-900',
-    info: 'border-slate-200 bg-white text-slate-900',
+    success: 'toast--success',
+    error: 'toast--error',
+    info: 'toast--info',
   };
   const dots: Record<ToastTone, string> = {
-    success: 'bg-emerald-500',
-    error: 'bg-rose-500',
-    info: 'bg-indigo-500',
+    success: 'toast__dot--success',
+    error: 'toast__dot--error',
+    info: 'toast__dot--info',
   };
 
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-full max-w-sm flex-col gap-2">
+      <div className='toast-region'>
         {toasts.map((item) => (
           <div
             key={item.id}
             className={cn(
-              'pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg',
+              'toast',
               tones[item.tone],
             )}
           >
-            <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', dots[item.tone])} />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">{item.title}</p>
-              {item.description ? <p className="mt-0.5 text-xs opacity-80">{item.description}</p> : null}
+            <span className={cn('toast__dot', dots[item.tone])} />
+            <div className='toast__content'>
+              <p className='toast__title'>{item.title}</p>
+              {item.description ? <p className='toast__description'>{item.description}</p> : null}
             </div>
             <button
               type="button"
               onClick={() => dismiss(item.id)}
-              className="rounded p-0.5 opacity-60 transition hover:opacity-100"
+              className='toast__close'
               aria-label="Dismiss notification"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className='icon-sm' />
             </button>
           </div>
         ))}

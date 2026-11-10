@@ -60,8 +60,8 @@ export function PostingEditor() {
   if (id) {
     if (posting.isLoading) {
       return (
-        <div className="flex items-center justify-center py-20">
-          <Spinner className="h-6 w-6" />
+        <div className='posting-editor-flex-1'>
+          <Spinner className='posting-editor-h-6-1' />
         </div>
       );
     }
@@ -175,9 +175,9 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
     <div>
       <Link
         to="/manage/postings"
-        className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-800"
+        className='posting-editor-mb-4-1'
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> Our postings
+        <ArrowLeft className='posting-editor-h-35-1' /> Our postings
       </Link>
 
       <PageHeader
@@ -185,13 +185,13 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
         description="Draft the role, choose who can see it, and publish when ready."
       />
 
-      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <form onSubmit={handleSubmit} className='posting-editor-grid-1'>
+        <div className='posting-editor-space-y-6-1'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
 
           <Card>
             <CardHeader title="Role details" />
-            <div className="space-y-4 px-5 py-5">
+            <div className='posting-editor-space-y-4-1'>
               <Field label="Title" htmlFor="title" required>
                 <Input
                   id="title"
@@ -201,7 +201,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
                 />
               </Field>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className='posting-editor-grid-2'>
                 <Field label="Type" htmlFor="type">
                   <Select
                     id="type"
@@ -253,8 +253,8 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
 
           <Card>
             <CardHeader title="Logistics" />
-            <div className="space-y-4 px-5 py-5">
-              <div className="grid gap-4 sm:grid-cols-2">
+            <div className='posting-editor-space-y-4-1'>
+              <div className='posting-editor-grid-2'>
                 <Field label="Location" htmlFor="location" required={!form.isRemote}>
                   <Input
                     id="location"
@@ -273,7 +273,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
                 </Field>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className='posting-editor-grid-2'>
                 <Field label="Application deadline" htmlFor="deadline">
                   <Input
                     id="deadline"
@@ -282,11 +282,11 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
                     onChange={(event) => update('deadline', event.target.value)}
                   />
                 </Field>
-                <div className="flex items-end">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-600">
+                <div className='posting-editor-flex-2'>
+                  <label className='posting-editor-inline-flex-1'>
                     <input
                       type="checkbox"
-                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      className='posting-editor-h-4-1'
                       checked={form.isRemote}
                       onChange={(event) => update('isRemote', event.target.checked)}
                     />
@@ -298,10 +298,10 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className='posting-editor-space-y-6-2'>
           <Card>
             <CardHeader title="Publishing" />
-            <div className="space-y-4 px-5 py-5">
+            <div className='posting-editor-space-y-4-1'>
               <Field label="Status" htmlFor="status">
                 <Select
                   id="status"
@@ -327,13 +327,13 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
 
               {form.visibility === 'selected_universities' ? (
                 <div>
-                  <p className="mb-1.5 text-sm font-medium text-slate-700">Target universities</p>
-                  <div className="space-y-2 rounded-xl border border-slate-200 p-3">
+                  <p className='posting-editor-mb-15-1'>Target universities</p>
+                  <div className='posting-editor-space-y-2-1'>
                     {(universities.data ?? []).map((university) => (
-                      <label key={university.id} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+                      <label key={university.id} className='posting-editor-flex-3'>
                         <input
                           type="checkbox"
-                          className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                          className='posting-editor-h-4-1'
                           checked={form.universityIds.includes(university.id)}
                           onChange={() => toggleUniversity(university.id)}
                         />
@@ -341,12 +341,12 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
                       </label>
                     ))}
                     {!universities.isLoading && (universities.data ?? []).length === 0 ? (
-                      <p className="text-xs text-slate-500">No active universities are available.</p>
+                      <p className='posting-editor-text-xs-1'>No active universities are available.</p>
                     ) : null}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-500">
+                <p className='posting-editor-text-xs-1'>
                   Every student at every partner university will be able to find and apply to this role.
                 </p>
               )}
@@ -354,12 +354,12 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
           </Card>
 
           <Card>
-            <div className="flex flex-col gap-2 p-4">
+            <div className='posting-editor-flex-4'>
               <Button type="submit" loading={savePosting.isPending}>
                 {editing ? 'Save changes' : form.status === 'published' ? 'Publish posting' : 'Save draft'}
               </Button>
               <Link to="/manage/postings">
-                <Button type="button" variant="secondary" className="w-full">
+                <Button type="button" variant="secondary" className='posting-editor-w-full-1'>
                   Cancel
                 </Button>
               </Link>

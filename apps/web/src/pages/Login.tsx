@@ -31,7 +31,7 @@ export function Login() {
 
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to your university, company, or student workspace.">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className='login-space-y-4-1'>
         {error ? <Alert tone="danger">{error}</Alert> : null}
 
         <Field label="Email" htmlFor="email" required>
@@ -58,29 +58,29 @@ export function Login() {
           />
         </Field>
 
-        <div className="flex items-center justify-between">
-          <Link to="/forgot-password" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+        <div className='login-flex-1'>
+          <Link to="/forgot-password" className='login-text-xs-1'>
             Forgot password?
           </Link>
-          <Link to="/signup" className="text-xs font-medium text-slate-500 hover:text-slate-800">
+          <Link to="/signup" className='login-text-xs-2'>
             Student sign up
           </Link>
         </div>
 
-        <Button type="submit" className="w-full" loading={submitting}>
+        <Button type="submit" className='login-w-full-1' loading={submitting}>
           Sign in
         </Button>
       </form>
 
-      <details className="mt-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-          <KeyRound className="h-4 w-4 text-slate-400" />
+      <details className='login-mt-6-1'>
+        <summary className='login-flex-2'>
+          <KeyRound className='login-h-4-1' />
           Demo accounts
         </summary>
-        <p className="mt-2 text-xs text-slate-500">
-          Password for every demo account: <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">{DEMO_PASSWORD}</code>
+        <p className='login-mt-2-1'>
+          Password for every demo account: <code className='login-rounded-1'>{DEMO_PASSWORD}</code>
         </p>
-        <div className="mt-3 grid gap-1">
+        <div className='login-mt-3-1'>
           {DEMO_ACCOUNTS.map((account) => (
             <button
               key={account.email}
@@ -89,10 +89,10 @@ export function Login() {
                 setEmail(account.email);
                 setPassword(DEMO_PASSWORD);
               }}
-              className="flex flex-col rounded-lg px-2 py-1.5 text-left transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
+              className='login-flex-3'
             >
-              <span className="text-xs font-medium text-slate-700">{account.label}</span>
-              <span className="text-[11px] text-slate-400">{account.email}</span>
+              <span className='login-text-xs-3'>{account.label}</span>
+              <span className='login-text-11px-1'>{account.email}</span>
             </button>
           ))}
         </div>

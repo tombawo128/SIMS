@@ -99,25 +99,25 @@ export function Dashboard() {
             label: 'Applications',
             value: applications.data?.length ?? 0,
             hint: `${activeApplications.length} in progress`,
-            icon: <FileCheck2 className="h-5 w-5" />,
+            icon: <FileCheck2 className='dashboard-h-5-1' />,
           },
           {
             label: 'Active placement',
             value: activePlacement ? 1 : 0,
             hint: activePlacement?.company?.name ?? 'No active placement yet',
-            icon: <ClipboardList className="h-5 w-5" />,
+            icon: <ClipboardList className='dashboard-h-5-1' />,
           },
           {
             label: 'Unread updates',
             value: unreadNotifications,
             hint: 'Notifications',
-            icon: <Users className="h-5 w-5" />,
+            icon: <Users className='dashboard-h-5-1' />,
           },
           {
             label: 'Completed',
             value: (placements.data ?? []).filter((placement) => placement.status === 'completed').length,
             hint: 'Placements',
-            icon: <GraduationCap className="h-5 w-5" />,
+            icon: <GraduationCap className='dashboard-h-5-1' />,
           },
         ]
       : role === 'coordinator'
@@ -125,32 +125,32 @@ export function Dashboard() {
             {
               label: 'Students',
               value: universityStats.data?.students ?? '—',
-              icon: <Users className="h-5 w-5" />,
+              icon: <Users className='dashboard-h-5-1' />,
             },
             {
               label: 'Active placements',
               value: universityStats.data?.active_placements ?? '—',
-              icon: <ClipboardList className="h-5 w-5" />,
+              icon: <ClipboardList className='dashboard-h-5-1' />,
             },
             {
               label: 'Pending applications',
               value: universityStats.data?.pending_applications ?? '—',
-              icon: <FileCheck2 className="h-5 w-5" />,
+              icon: <FileCheck2 className='dashboard-h-5-1' />,
             },
             {
               label: 'Logs awaiting review',
               value: universityStats.data?.pending_logs ?? '—',
-              icon: <ClipboardList className="h-5 w-5" />,
+              icon: <ClipboardList className='dashboard-h-5-1' />,
             },
             {
               label: 'Need a faculty supervisor',
               value: universityStats.data?.placements_without_faculty ?? '—',
-              icon: <UserCheck className="h-5 w-5" />,
+              icon: <UserCheck className='dashboard-h-5-1' />,
             },
             {
               label: 'Completed placements',
               value: universityStats.data?.completed_placements ?? '—',
-              icon: <GraduationCap className="h-5 w-5" />,
+              icon: <GraduationCap className='dashboard-h-5-1' />,
             },
           ]
         : role === 'faculty_supervisor'
@@ -158,22 +158,22 @@ export function Dashboard() {
               {
                 label: 'My placements',
                 value: facultyStats.data?.placements ?? '—',
-                icon: <ClipboardList className="h-5 w-5" />,
+                icon: <ClipboardList className='dashboard-h-5-1' />,
               },
               {
                 label: 'Students',
                 value: facultyStats.data?.students ?? '—',
-                icon: <Users className="h-5 w-5" />,
+                icon: <Users className='dashboard-h-5-1' />,
               },
               {
                 label: 'Logs awaiting review',
                 value: facultyStats.data?.pending_logs ?? '—',
-                icon: <FileCheck2 className="h-5 w-5" />,
+                icon: <FileCheck2 className='dashboard-h-5-1' />,
               },
               {
                 label: 'Check-ins logged',
                 value: facultyStats.data?.check_ins ?? '—',
-                icon: <CalendarDays className="h-5 w-5" />,
+                icon: <CalendarDays className='dashboard-h-5-1' />,
               },
             ]
           : role === 'platform_admin'
@@ -181,44 +181,44 @@ export function Dashboard() {
                 {
                   label: 'Universities',
                   value: platformStats.data?.universities ?? '—',
-                  icon: <GraduationCap className="h-5 w-5" />,
+                  icon: <GraduationCap className='dashboard-h-5-1' />,
                 },
                 {
                   label: 'Companies',
                   value: platformStats.data?.companies ?? '—',
-                  icon: <Building2 className="h-5 w-5" />,
+                  icon: <Building2 className='dashboard-h-5-1' />,
                 },
                 {
                   label: 'Active placements',
                   value: platformStats.data?.active_placements ?? '—',
-                  icon: <ClipboardList className="h-5 w-5" />,
+                  icon: <ClipboardList className='dashboard-h-5-1' />,
                 },
                 {
                   label: 'Published postings',
                   value: platformStats.data?.published_postings ?? '—',
-                  icon: <Briefcase className="h-5 w-5" />,
+                  icon: <Briefcase className='dashboard-h-5-1' />,
                 },
               ]
             : [
                 {
                   label: 'Published postings',
                   value: companyStats.data?.published_postings ?? '—',
-                  icon: <Briefcase className="h-5 w-5" />,
+                  icon: <Briefcase className='dashboard-h-5-1' />,
                 },
                 {
                   label: 'New applications',
                   value: companyStats.data?.new_applications ?? '—',
-                  icon: <FileCheck2 className="h-5 w-5" />,
+                  icon: <FileCheck2 className='dashboard-h-5-1' />,
                 },
                 {
                   label: 'Active placements',
                   value: companyStats.data?.active_placements ?? '—',
-                  icon: <ClipboardList className="h-5 w-5" />,
+                  icon: <ClipboardList className='dashboard-h-5-1' />,
                 },
                 {
                   label: 'Logs awaiting review',
                   value: companyStats.data?.pending_logs ?? '—',
-                  icon: <ClipboardList className="h-5 w-5" />,
+                  icon: <ClipboardList className='dashboard-h-5-1' />,
                 },
               ];
 
@@ -226,7 +226,7 @@ export function Dashboard() {
     role === 'company_admin' || role === 'site_supervisor' ? (
       <Link to="/manage/postings/new">
         <Button>
-          <Plus className="h-4 w-4" /> New posting
+          <Plus className='dashboard-h-4-1' /> New posting
         </Button>
       </Link>
     ) : role === 'coordinator' || role === 'faculty_supervisor' ? (
@@ -240,7 +240,7 @@ export function Dashboard() {
     ) : (
       <Link to="/postings">
         <Button>
-          Browse opportunities <ArrowRight className="h-4 w-4" />
+          Browse opportunities <ArrowRight className='dashboard-h-4-1' />
         </Button>
       </Link>
     );
@@ -254,13 +254,13 @@ export function Dashboard() {
       />
 
       {role !== 'platform_admin' && role !== 'student' ? (
-        <div className="mb-6">
+        <div className='dashboard-mb-6-1'>
           <Card>
             <CardHeader
               title="Logs awaiting review"
               description="Submitted weekly logs from placements you can access."
               actions={
-                <Link to="/placements" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                <Link to="/placements" className='dashboard-text-xs-1'>
                   All placements
                 </Link>
               }
@@ -268,18 +268,18 @@ export function Dashboard() {
             {visibleLogs.length === 0 ? (
               <EmptyState title="No logs awaiting review" description="New submissions will appear here." />
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className='dashboard-divide-y-1'>
                 {visibleLogs.map((log) => (
                   <Link
                     key={log.id}
                     to={`/placements/${log.placement_id}`}
-                    className="flex items-center justify-between gap-3 px-5 py-3 transition hover:bg-slate-50"
+                    className='dashboard-flex-1'
                   >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-900">
+                    <div className='dashboard-min-w-0-1'>
+                      <p className='dashboard-truncate-1'>
                         Week {log.week_number} · {log.placement?.student?.full_name ?? 'Student'}
                       </p>
-                      <p className="truncate text-xs text-slate-500">
+                      <p className='dashboard-truncate-2'>
                         {log.placement?.posting?.title ?? 'Placement'} · submitted {formatDate(log.submitted_at)}
                       </p>
                     </div>
@@ -292,14 +292,14 @@ export function Dashboard() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className='dashboard-grid-1'>
         {cards.map((card) => (
           <StatCard key={card.label} label={card.label} value={card.value} hint={card.hint} icon={card.icon} />
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <div className='dashboard-mt-6-1'>
+        <div className='dashboard-space-y-6-1'>
           {role === 'student' ? (
             <>
               {activePlacement ? (
@@ -315,22 +315,22 @@ export function Dashboard() {
                       </Link>
                     }
                   />
-                  <div className="grid gap-4 px-5 py-4 sm:grid-cols-3">
+                  <div className='dashboard-grid-2'>
                     <div>
-                      <p className="text-xs text-slate-500">Dates</p>
-                      <p className="mt-1 text-sm font-medium text-slate-800">
+                      <p className='dashboard-text-xs-2'>Dates</p>
+                      <p className='dashboard-mt-1-1'>
                         {formatDate(activePlacement.start_date)} – {formatDate(activePlacement.end_date)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500">Site supervisor</p>
-                      <p className="mt-1 text-sm font-medium text-slate-800">
+                      <p className='dashboard-text-xs-2'>Site supervisor</p>
+                      <p className='dashboard-mt-1-1'>
                         {activePlacement.site_supervisor?.full_name ?? '—'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-slate-500">Faculty supervisor</p>
-                      <p className="mt-1 text-sm font-medium text-slate-800">
+                      <p className='dashboard-text-xs-2'>Faculty supervisor</p>
+                      <p className='dashboard-mt-1-1'>
                         {activePlacement.faculty_supervisor?.full_name ?? 'Not assigned'}
                       </p>
                     </div>
@@ -343,7 +343,7 @@ export function Dashboard() {
                   title="Recommended opportunities"
                   description="Published roles visible to your university."
                   actions={
-                    <Link to="/postings" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                    <Link to="/postings" className='dashboard-text-xs-1'>
                       Browse all
                     </Link>
                   }
@@ -359,16 +359,16 @@ export function Dashboard() {
                     }
                   />
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className='dashboard-divide-y-1'>
                     {studentPostings.map((posting) => (
                       <Link
                         key={posting.id}
                         to={`/postings/${posting.id}`}
-                        className="flex items-center justify-between gap-3 px-5 py-3 transition hover:bg-slate-50"
+                        className='dashboard-flex-1'
                       >
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-slate-900">{posting.title}</p>
-                          <p className="truncate text-xs text-slate-500">
+                        <div className='dashboard-min-w-0-1'>
+                          <p className='dashboard-truncate-1'>{posting.title}</p>
+                          <p className='dashboard-truncate-2'>
                             {posting.company?.name ?? 'Company'} · {POSTING_TYPE_LABELS[posting.type]} ·{' '}
                             {posting.is_remote ? 'Remote' : posting.location}
                           </p>
@@ -387,17 +387,17 @@ export function Dashboard() {
                   title="Universities"
                   description="Tenant workspaces on the platform."
                   actions={
-                    <Link to="/tenants" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                    <Link to="/tenants" className='dashboard-text-xs-1'>
                       Manage
                     </Link>
                   }
                 />
-                <div className="divide-y divide-slate-100">
+                <div className='dashboard-divide-y-1'>
                   {(universities.data ?? []).map((university) => (
-                    <div key={university.id} className="flex items-center justify-between px-5 py-3">
+                    <div key={university.id} className='dashboard-flex-2'>
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{university.name}</p>
-                        <p className="text-xs text-slate-500">{university.domain ?? university.slug}</p>
+                        <p className='dashboard-text-sm-1'>{university.name}</p>
+                        <p className='dashboard-text-xs-2'>{university.domain ?? university.slug}</p>
                       </div>
                       <StatusBadge status={university.status} />
                     </div>
@@ -409,17 +409,17 @@ export function Dashboard() {
                   title="Companies"
                   description="Employer workspaces on the platform."
                   actions={
-                    <Link to="/tenants" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                    <Link to="/tenants" className='dashboard-text-xs-1'>
                       Manage
                     </Link>
                   }
                 />
-                <div className="divide-y divide-slate-100">
+                <div className='dashboard-divide-y-1'>
                   {(companies.data ?? []).map((company) => (
-                    <div key={company.id} className="flex items-center justify-between px-5 py-3">
+                    <div key={company.id} className='dashboard-flex-2'>
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{company.name}</p>
-                        <p className="text-xs text-slate-500">{company.industry ?? company.slug}</p>
+                        <p className='dashboard-text-sm-1'>{company.name}</p>
+                        <p className='dashboard-text-xs-2'>{company.industry ?? company.slug}</p>
                       </div>
                       <StatusBadge status={company.status} />
                     </div>
@@ -435,18 +435,18 @@ export function Dashboard() {
                     title="Placements without a faculty supervisor"
                     description="Assign a faculty supervisor to keep supervision on track."
                   />
-                  <div className="divide-y divide-slate-100">
+                  <div className='dashboard-divide-y-1'>
                     {placementsWithoutFaculty.map((placement) => (
                       <Link
                         key={placement.id}
                         to={`/placements/${placement.id}`}
-                        className="flex items-center justify-between gap-3 px-5 py-3 transition hover:bg-slate-50"
+                        className='dashboard-flex-1'
                       >
                         <div>
-                          <p className="text-sm font-medium text-slate-900">
+                          <p className='dashboard-text-sm-1'>
                             {placement.student?.full_name ?? 'Student'}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className='dashboard-text-xs-2'>
                             {placement.company?.name} · {placement.posting?.title}
                           </p>
                         </div>
@@ -464,7 +464,7 @@ export function Dashboard() {
                   title="Recent applications"
                   description="Applications you can access based on your role."
                   actions={
-                    <Link to="/applications" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                    <Link to="/applications" className='dashboard-text-xs-1'>
                       View all
                     </Link>
                   }
@@ -472,18 +472,18 @@ export function Dashboard() {
                 {recentApplications.length === 0 ? (
                   <EmptyState title="No applications yet" />
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className='dashboard-divide-y-1'>
                     {recentApplications.map((application) => (
                       <Link
                         key={application.id}
                         to="/applications"
-                        className="flex items-center justify-between gap-3 px-5 py-3 transition hover:bg-slate-50"
+                        className='dashboard-flex-1'
                       >
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-slate-900">
+                        <div className='dashboard-min-w-0-1'>
+                          <p className='dashboard-truncate-1'>
                             {application.student?.full_name ?? 'Applicant'}
                           </p>
-                          <p className="truncate text-xs text-slate-500">
+                          <p className='dashboard-truncate-2'>
                             {application.posting?.title} · {application.company?.name}
                           </p>
                         </div>
@@ -497,34 +497,34 @@ export function Dashboard() {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className='dashboard-space-y-6-2'>
           {role !== 'platform_admin' ? (
             <Card>
               <CardHeader title="Quick actions" />
-              <div className="space-y-2 p-4">
+              <div className='dashboard-space-y-2-1'>
                 {role === 'student' ? (
                   <>
-                    <QuickLink to="/postings" icon={<Briefcase className="h-4 w-4" />} label="Browse opportunities" />
-                    <QuickLink to="/applications" icon={<FileCheck2 className="h-4 w-4" />} label="My applications" />
-                    <QuickLink to="/placements" icon={<ClipboardList className="h-4 w-4" />} label="My placement" />
+                    <QuickLink to="/postings" icon={<Briefcase className='dashboard-h-4-1' />} label="Browse opportunities" />
+                    <QuickLink to="/applications" icon={<FileCheck2 className='dashboard-h-4-1' />} label="My applications" />
+                    <QuickLink to="/placements" icon={<ClipboardList className='dashboard-h-4-1' />} label="My placement" />
                   </>
                 ) : role === 'company_admin' || role === 'site_supervisor' ? (
                   <>
-                    <QuickLink to="/manage/postings" icon={<Briefcase className="h-4 w-4" />} label="Manage postings" />
-                    <QuickLink to="/applications" icon={<FileCheck2 className="h-4 w-4" />} label="Review applications" />
-                    <QuickLink to="/placements" icon={<ClipboardList className="h-4 w-4" />} label="Placements" />
+                    <QuickLink to="/manage/postings" icon={<Briefcase className='dashboard-h-4-1' />} label="Manage postings" />
+                    <QuickLink to="/applications" icon={<FileCheck2 className='dashboard-h-4-1' />} label="Review applications" />
+                    <QuickLink to="/placements" icon={<ClipboardList className='dashboard-h-4-1' />} label="Placements" />
                   </>
                 ) : role === 'coordinator' ? (
                   <>
-                    <QuickLink to="/people" icon={<Users className="h-4 w-4" />} label="Students & faculty" />
-                    <QuickLink to="/applications" icon={<FileCheck2 className="h-4 w-4" />} label="Applications" />
-                    <QuickLink to="/placements" icon={<ClipboardList className="h-4 w-4" />} label="Placements" />
+                    <QuickLink to="/people" icon={<Users className='dashboard-h-4-1' />} label="Students & faculty" />
+                    <QuickLink to="/applications" icon={<FileCheck2 className='dashboard-h-4-1' />} label="Applications" />
+                    <QuickLink to="/placements" icon={<ClipboardList className='dashboard-h-4-1' />} label="Placements" />
                   </>
                 ) : (
                   <>
-                    <QuickLink to="/placements" icon={<ClipboardList className="h-4 w-4" />} label="My placements" />
-                    <QuickLink to="/people" icon={<Users className="h-4 w-4" />} label="Students" />
-                    <QuickLink to="/applications" icon={<FileCheck2 className="h-4 w-4" />} label="Applications" />
+                    <QuickLink to="/placements" icon={<ClipboardList className='dashboard-h-4-1' />} label="My placements" />
+                    <QuickLink to="/people" icon={<Users className='dashboard-h-4-1' />} label="Students" />
+                    <QuickLink to="/applications" icon={<FileCheck2 className='dashboard-h-4-1' />} label="Applications" />
                   </>
                 )}
               </div>
@@ -532,7 +532,7 @@ export function Dashboard() {
           ) : (
             <Card>
               <CardHeader title="Platform totals" />
-              <div className="space-y-3 p-5 text-sm">
+              <div className='dashboard-space-y-3-1'>
                 <Row label="Students" value={platformStats.data?.students ?? '—'} />
                 <Row label="Applications" value={platformStats.data?.applications ?? '—'} />
                 <Row label="Completed placements" value={platformStats.data?.completed_placements ?? '—'} />
@@ -546,15 +546,15 @@ export function Dashboard() {
               {(notifications.data ?? []).length === 0 ? (
                 <EmptyState title="Nothing new" description="You are up to date." />
               ) : (
-                <div className="divide-y divide-slate-100">
+                <div className='dashboard-divide-y-1'>
                   {(notifications.data ?? []).slice(0, 4).map((notification) => (
                     <Link
                       key={notification.id}
                       to={notification.link ?? '/notifications'}
-                      className="block px-5 py-3 transition hover:bg-slate-50"
+                      className='dashboard-block-1'
                     >
-                      <p className="text-sm font-medium text-slate-900">{notification.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{notification.body}</p>
+                      <p className='dashboard-text-sm-1'>{notification.title}</p>
+                      <p className='dashboard-mt-05-1'>{notification.body}</p>
                     </Link>
                   ))}
                 </div>
@@ -571,20 +571,20 @@ function QuickLink({ to, icon, label }: { to: string; icon: JSX.Element; label: 
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50/50 hover:text-indigo-700"
+      className='dashboard-flex-3'
     >
-      <span className="text-slate-400">{icon}</span>
+      <span className='dashboard-text-slate-400-1'>{icon}</span>
       {label}
-      <ArrowRight className="ml-auto h-3.5 w-3.5 text-slate-400" />
+      <ArrowRight className='dashboard-ml-auto-1' />
     </Link>
   );
 }
 
 function Row({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-slate-500">{label}</span>
-      <span className="font-semibold text-slate-900">{value}</span>
+    <div className='dashboard-flex-4'>
+      <span className='dashboard-text-slate-500-1'>{label}</span>
+      <span className='dashboard-font-semibold-1'>{value}</span>
     </div>
   );
 }

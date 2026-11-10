@@ -8,7 +8,7 @@ export function ProtectedRoute() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className='route-loading'>
         <FullPageSpinner label="Signing you in" />
       </div>
     );
@@ -18,14 +18,14 @@ export function ProtectedRoute() {
 
   if (!profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-lg font-semibold text-slate-900">Profile unavailable</h1>
-          <p className="mt-2 text-sm text-slate-500">
+      <div className='route-error-wrap'>
+        <div className='route-error-card'>
+          <h1 className='route-error-title'>Profile unavailable</h1>
+          <p className='route-error-text'>
             {profileError ?? 'Your account is signed in, but no profile is attached yet.'}
           </p>
           <Button
-            className="mt-5"
+            className='route-error-action'
             variant="secondary"
             onClick={() => {
               void signOut();
@@ -52,7 +52,7 @@ export function PublicOnlyRoute() {
   const { session, loading } = useAuth();
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className='route-loading'>
         <FullPageSpinner />
       </div>
     );

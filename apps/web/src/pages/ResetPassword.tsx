@@ -44,8 +44,8 @@ export function ResetPassword() {
         <Alert tone="warning" title="This link is not valid or has expired">
           Request a new password reset email and open the link on this device.
         </Alert>
-        <Link to="/forgot-password" className="mt-5 block">
-          <Button className="w-full">Request a new link</Button>
+        <Link to="/forgot-password" className='reset-password-mt-5-1'>
+          <Button className='reset-password-w-full-1'>Request a new link</Button>
         </Link>
       </AuthShell>
     );
@@ -57,7 +57,7 @@ export function ResetPassword() {
         <Alert tone="success" title="All set">
           You are still signed in. Continue to your dashboard.
         </Alert>
-        <Button className="mt-5 w-full" onClick={() => navigate('/dashboard', { replace: true })}>
+        <Button className='reset-password-mt-5-2' onClick={() => navigate('/dashboard', { replace: true })}>
           Go to dashboard
         </Button>
       </AuthShell>
@@ -66,7 +66,7 @@ export function ResetPassword() {
 
   return (
     <AuthShell title="Choose a new password" subtitle="Use at least 8 characters.">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className='reset-password-space-y-4-1'>
         {error ? <Alert tone="danger">{error}</Alert> : null}
         <Field label="New password" htmlFor="password" required>
           <Input
@@ -88,7 +88,7 @@ export function ResetPassword() {
             onChange={(event) => setConfirm(event.target.value)}
           />
         </Field>
-        <Button type="submit" className="w-full" loading={submitting}>
+        <Button type="submit" className='reset-password-w-full-1' loading={submitting}>
           Update password
         </Button>
       </form>

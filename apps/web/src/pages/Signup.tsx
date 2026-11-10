@@ -67,8 +67,8 @@ export function Signup() {
         <Alert tone="success" title="Account created">
           We sent a confirmation link to <strong>{form.email}</strong>. After confirming, return here and sign in.
         </Alert>
-        <Link to="/login" className="mt-5 block">
-          <Button className="w-full">Go to sign in</Button>
+        <Link to="/login" className='signup-mt-5-1'>
+          <Button className='signup-w-full-1'>Go to sign in</Button>
         </Link>
       </AuthShell>
     );
@@ -80,11 +80,11 @@ export function Signup() {
       title="Create a student account"
       subtitle="Find internships and graduate roles from every partner university and company."
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className='signup-space-y-4-1'>
         {error ? <Alert tone="danger">{error}</Alert> : null}
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Full name" htmlFor="fullName" required className="sm:col-span-2">
+        <div className='signup-grid-1'>
+          <Field label="Full name" htmlFor="fullName" required className='signup-col-span-2-1'>
             <Input
               id="fullName"
               required
@@ -119,10 +119,10 @@ export function Signup() {
             />
           </Field>
 
-          <Field label="University" htmlFor="university" required className="sm:col-span-2">
+          <Field label="University" htmlFor="university" required className='signup-col-span-2-1'>
             {universities.isLoading ? (
-              <div className="flex h-10 items-center gap-2 text-sm text-slate-500">
-                <Spinner className="h-4 w-4" /> Loading universities…
+              <div className='signup-flex-1'>
+                <Spinner className='signup-h-4-1' /> Loading universities…
               </div>
             ) : (
               <Select
@@ -159,7 +159,7 @@ export function Signup() {
             />
           </Field>
 
-          <Field label="Year of study" htmlFor="year" className="sm:col-span-2">
+          <Field label="Year of study" htmlFor="year" className='signup-col-span-2-1'>
             <Select id="year" value={form.year} onChange={(event) => update('year', event.target.value)}>
               {[1, 2, 3, 4, 5, 6].map((year) => (
                 <option key={year} value={year}>
@@ -170,18 +170,18 @@ export function Signup() {
           </Field>
         </div>
 
-        <p className="text-xs text-slate-500">
+        <p className='signup-text-xs-1'>
           Staff and company accounts are created by invitation from your university coordinator, company admin, or
           the platform team.
         </p>
 
-        <Button type="submit" className="w-full" loading={submitting}>
+        <Button type="submit" className='signup-w-full-1' loading={submitting}>
           Create account
         </Button>
 
-        <p className="text-center text-xs text-slate-500">
+        <p className='signup-text-center-1'>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-700">
+          <Link to="/login" className='signup-font-medium-1'>
             Sign in
           </Link>
         </p>

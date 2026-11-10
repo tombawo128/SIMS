@@ -1,71 +1,149 @@
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
+  BookOpen,
   Briefcase,
   Building2,
   CheckCircle2,
-  ClipboardCheck,
+  ChevronRight,
   GraduationCap,
+  LineChart,
   Sparkles,
-  Users,
+  Star,
+  Zap,
 } from 'lucide-react';
 import { APP_NAME } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
-const features = [
+
+
+const roles = [
   {
     icon: GraduationCap,
-    title: 'For universities',
-    body: 'Give coordinators and faculty one place to manage placements, approve weekly logs, and track learning outcomes.',
+    title: 'Students',
+    body: 'Discover internships across every partner campus, apply in minutes, and track your entire placement journey in one place.',
+    color: 'landing-gradient-indigo-1',
+    bg: 'landing-bg-indigo-50-1',
+    text: 'landing-text-indigo-600-1',
   },
   {
     icon: Building2,
-    title: 'For companies',
-    body: 'Publish internships and graduate roles to selected universities, review applicants, and supervise interns from day one.',
+    title: 'Universities',
+    body: 'Give coordinators and faculty a single hub to manage placements, approve weekly logs, and monitor learning outcomes.',
+    color: 'landing-gradient-violet-1',
+    bg: 'landing-bg-violet-50-1',
+    text: 'landing-text-violet-600-1',
   },
   {
-    icon: Users,
-    title: 'For students',
-    body: 'Find opportunities beyond your campus, apply in minutes, and keep every log, evaluation, and grade in one timeline.',
+    icon: Briefcase,
+    title: 'Companies',
+    body: 'Post roles to targeted campuses, review applicants instantly, and supervise interns with structured evaluations.',
+    color: 'landing-gradient-emerald-1',
+    bg: 'landing-bg-emerald-50-1',
+    text: 'landing-text-emerald-600-1',
   },
 ];
 
-const checklist = [
-  'Multi-tenant by design: every university and company sees only its own data',
-  'Application → placement → weekly logs → evaluation → grade in one workflow',
-  'Role-based dashboards for students, faculty, supervisors, and admins',
-  'Row Level Security enforced in the database, not just the UI',
+const steps = [
+  {
+    step: '01',
+    icon: Briefcase,
+    title: 'Post & Discover',
+    body: 'Companies publish internships and graduate roles. Students browse and apply with a few clicks.',
+  },
+  {
+    step: '02',
+    icon: CheckCircle2,
+    title: 'Review & Place',
+    body: 'Coordinators review applications, match students to opportunities, and confirm placements.',
+  },
+  {
+    step: '03',
+    icon: BookOpen,
+    title: 'Log & Evaluate',
+    body: 'Students submit weekly logs. Supervisors and faculty provide feedback and midterm evaluations.',
+  },
+  {
+    step: '04',
+    icon: LineChart,
+    title: 'Grade & Report',
+    body: 'Final evaluations are submitted, grades are recorded, and program reports are generated automatically.',
+  },
 ];
+
+const stats = [
+  { value: '100%', label: 'Digital workflow' },
+  { value: '3×', label: 'Faster placements' },
+  { value: '0', label: 'Spreadsheets needed' },
+  { value: '24/7', label: 'Access anywhere' },
+];
+
+const testimonials = [
+  {
+    quote: 'SIMS eliminated weeks of back-and-forth emails. Our placement rate improved dramatically in just one semester.',
+    name: 'Dr. Grace Okafor',
+    role: 'Internship Coordinator',
+    org: 'Bay State University',
+  },
+  {
+    quote: "I found my internship, applied, and got placed — all without leaving the platform. It couldn't have been easier.",
+    name: 'James Nkosi',
+    role: 'Computer Science Student',
+    org: 'Northbridge Tech',
+  },
+  {
+    quote: 'We can now target specific campuses and manage interns with proper evaluations instead of scattered documents.',
+    name: 'Sarah Chen',
+    role: 'HR Manager',
+    org: 'Acme Software',
+  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 
 export function Landing() {
   const { session } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="absolute inset-x-0 top-0 z-20">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-lg shadow-indigo-500/30">
-              <GraduationCap className="h-5 w-5" />
+    <div className='landing-min-h-screen-1'>
+      {/* ── Navigation ──────────────────────────────────────────── */}
+      <header className='landing-absolute-1'>
+        <div className='landing-mx-auto-1'>
+          <Link to="/" className='landing-flex-1'>
+            <div className='landing-flex-2'>
+              <GraduationCap className='landing-h-5-1' />
             </div>
-            <span className="text-sm font-semibold tracking-tight text-white">{APP_NAME}</span>
-          </div>
-          <div className="flex items-center gap-2">
+            <span className='landing-text-base-1'>{APP_NAME}</span>
+          </Link>
+
+          <nav className='landing-hidden-1'>
+            <a href="#features" className='landing-transition-1'>Features</a>
+            <a href="#how-it-works" className='landing-transition-1'>How it works</a>
+            <a href="#testimonials" className='landing-transition-1'>Testimonials</a>
+          </nav>
+
+          <div className='landing-flex-3'>
             {session ? (
               <Link to="/dashboard">
-                <Button size="sm">Go to dashboard</Button>
+                <Button size="sm" className='landing-bg-white-1'>
+                  Dashboard
+                  <ChevronRight className='landing-h-35-1' />
+                </Button>
               </Link>
             ) : (
               <>
                 <Link to="/login">
-                  <Button size="sm" variant="ghost" className="text-slate-200 hover:bg-white/10 hover:text-white">
+                  <Button size="sm" variant="ghost" className='landing-text-slate-300-1'>
                     Sign in
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm" className="bg-white text-slate-900 hover:bg-slate-100">
-                    Get started
+                  <Button size="sm" className='landing-bg-white-2'>
+                    Get started free
                   </Button>
                 </Link>
               </>
@@ -74,155 +152,271 @@ export function Landing() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-slate-950 pb-24 pt-32 text-white">
-        <div className="pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full bg-indigo-600/25 blur-3xl" />
-        <div className="pointer-events-none absolute -right-20 top-40 h-80 w-80 rounded-full bg-violet-500/20 blur-3xl" />
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-indigo-200">
-              <Sparkles className="h-3.5 w-3.5" />
-              One platform for every placement stakeholder
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <section className='landing-relative-1'>
+        {/* Animated gradient blobs */}
+        <div className='landing-pointer-events-none-1' />
+        <div className='landing-pointer-events-none-2' />
+        <div className='landing-pointer-events-none-3' />
+
+        <div className='landing-relative-2'>
+          <div className='landing-mx-auto-2'>
+            <span className='landing-inline-flex-1'>
+              <Sparkles className='landing-h-35-1' />
+              The modern internship management platform
             </span>
-            <h1 className="mt-5 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
-              Internships that connect
-              <span className="bg-gradient-to-r from-indigo-300 to-violet-300 bg-clip-text text-transparent"> universities, students, and companies.</span>
+
+            <h1 className='landing-mt-8-1'>
+              Where internships{' '}
+              <span className='landing-bg-gradient-to-r-1'>
+                actually work
+              </span>
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300">
-              Publish opportunities across campuses, manage applications and placements, review weekly logs, and
-              record final grades — without spreadsheets, email threads, or scattered documents.
+
+            <p className='landing-mx-auto-3'>
+              Connect universities, students, and companies on one platform. From posting opportunities
+              to final grades — no spreadsheets, no email chains, no chaos.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+
+            <div className='landing-mt-10-1'>
               <Link to={session ? '/dashboard' : '/signup'}>
-                <Button size="lg" className="bg-indigo-500 hover:bg-indigo-400">
-                  {session ? 'Open dashboard' : 'Create a student account'}
-                  <ArrowRight className="h-4 w-4" />
+                <Button size="lg" className='landing-bg-indigo-500-1'>
+                  {session ? 'Go to dashboard' : 'Start for free'}
+                  <ArrowRight className='landing-h-4-1' />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button size="lg" variant="ghost" className="border border-white/15 text-white hover:bg-white/10">
+                <Button size="lg" variant="ghost" className='landing-border-1'>
                   Sign in
                 </Button>
               </Link>
             </div>
-            <p className="mt-5 text-xs text-slate-400">
-              Demo accounts are available on the sign-in page.
-            </p>
+
+            {/* Trust badge */}
+            <div className='landing-mt-12-1'>
+              <div className='landing-flex-4'>
+                {['A', 'B', 'C', 'D'].map((letter) => (
+                  <span
+                    key={letter}
+                    className='landing-inline-flex-2'
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </div>
+              <span className='landing-ml-2-1'>Trusted by universities & companies</span>
+            </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 -rotate-2 rounded-3xl bg-gradient-to-br from-indigo-500/30 to-violet-500/10 blur-xl" />
-            <div className="relative rounded-2xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl backdrop-blur">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Placement overview</p>
-                  <p className="mt-1 text-sm font-semibold text-white">Ava Thompson · Acme Software</p>
+          {/* Hero preview card */}
+          <div className='landing-relative-3'>
+            <div className='landing-absolute-2' />
+            <div className='landing-relative-4'>
+              {/* Window chrome */}
+              <div className='landing-flex-5'>
+                <span className='landing-h-25-1' />
+                <span className='landing-h-25-2' />
+                <span className='landing-h-25-3' />
+                <span className='landing-ml-3-1'>sims-dashboard</span>
+              </div>
+
+              <div className='landing-p-5-1'>
+                <div className='landing-flex-6'>
+                  <div>
+                    <p className='landing-text-11px-1'>Active placement</p>
+                    <p className='landing-mt-1-1'>Ava Thompson · Acme Software</p>
+                  </div>
+                  <span className='landing-rounded-full-1'>
+                    Active
+                  </span>
                 </div>
-                <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-400/20">
-                  Active
-                </span>
-              </div>
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                {[
-                  { label: 'Weekly logs', value: '4' },
-                  { label: 'Hours', value: '130' },
-                  { label: 'Midterm', value: '4.25' },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-xl border border-white/5 bg-white/5 p-3">
-                    <p className="text-[11px] text-slate-400">{item.label}</p>
-                    <p className="mt-1 text-lg font-semibold text-white">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 space-y-2">
-                {[
-                  { title: 'Week 4 log needs revision', detail: 'Site supervisor · 3 days ago', tone: 'bg-amber-400' },
-                  { title: 'Midterm evaluation submitted', detail: 'Grace Okafor · 20 days ago', tone: 'bg-emerald-400' },
-                  { title: 'Faculty check-in logged', detail: 'Dr. Alan Reyes · 18 days ago', tone: 'bg-indigo-400' },
-                ].map((row) => (
-                  <div key={row.title} className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.03] px-3 py-2.5">
-                    <span className={`h-2 w-2 rounded-full ${row.tone}`} />
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-medium text-slate-200">{row.title}</p>
-                      <p className="text-[11px] text-slate-500">{row.detail}</p>
+
+                <div className='landing-mt-5-1'>
+                  {[
+                    { label: 'Weekly logs', value: '4 / 6' },
+                    { label: 'Hours logged', value: '130' },
+                    { label: 'Midterm score', value: '4.25' },
+                  ].map((item) => (
+                    <div key={item.label} className='landing-rounded-xl-1'>
+                      <p className='landing-text-10px-1'>{item.label}</p>
+                      <p className='landing-mt-15-1'>{item.value}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <div className='landing-mt-4-1'>
+                  {[
+                    { title: 'Week 4 log needs revision', detail: 'Site supervisor · 3 days ago', dot: 'landing-dot-amber-1' },
+                    { title: 'Midterm evaluation submitted', detail: 'Faculty · 20 days ago', dot: 'landing-dot-emerald-1' },
+                    { title: 'Faculty check-in logged', detail: 'Dr. Alan Reyes · 18 days ago', dot: 'landing-dot-indigo-1' },
+                  ].map((row) => (
+                    <div key={row.title} className='landing-flex-7'>
+                      <span className={cn('landing-h-2-1', row.dot)} />
+                      <div className='landing-min-w-0-1'>
+                        <p className='landing-truncate-1'>{row.title}</p>
+                        <p className='landing-text-11px-2'>{row.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">Built for the whole program</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
-              Every stakeholder in one workflow
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600">
-              SIMS is a multi-tenant platform: universities and companies each get their own isolated workspace,
-              while students can discover opportunities across every partner institution.
-            </p>
-            <ul className="mt-6 space-y-3">
-              {checklist.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-slate-700">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8 flex gap-2">
-              <Link to="/login">
-                <Button variant="secondary">Explore the demo</Button>
-              </Link>
-              <Link to="/signup">
-                <Button variant="ghost">Student sign up</Button>
-              </Link>
+      {/* ── Stats bar ────────────────────────────────────────────── */}
+      <section className='landing-border-b-1'>
+        <div className='landing-mx-auto-4'>
+          {stats.map((stat) => (
+            <div key={stat.label} className='landing-text-center-1'>
+              <p className='landing-text-3xl-1'>{stat.value}</p>
+              <p className='landing-mt-1-2'>{stat.label}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Features (roles) ─────────────────────────────────────── */}
+      <section id="features" className='landing-mx-auto-5'>
+        <div className='landing-mx-auto-6'>
+          <p className='landing-text-xs-1'>Built for everyone</p>
+          <h2 className='landing-mt-3-1'>
+            One platform, every stakeholder
+          </h2>
+          <p className='landing-mt-4-2'>
+            Whether you're a student looking for your first role, a university managing hundreds of placements,
+            or a company searching for fresh talent — SIMS brings it all together.
+          </p>
+        </div>
+
+        <div className='landing-mt-16-1'>
+          {roles.map((role) => (
+            <div
+              key={role.title}
+              className='group landing-relative-5'
+            >
+              <div className={cn('landing-inline-flex-3', role.bg, role.text)}>
+                <role.icon className='landing-h-6-1' />
+              </div>
+              <h3 className='landing-mt-5-2'>{role.title}</h3>
+              <p className='landing-mt-2-1'>{role.body}</p>
+              <div className={cn('landing-absolute-3', role.color)} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── How it works ─────────────────────────────────────────── */}
+      <section id="how-it-works" className='landing-bg-slate-50-1'>
+        <div className='landing-mx-auto-5'>
+          <div className='landing-mx-auto-6'>
+            <p className='landing-text-xs-1'>Simple process</p>
+            <h2 className='landing-mt-3-1'>
+              From posting to final grade
+            </h2>
+            <p className='landing-mt-4-2'>
+              The entire internship lifecycle in four clear steps. No manual hand-offs, no lost paperwork.
+            </p>
           </div>
 
-          <div className="grid gap-4">
-            {features.map((feature) => (
-              <div key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                  <feature.icon className="h-5 w-5" />
+          <div className='landing-relative-6'>
+            {/* Connecting line (desktop) */}
+            <div className='landing-pointer-events-none-4' />
+
+            {steps.map((step) => (
+              <div key={step.step} className='landing-relative-7'>
+                <div className='landing-relative-8'>
+                  <div className='landing-absolute-4' />
+                  <step.icon className='landing-relative-9' />
+                  <span className='landing-absolute-5'>
+                    {step.step}
+                  </span>
                 </div>
-                <h3 className="mt-3 text-sm font-semibold text-slate-900">{feature.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-slate-500">{feature.body}</p>
+                <h3 className='landing-mt-5-3'>{step.title}</h3>
+                <p className='landing-mt-2-1'>{step.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto grid max-w-6xl gap-6 px-5 py-12 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { icon: Briefcase, label: 'Opportunities', value: 'Internships & graduate roles' },
-            { icon: ClipboardCheck, label: 'Approvals', value: 'Logs, evaluations, grades' },
-            { icon: Building2, label: 'Companies', value: 'Target specific campuses' },
-            { icon: Users, label: 'Students', value: 'One application timeline' },
-          ].map((item) => (
-            <div key={item.label} className="flex items-start gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm ring-1 ring-slate-200">
-                <item.icon className="h-4 w-4" />
+      {/* ── Testimonials ─────────────────────────────────────────── */}
+      <section id="testimonials" className='landing-mx-auto-5'>
+        <div className='landing-mx-auto-6'>
+          <p className='landing-text-xs-1'>What people say</p>
+          <h2 className='landing-mt-3-1'>
+            Loved by coordinators, students & recruiters
+          </h2>
+        </div>
+
+        <div className='landing-mt-14-1'>
+          {testimonials.map((t) => (
+            <div
+              key={t.name}
+              className='landing-flex-8'
+            >
+              <div className='landing-flex-9'>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className='landing-h-4-2' />
+                ))}
               </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{item.label}</p>
-                <p className="mt-0.5 text-sm font-medium text-slate-800">{item.value}</p>
+              <p className='landing-mt-4-3'>"{t.quote}"</p>
+              <div className='landing-mt-6-1'>
+                <p className='landing-text-sm-1'>{t.name}</p>
+                <p className='landing-text-xs-2'>{t.role} · {t.org}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} {APP_NAME}. Student Internship Management System.</p>
-          <div className="flex gap-4">
-            <Link to="/login" className="hover:text-slate-800">Sign in</Link>
-            <Link to="/signup" className="hover:text-slate-800">Student sign up</Link>
+      {/* ── CTA ──────────────────────────────────────────────────── */}
+      <section className='landing-relative-10'>
+        <div className='landing-pointer-events-none-5' />
+        <div className='landing-pointer-events-none-6' />
+
+        <div className='landing-relative-11'>
+          <div className='landing-mx-auto-7'>
+            <Zap className='landing-h-7-1' />
+          </div>
+          <h2 className='landing-mt-6-2'>
+            Ready to simplify internship management?
+          </h2>
+          <p className='landing-mx-auto-8'>
+            Join the universities and companies already using SIMS to streamline placements from start to finish.
+          </p>
+          <div className='landing-mt-10-1'>
+            <Link to={session ? '/dashboard' : '/signup'}>
+              <Button size="lg" className='landing-bg-indigo-500-2'>
+                {session ? 'Open dashboard' : 'Get started free'}
+                <ArrowRight className='landing-h-4-1' />
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button size="lg" variant="ghost" className='landing-border-1'>
+                Sign in to your account
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────────── */}
+      <footer className='landing-border-t-1'>
+        <div className='landing-mx-auto-9'>
+          <div className='landing-flex-1'>
+            <div className='landing-flex-10'>
+              <GraduationCap className='landing-h-4-1' />
+            </div>
+            <span className='landing-text-sm-1'>{APP_NAME}</span>
+          </div>
+          <p className='landing-text-xs-2'>
+            © {new Date().getFullYear()} {APP_NAME}. Student Internship Management System. All rights reserved.
+          </p>
+          <div className='landing-flex-11'>
+            <Link to="/login" className='landing-text-slate-500-1'>Sign in</Link>
+            <Link to="/signup" className='landing-text-slate-500-1'>Create account</Link>
           </div>
         </div>
       </footer>

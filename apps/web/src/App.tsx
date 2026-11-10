@@ -33,15 +33,12 @@ const WORKFLOW_ROLES = [
 function ConfigNotice() {
   if (isSupabaseConfigured) return null;
   return (
-    <div className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-amber-900">
-      <div className="mx-auto flex max-w-7xl items-start gap-2 text-xs sm:text-sm">
-        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>
-          Supabase is not configured. Copy <code className="rounded bg-amber-100 px-1">.env.example</code> to{' '}
-          <code className="rounded bg-amber-100 px-1">.env</code>, run{' '}
-          <code className="rounded bg-amber-100 px-1">npx supabase start</code>, then restart the dev server.
-        </p>
-      </div>
+    <div className="config-notice" role="alert">
+      <AlertTriangle className="icon" aria-hidden />
+      <p>
+        Supabase is not configured yet. Copy <code>.env.example</code> to <code>.env</code>, set{' '}
+        <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>, then restart the dev server.
+      </p>
     </div>
   );
 }
