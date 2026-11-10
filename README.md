@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # SIMS — Student Internship Management System
 
 A multi-tenant internship platform for universities and companies: companies post internships and graduate roles, students apply, companies hire, placements run week by week with logs and evaluations, and universities grade the result. Every tenant boundary is enforced by PostgreSQL Row Level Security.
@@ -13,7 +12,7 @@ A multi-tenant internship platform for universities and companies: companies pos
 | Layer | Choice |
 | --- | --- |
 | Backend | Supabase — Postgres 17, Auth, RLS, Storage, Realtime, Edge Functions |
-| Web | React 18, TypeScript, Vite 6, React Router 6, TanStack Query 5, Tailwind CSS 4 |
+| Web | React 18, TypeScript, Vite 6, React Router 6, TanStack Query 5, plain CSS (design-token system) |
 | Shared domain | `@sims/shared` — types, role constants, formatting/CSV helpers |
 | Tests | pgTAP cross-tenant RLS suite (`supabase/tests/rls.test.sql`, 25 assertions) |
 
@@ -23,7 +22,7 @@ A multi-tenant internship platform for universities and companies: companies pos
 apps/web                 React SPA (Phase 1)
 packages/shared          Shared types, constants, utils (used by web now, mobile later)
 supabase/migrations      Schema, functions/RPCs, RLS, storage buckets, realtime
-supabase/functions       invite-user Edge Function (service-role staff provisioning)
+supabase/functions       invite-user + manage-admins Edge Functions (service-role provisioning)
 supabase/tests           pgTAP RLS/tenant-isolation tests
 supabase/seed.sql        Demo universities, companies, users, postings, applications, placements
 ```
@@ -115,8 +114,41 @@ Public signup (`/signup`) creates **students only**, and the university is chose
 | Record grade | — | — | ✓ | — | — | — |
 | Invite staff | — | — | faculty | — | site supervisors | coordinators, company admins |
 | Manage tenants | — | — | — | — | — | ✓ |
+| Manage general admins (max 2) | — | — | — | — | — | ✓ |
 
 Platform admins see **aggregate counts only** (`platform_stats()`), never student PII, CVs, logs, or evaluations.
+
+---
+
+## General administrators (platform admins)
+
+General administrators are platform-wide `platform_admin` accounts. **At most two can exist at once** (`MAX_PLATFORM_ADMINS = 2` in `@sims/shared`, enforced again server-side). They are managed from **Tenants → General admins** in the web app, visible only to an existing platform admin.
+
+The create option is driven entirely by the live count:
+
+- **0 or 1 admins** → the **Create general admin** button is shown, with a slot meter (`X / 2`).
+- **2 admins** → the create button is **removed** and replaced by a "Both slots filled" notice plus a hint to delete one to free a slot.
+- **Delete one** → the count drops to 1 and the create button **returns** automatically (the list query is invalidated after every mutation).
+- **Create back up to 2** → the button is removed again.
+
+Supporting pieces:
+
+| Piece | Location | Purpose |
+| --- | --- | --- |
+| `MAX_PLATFORM_ADMINS` | `packages/shared/src/constants.ts` | Single source of truth for the cap |
+| `PlatformAdmin` type | `packages/shared/src/types.ts` | Shape returned by the list RPC |
+| `list_platform_admins()` | `supabase/migrations/20261109000006_platform_admins.sql` | `SECURITY DEFINER` RPC; returns admins only when the caller `is_platform_admin()` |
+| `manage-admins` function | `supabase/functions/manage-admins/index.ts` | Service-role create/delete with the cap enforced server-side |
+| `usePlatformAdmins` hooks | `apps/web/src/hooks/usePlatformAdmins.ts` | List query + create/delete mutations, invalidating the list on success |
+| `GeneralAdmins` component | `apps/web/src/components/GeneralAdmins.tsx` | Quota meter, admin rows, create modal (temporary password), delete confirmation |
+
+The list RPC exists because `profiles` RLS lets a user read only their own row or rows they are allowed to supervise — it has no platform-admin peer branch — so admins cannot enumerate each other through the table directly. `list_platform_admins()` is gated by `is_platform_admin()` and returns nothing for any other caller.
+
+Server-side rules in `manage-admins` (the UI cap is convenience; these are the authority):
+
+- Caller must present a valid JWT **and** be a `platform_admin` (otherwise 401/403).
+- **create**: rejects with 409 when the count is already 2; creates the auth user with `app_metadata.sims_provisioned = true` and `role = platform_admin` (null university/company), generates a one-time temporary password shown once, and rejects an existing email with 409.
+- **delete**: refuses to delete the caller's own account (400), verifies the target is a `platform_admin` (404/400 otherwise), then removes the auth user — which frees a slot.
 
 ---
 
@@ -135,7 +167,7 @@ posting (draft → published → closed)
 
 Multi-step and privileged transitions are RPCs, not client-side writes:
 
-`accept_application`, `review_application`, `withdraw_application`, `assign_faculty_supervisor`, `upsert_weekly_log`, `submit_weekly_log`, `review_weekly_log`, `submit_evaluation`, `add_check_in`, `record_grade`, `search_postings`, `university_stats`, `faculty_stats`, `company_stats`, `platform_stats`.
+`accept_application`, `review_application`, `withdraw_application`, `assign_faculty_supervisor`, `upsert_weekly_log`, `submit_weekly_log`, `review_weekly_log`, `submit_evaluation`, `add_check_in`, `record_grade`, `search_postings`, `university_stats`, `faculty_stats`, `company_stats`, `platform_stats`, `list_platform_admins`.
 
 ## Posting visibility
 
@@ -148,6 +180,7 @@ Postings are `all_universities` or `selected`. The join table `posting_universit
 - **RLS on every table.** Policies resolve the caller through `auth_role()`, `auth_university_id()`, and `auth_company_id()`, which read `profiles` server-side. No policy trusts client-supplied tenant IDs.
 - **Role/tenant cannot be self-assigned.** `handle_new_user()` reads trusted role and tenant from `raw_app_meta_data` **only when `sims_provisioned = true`**, a flag writable only by the service role. Public signups (user-controlled `raw_user_meta_data`) are forced to `student` plus the chosen university.
 - **Staff provisioning** goes through the `invite-user` Edge Function: it validates the caller's role against `ALLOWED_BY_CALLER`, constrains the tenant to the caller's own where applicable, verifies the target tenant is active, and creates the account with `app_metadata.sims_provisioned = true`. The returned temporary password is displayed once to the inviter.
+- **General-admin provisioning** goes through the `manage-admins` Edge Function, restricted to existing platform admins and capped at two accounts server-side. It never trusts a client-supplied count and refuses self-deletion.
 - **Guard triggers** reject direct privilege/tenant changes on `profiles`, illegal application status jumps, and invalid placement/log transitions.
 - **Storage** uses three buckets: `cvs` and `reports` are private and read through RLS-backed access plus signed URLs; `company-logos` is public for branding. Buckets enforce size and MIME type limits.
 - **Audit logging** captures sensitive table changes; **notifications** are inserted by RPCs and streamed with Realtime.
@@ -159,27 +192,30 @@ Postings are `all_universities` or `selected`. The join table `posting_universit
 | --- | --- | --- | --- |
 | `/signup` | Public | Forced `student` | student |
 | `invite-user` function | coordinator / company_admin / platform_admin | Trusted `app_metadata` set by service role | per `ALLOWED_BY_CALLER` |
+| `manage-admins` function | platform_admin only | Trusted `app_metadata` set by service role | platform_admin (max 2 total) |
 | `seed.sql` | Local reset | Trusted `raw_app_meta_data.sims_provisioned` | all six |
 
 ---
 
-## Edge Function
+## Edge Functions
 
 ```bash
 # Local
 npx supabase functions serve invite-user
+npx supabase functions serve manage-admins
 
 # Deploy
 npx supabase functions deploy invite-user
+npx supabase functions deploy manage-admins
 ```
 
-The function requires these server-side secrets (set with `npx supabase secrets set` in hosted projects; injected automatically locally):
+Both functions require these server-side secrets (set with `npx supabase secrets set` in hosted projects; injected automatically locally):
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Network access to the function is restricted by its own caller checks: missing/invalid JWT → 401, disallowed role → 403, inactive or mismatched tenant → 400/403, existing email → 409.
+Network access to each function is restricted by its own caller checks: missing/invalid JWT → 401, disallowed role → 403. `invite-user` additionally rejects inactive/mismatched tenants (400/403) and existing emails (409). `manage-admins` rejects non-platform-admins (403), a full quota of two (409 on create), self-deletion (400), and unknown targets (404).
 
 ---
 
@@ -215,17 +251,19 @@ npm run build
 | `npm run functions:serve` | Serve `invite-user` locally |
 | `npm run functions:deploy` | Deploy `invite-user` |
 
+> The `functions:*` scripts target `invite-user`. Serve/deploy `manage-admins` with the explicit `npx supabase functions … manage-admins` commands shown in [Edge Functions](#edge-functions).
+
 ---
 
 ## Deployment notes
 
 1. Create a Supabase project and link it: `npx supabase link --project-ref <ref>`.
-2. Push schema: `npx supabase db push` (migrations) — do **not** push `seed.sql` to production.
-3. Deploy the function. Set `SUPABASE_SERVICE_ROLE_KEY` as a function secret only; it never reaches the browser.
+2. Push schema: `npx supabase db push` (migrations) — do **not** push `seed.sql` to production. This includes `20261109000006_platform_admins.sql` (the `list_platform_admins()` RPC). On a hosted project you can instead paste that migration, or `supabase/setup.sql`, into the SQL editor and run it.
+3. Deploy both functions: `npx supabase functions deploy invite-user` and `npx supabase functions deploy manage-admins`. Set `SUPABASE_SERVICE_ROLE_KEY` as a function secret only; it never reaches the browser.
 4. In Auth settings set Site URL to the deployed web origin and add `https://<web-origin>` and `https://<web-origin>/reset-password` to redirect URLs.
 5. Copy the project URL and **anon** key into the web host's environment as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`, then build.
 6. Host `apps/web/dist` on any static host with SPA fallback to `index.html` (Vercel/Netlify/Cloudflare Pages). Set cache headers for hashed assets and no-cache for `index.html`.
-7. Demo seed accounts are local-only; create the first platform admin through the Supabase dashboard (set `raw_app_meta_data` to `{"sims_provisioned": true, "role": "platform_admin"}`) or a one-off service-role script.
+7. Demo seed accounts are local-only. Bootstrap the **first** platform admin through the Supabase dashboard (Authentication → add user, then set the user's `raw_app_meta_data` to `{"sims_provisioned": true, "role": "platform_admin"}`) or a one-off service-role script. Once one admin exists, sign in and use **Tenants → General admins** to create the second; the create option disappears at two and returns whenever one is deleted.
 
 Storage buckets, RLS policies, and realtime publication are created by migrations — no manual dashboard setup is required.
 
@@ -238,17 +276,15 @@ Storage buckets, RLS policies, and realtime publication are created by migration
 | `npm install` | Pass |
 | `npm run typecheck` | Pass (clean) |
 | `npm run build` | Pass (only Vite's >500 kB chunk-size warning) |
+| General-admin cap toggle (UI) | Verified on the real `GeneralAdmins` component: create button shown at 0–1, removed at 2, returns after a delete frees a slot |
+| `manage-admins` live create/delete | Not exercised end-to-end here — requires the deployed function + a valid platform-admin session; server logic verified by inspection |
 | `supabase start` / `db reset` | Not run — Docker unavailable in this environment |
 | pgTAP suite | Not run — same reason |
 
-The web app was built against the migration-defined schema. Until the database is started on a Docker-capable machine, the RLS suite and seed flow remain unexecuted; run the two commands above to validate them.
+The web app was built against the migration-defined schema. Until the database is started on a Docker-capable machine (or the migration + `manage-admins` function are deployed to the hosted project), the RLS suite, seed flow, and live admin create/delete loop remain unexecuted; run the commands above to validate them.
 
 ---
 
 ## Phase 2 — mobile
 
 The mobile app will live in `apps/mobile` (Expo, React Native) inside the same npm workspace and consume `@sims/shared` for types, roles, and formatting. It will use the same Supabase project and RLS model; no backend changes are expected. Web is intentionally completed first.
-=======
-# SIMS
-production-quality Student Internship Management System (SIMS) web application.
->>>>>>> e0fc886fe9f9b78b882bd8b5df01e2555d93e5f2
