@@ -55,14 +55,14 @@ export function AuthShell({
               </li>
             ))}
           </ul>
+
         </div>
 
         <div className='auth-aside__quote'>
           <p className='auth-aside__quote-text'>
-            “We replaced three spreadsheets and a shared inbox with one workflow. Faculty finally see the evidence
-            behind every grade.”
+
           </p>
-          <p className='auth-aside__quote-author'>Dana Whitfield · Internship Coordinator</p>
+
         </div>
       </aside>
 

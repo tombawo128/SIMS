@@ -23,8 +23,11 @@ export function useNotifications(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) return;
+    // Unique topic per subscription: the dashboard and the header bell both watch
+    // this user's notifications, and supabase.channel(name) returns a shared instance
+    // that throws if a second caller adds callbacks after it has subscribed.
     const channel = supabase
-      .channel(`notifications:${userId}`)
+      .channel(`notifications:${userId}:${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {

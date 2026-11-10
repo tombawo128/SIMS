@@ -1,226 +1,123 @@
-/* Login page.
- * Plain CSS — edit these rules directly. Generated from the original design.
- */
+/* Login page. Plain CSS, edit these rules directly. */
 
-/* space-y-4 */
-:where(.login-space-y-4-1 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-/* flex items-center justify-between */
-.login-flex-1 {
-    display: flex;
-  }
-.login-flex-1 {
-    align-items: center;
-  }
-.login-flex-1 {
-    justify-content: space-between;
-  }
-
-/* text-xs font-medium text-indigo-600 hover:text-indigo-700 */
-.login-text-xs-1 {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-.login-text-xs-1 {
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-  }
-.login-text-xs-1 {
-    color: var(--color-indigo-600);
-  }
-@media (hover: hover) {
-.login-text-xs-1:hover {
-      color: var(--color-indigo-700);
-    }
+.login-space-y-4-1 {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
 }
 
-/* text-xs font-medium text-slate-500 hover:text-slate-800 */
-.login-text-xs-2 {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-.login-text-xs-2 {
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-  }
-.login-text-xs-2 {
-    color: var(--color-slate-500);
-  }
-@media (hover: hover) {
-.login-text-xs-2:hover {
-      color: var(--color-slate-800);
-    }
+.login-flex-1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* w-full */
+.login-text-xs-1 {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-indigo-600);
+}
+
+.login-text-xs-2 {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate-500);
+}
+
+@media (hover: hover) {
+  .login-text-xs-1:hover {
+    color: var(--color-indigo-700);
+  }
+
+  .login-text-xs-2:hover {
+    color: var(--color-slate-800);
+  }
+}
+
 .login-w-full-1 {
-    width: 100%;
-  }
+  width: 100%;
+}
 
-/* mt-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm */
-.login-mt-6-1 {
-    margin-top: calc(var(--spacing) * 6);
-  }
-.login-mt-6-1 {
-    border-radius: var(--radius-xl);
-  }
-.login-mt-6-1 {
-    border-style: var(--tw-border-style);
-    border-width: 1px;
-  }
-.login-mt-6-1 {
-    border-color: var(--color-slate-200);
-  }
-.login-mt-6-1 {
-    background-color: var(--color-white);
-  }
-.login-mt-6-1 {
-    padding: calc(var(--spacing) * 4);
-  }
-.login-mt-6-1 {
-    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
+.login-h-4-1 {
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 4);
+}
 
-/* flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700 */
-.login-flex-2 {
-    display: flex;
-  }
-.login-flex-2 {
-    cursor: pointer;
-  }
-.login-flex-2 {
-    align-items: center;
-  }
-.login-flex-2 {
-    gap: calc(var(--spacing) * 2);
-  }
-.login-flex-2 {
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-.login-flex-2 {
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-  }
-.login-flex-2 {
+/* Password field with show/hide button */
+.login-password {
+  position: relative;
+}
+
+.login-password__input {
+  padding-right: calc(var(--spacing) * 11);
+}
+
+.login-password__toggle {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--spacing) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--spacing) * 8);
+  width: calc(var(--spacing) * 8);
+  translate: 0 -50%;
+  border-radius: var(--radius-lg);
+  color: var(--color-slate-400);
+  cursor: pointer;
+  transition: color var(--default-transition-duration) var(--default-transition-timing-function),
+    background-color var(--default-transition-duration) var(--default-transition-timing-function);
+}
+
+@media (hover: hover) {
+  .login-password__toggle:hover {
     color: var(--color-slate-700);
-  }
-
-/* h-4 w-4 text-slate-400 */
-.login-h-4-1 {
-    height: calc(var(--spacing) * 4);
-  }
-.login-h-4-1 {
-    width: calc(var(--spacing) * 4);
-  }
-.login-h-4-1 {
-    color: var(--color-slate-400);
-  }
-
-/* mt-2 text-xs text-slate-500 */
-.login-mt-2-1 {
-    margin-top: calc(var(--spacing) * 2);
-  }
-.login-mt-2-1 {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-.login-mt-2-1 {
-    color: var(--color-slate-500);
-  }
-
-/* rounded bg-slate-100 px-1 py-0.5 text-slate-700 */
-.login-rounded-1 {
-    border-radius: 0.25rem;
-  }
-.login-rounded-1 {
     background-color: var(--color-slate-100);
   }
-.login-rounded-1 {
-    padding-inline: var(--spacing);
-  }
-.login-rounded-1 {
-    padding-block: calc(var(--spacing) * 0.5);
-  }
-.login-rounded-1 {
-    color: var(--color-slate-700);
-  }
+}
 
-/* mt-3 grid gap-1 */
-.login-mt-3-1 {
-    margin-top: calc(var(--spacing) * 3);
-  }
-.login-mt-3-1 {
-    display: grid;
-  }
-.login-mt-3-1 {
-    gap: var(--spacing);
-  }
+.login-password__toggle:focus-visible {
+  outline: 2px solid var(--color-indigo-400);
+  outline-offset: 1px;
+}
 
-/* flex flex-col rounded-lg px-2 py-1.5 text-left transition hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between */
-.login-flex-3 {
-    display: flex;
-  }
-.login-flex-3 {
-    flex-direction: column;
-  }
-.login-flex-3 {
-    border-radius: var(--radius-lg);
-  }
-.login-flex-3 {
-    padding-inline: calc(var(--spacing) * 2);
-  }
-.login-flex-3 {
-    padding-block: calc(var(--spacing) * 1.5);
-  }
-.login-flex-3 {
-    text-align: left;
-  }
-.login-flex-3 {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
+/* "Create an administrator account" hint (only shown while the cap allows it) */
+.login-admin-note {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: 1px dashed var(--color-slate-300);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-slate-50);
+}
+
+.login-admin-note__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--spacing) * 8);
+  width: calc(var(--spacing) * 8);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-indigo-100);
+  color: var(--color-indigo-600);
+}
+
+.login-admin-note__text {
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: var(--color-slate-600);
+}
+
+.login-admin-note__link {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-indigo-600);
+}
+
 @media (hover: hover) {
-.login-flex-3:hover {
-      background-color: var(--color-slate-50);
-    }
-}
-@media (width >= 40rem) {
-.login-flex-3 {
-      flex-direction: row;
-    }
-}
-@media (width >= 40rem) {
-.login-flex-3 {
-      align-items: center;
-    }
-}
-@media (width >= 40rem) {
-.login-flex-3 {
-      justify-content: space-between;
-    }
-}
-
-/* text-xs font-medium text-slate-700 */
-.login-text-xs-3 {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
+  .login-admin-note__link:hover {
+    color: var(--color-indigo-700);
   }
-.login-text-xs-3 {
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-  }
-.login-text-xs-3 {
-    color: var(--color-slate-700);
-  }
-
-/* text-[11px] text-slate-400 */
-.login-text-11px-1 {
-    color: var(--color-slate-400);
-  }
+}

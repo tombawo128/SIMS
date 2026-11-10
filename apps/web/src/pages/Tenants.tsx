@@ -5,12 +5,16 @@ import {
   Pencil,
   Plus,
   Power,
+  Trash2,
   UserPlus,
 } from 'lucide-react';
 import { formatDate } from '@sims/shared';
 import type { Company, InviteResult, University } from '@sims/shared';
 import { useCompanies, useInviteUser, useSaveTenant, useUniversities } from '@/hooks/useLookups';
+import { useDeleteTenant } from '@/hooks/useAdminConsole';
+import { usePlatformAdmins } from '@/hooks/usePlatformAdmins';
 import { usePlatformStats } from '@/hooks/useDashboardStats';
+import { GeneralAdmins } from '@/components/GeneralAdmins';
 import { errorMessage } from '@/lib/utils';
 import {
   Alert,
@@ -29,7 +33,7 @@ import {
 } from '@/components/ui';
 import { StatusBadge } from '@/components/StatusBadge';
 
-type Kind = 'university' | 'company';
+type Kind = 'university' | 'company' | 'admins';
 
 interface TenantFormState {
   name: string;
@@ -63,9 +67,11 @@ export function Tenants() {
   const universities = useUniversities();
   const companies = useCompanies();
   const platformStats = usePlatformStats(true);
+  const platformAdmins = usePlatformAdmins();
   const saveUniversity = useSaveTenant('university');
   const saveCompany = useSaveTenant('company');
   const invite = useInviteUser();
+  const deleteTenant = useDeleteTenant();
 
   const [tab, setTab] = useState<Kind>('university');
   const [editorOpen, setEditorOpen] = useState(false);
@@ -79,8 +85,12 @@ export function Tenants() {
   const [inviteResult, setInviteResult] = useState<InviteResult | null>(null);
   const [inviteError, setInviteError] = useState('');
 
+  const [deleteTarget, setDeleteTarget] = useState<{ tenant: University | Company; kind: 'university' | 'company' } | null>(null);
+  const [deleteError, setDeleteError] = useState('');
+
   const universityList = universities.data ?? [];
   const companyList = companies.data ?? [];
+  const adminCount = platformAdmins.data?.length ?? 0;
 
   const activeCounts = useMemo(
     () => ({
@@ -169,6 +179,27 @@ export function Tenants() {
     setInviteOpen(true);
   };
 
+  const openDelete = (tenant: University | Company, kind: 'university' | 'company') => {
+    setDeleteTarget({ tenant, kind });
+    setDeleteError('');
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteError('');
+    try {
+      await deleteTenant.mutateAsync({ id: deleteTarget.tenant.id, kind: deleteTarget.kind });
+      toast({
+        title: `${deleteTarget.tenant.name} deleted`,
+        description: 'The tenant and all of its members and records were permanently removed.',
+        tone: 'success',
+      });
+      setDeleteTarget(null);
+    } catch (caught) {
+      setDeleteError(errorMessage(caught));
+    }
+  };
+
   const submitInvite = async () => {
     if (!inviteTenant) return;
     setInviteError('');
@@ -198,11 +229,17 @@ export function Tenants() {
     <div>
       <PageHeader
         title="Universities & companies"
-        description="Manage tenant workspaces, suspend access, and invite tenant administrators."
+        description={
+          tab === 'admins'
+            ? 'Create and remove the general administrators who oversee the whole platform.'
+            : 'Manage tenant workspaces, suspend access, and invite tenant administrators.'
+        }
         actions={
-          <Button onClick={openCreate}>
-            <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'New university' : 'New company'}
-          </Button>
+          tab === 'admins' ? undefined : (
+            <Button onClick={openCreate}>
+              <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'New university' : 'New company'}
+            </Button>
+          )
         }
       />
 
@@ -238,12 +275,15 @@ export function Tenants() {
         options={[
           { key: 'university', label: 'Universities', count: universityList.length },
           { key: 'company', label: 'Companies', count: companyList.length },
+          { key: 'admins', label: 'General admins', count: adminCount },
         ]}
         value={tab}
         onChange={(key) => setTab(key as Kind)}
       />
 
-      {loading ? (
+      {tab === 'admins' ? (
+        <GeneralAdmins />
+      ) : loading ? (
         <div className='tenants-flex-1'>
           <Spinner className='tenants-h-6-1' />
         </div>
@@ -299,6 +339,14 @@ export function Tenants() {
                 >
                   <Power className='tenants-h-35-1' />
                   {tenant.status === 'active' ? 'Suspend' : 'Activate'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="tenants-delete"
+                  onClick={() => openDelete(tenant, tab === 'university' ? 'university' : 'company')}
+                >
+                  <Trash2 className='tenants-h-35-1' /> Delete
                 </Button>
               </div>
             </Card>
@@ -455,6 +503,38 @@ export function Tenants() {
               </div>
             </>
           )}
+        </div>
+      </Modal>
+
+      <Modal
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        size="sm"
+        title={`Delete ${deleteTarget?.kind === 'university' ? 'university' : 'company'}`}
+        description={deleteTarget ? `Permanently remove ${deleteTarget.tenant.name}.` : undefined}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmDelete} loading={deleteTenant.isPending}>
+              <Trash2 className='tenants-h-35-1' /> Delete permanently
+            </Button>
+          </>
+        }
+      >
+        <div className='tenants-space-y-4-1'>
+          {deleteError ? <Alert tone="danger">{deleteError}</Alert> : null}
+          <Alert tone="danger" title="This cannot be undone">
+            Deleting <strong>{deleteTarget?.tenant.name}</strong> permanently removes the tenant and
+            everything scoped to it:
+            <ul className="tenants-delete-list">
+              <li>Every member account ({deleteTarget?.kind === 'university' ? 'students, faculty supervisors, coordinators' : 'company admins and site supervisors'})</li>
+              <li>All {deleteTarget?.kind === 'university' ? 'applications and placements' : 'job postings, applications, and placements'}</li>
+              <li>Related weekly logs, evaluations, check-ins, and documents</li>
+            </ul>
+            Consider <strong>suspending</strong> the tenant instead if you may need this data again.
+          </Alert>
         </div>
       </Modal>
     </div>

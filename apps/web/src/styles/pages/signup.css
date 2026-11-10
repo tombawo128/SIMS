@@ -1,107 +1,186 @@
-/* Signup page.
- * Plain CSS — edit these rules directly. Generated from the original design.
- */
+/* Signup page. Plain CSS, edit these rules directly. */
 
-/* mt-5 block */
 .signup-mt-5-1 {
-    margin-top: calc(var(--spacing) * 5);
-  }
-.signup-mt-5-1 {
-    display: block;
-  }
+  margin-top: calc(var(--spacing) * 5);
+  display: block;
+}
 
-/* w-full */
 .signup-w-full-1 {
-    width: 100%;
-  }
-
-/* space-y-4 */
-:where(.signup-space-y-4-1 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
-  }
-
-/* grid gap-4 sm:grid-cols-2 */
-.signup-grid-1 {
-    display: grid;
-  }
-.signup-grid-1 {
-    gap: calc(var(--spacing) * 4);
-  }
-@media (width >= 40rem) {
-.signup-grid-1 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  width: 100%;
 }
 
-/* sm:col-span-2 */
-@media (width >= 40rem) {
-.signup-col-span-2-1 {
-      grid-column: span 2 / span 2;
-    }
+.signup-space-y-4-1 {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
 }
 
-/* flex h-10 items-center gap-2 text-sm text-slate-500 */
-.signup-flex-1 {
-    display: flex;
-  }
-.signup-flex-1 {
-    height: calc(var(--spacing) * 10);
-  }
-.signup-flex-1 {
-    align-items: center;
-  }
-.signup-flex-1 {
-    gap: calc(var(--spacing) * 2);
-  }
-.signup-flex-1 {
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-.signup-flex-1 {
-    color: var(--color-slate-500);
+.signup-grid-1 {
+  display: grid;
+  gap: calc(var(--spacing) * 4);
+}
+
+@media (width >=40rem) {
+  .signup-grid-1 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-/* h-4 w-4 */
+  .signup-col-span-2-1 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+.signup-flex-1 {
+  display: flex;
+  height: calc(var(--spacing) * 10);
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  color: var(--color-slate-500);
+}
+
 .signup-h-4-1 {
-    height: calc(var(--spacing) * 4);
-  }
-.signup-h-4-1 {
-    width: calc(var(--spacing) * 4);
-  }
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 4);
+}
 
-/* text-xs text-slate-500 */
 .signup-text-xs-1 {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-.signup-text-xs-1 {
-    color: var(--color-slate-500);
-  }
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  color: var(--color-slate-500);
+}
 
-/* text-center text-xs text-slate-500 */
 .signup-text-center-1 {
-    text-align: center;
-  }
-.signup-text-center-1 {
-    font-size: var(--text-xs);
-    line-height: var(--tw-leading, var(--text-xs--line-height));
-  }
-.signup-text-center-1 {
-    color: var(--color-slate-500);
-  }
+  text-align: center;
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  color: var(--color-slate-500);
+}
 
-/* font-medium text-indigo-600 hover:text-indigo-700 */
 .signup-font-medium-1 {
-    --tw-font-weight: var(--font-weight-medium);
-    font-weight: var(--font-weight-medium);
-  }
-.signup-font-medium-1 {
-    color: var(--color-indigo-600);
-  }
+  font-weight: var(--font-weight-medium);
+  color: var(--color-indigo-600);
+}
+
 @media (hover: hover) {
-.signup-font-medium-1:hover {
-      color: var(--color-indigo-700);
-    }
+  .signup-font-medium-1:hover {
+    color: var(--color-indigo-700);
+  }
+}
+
+/* Student / Administrator switch */
+.signup-mode {
+  display: flex;
+  gap: calc(var(--spacing) * 1);
+  margin-bottom: calc(var(--spacing) * 5);
+  padding: calc(var(--spacing) * 1);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-slate-100);
+}
+
+.signup-mode__btn {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate-600);
+  cursor: pointer;
+  transition: color var(--default-transition-duration) var(--default-transition-timing-function),
+    background-color var(--default-transition-duration) var(--default-transition-timing-function),
+    box-shadow var(--default-transition-duration) var(--default-transition-timing-function);
+}
+
+@media (hover: hover) {
+  .signup-mode__btn:hover {
+    color: var(--color-slate-900);
+  }
+}
+
+.signup-mode__btn:focus-visible {
+  outline: 2px solid var(--color-indigo-400);
+  outline-offset: 1px;
+}
+
+.signup-mode__btn--active,
+.signup-mode__btn--active:hover {
+  background-color: var(--color-white);
+  color: var(--color-indigo-700);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.signup-mode__icon {
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 4);
+}
+
+/* Administrator explainer */
+.signup-admin-note {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 3);
+  padding: calc(var(--spacing) * 4);
+  border: 1px solid var(--color-indigo-100);
+  border-radius: var(--radius-xl);
+  background-color: color-mix(in oklab, var(--color-indigo-50) 60%, transparent);
+}
+
+.signup-admin-note__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--spacing) * 8);
+  width: calc(var(--spacing) * 8);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-indigo-100);
+  color: var(--color-indigo-600);
+}
+
+.signup-admin-note__text {
+  min-width: 0;
+}
+
+.signup-admin-note__title {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-indigo-950);
+}
+
+.signup-admin-note__body {
+  margin-top: calc(var(--spacing) * 0.5);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: color-mix(in oklab, var(--color-indigo-900) 70%, transparent);
+}
+
+/* Student approval notice */
+.signup-approval {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 2.5);
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: 1px solid var(--color-amber-200);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-amber-50);
+}
+
+.signup-approval__icon {
+  flex-shrink: 0;
+  margin-top: calc(var(--spacing) * 0.5);
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 4);
+  color: var(--color-amber-800);
+}
+
+.signup-approval__text {
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: var(--color-amber-900);
 }

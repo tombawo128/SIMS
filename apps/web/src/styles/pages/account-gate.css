@@ -1,0 +1,239 @@
+/* Account approval gate.
+ * Full-screen state shown when a signed-in account is not yet active.
+ * The accent hue shifts with the account status (pending/suspended/blocked).
+ */
+
+.gate {
+  --gate-accent: var(--color-amber-400);
+  --gate-accent-strong: var(--color-amber-800);
+  --gate-accent-soft: var(--color-amber-50);
+  --gate-accent-border: var(--color-amber-200);
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: calc(var(--spacing) * 6);
+  background-color: var(--color-slate-950);
+  isolation: isolate;
+}
+
+.gate--suspended {
+  --gate-accent: var(--color-indigo-400);
+  --gate-accent-strong: var(--color-indigo-700);
+  --gate-accent-soft: var(--color-indigo-50);
+  --gate-accent-border: var(--color-indigo-200);
+}
+
+.gate--blocked {
+  --gate-accent: var(--color-rose-400);
+  --gate-accent-strong: var(--color-rose-700);
+  --gate-accent-soft: var(--color-rose-50);
+  --gate-accent-border: var(--color-rose-200);
+}
+
+.gate__aurora {
+  position: absolute;
+  z-index: -2;
+  border-radius: calc(infinity * 1px);
+  filter: blur(var(--blur-3xl));
+  opacity: 0.5;
+  pointer-events: none;
+}
+.gate__aurora--1 {
+  top: -12%;
+  left: -8%;
+  height: 42rem;
+  width: 42rem;
+  background-image: radial-gradient(circle at 30% 30%, var(--gate-accent), transparent 68%);
+  animation: gate-drift 16s ease-in-out infinite alternate;
+}
+.gate__aurora--2 {
+  right: -10%;
+  bottom: -16%;
+  height: 38rem;
+  width: 38rem;
+  background-image: radial-gradient(circle at 70% 70%, var(--color-indigo-500), transparent 66%);
+  animation: gate-drift 20s ease-in-out infinite alternate-reverse;
+}
+
+.gate__grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.gate__card {
+  position: relative;
+  width: 100%;
+  max-width: var(--container-xl);
+  padding: calc(var(--spacing) * 10) calc(var(--spacing) * 8);
+  border-radius: var(--radius-3xl);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.04));
+  backdrop-filter: blur(var(--blur-2xl));
+  box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.6);
+  text-align: center;
+  animation: gate-rise 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.gate__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  margin-bottom: calc(var(--spacing) * 8);
+}
+.gate__brand-logo {
+  display: flex;
+  height: calc(var(--spacing) * 9);
+  width: calc(var(--spacing) * 9);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  color: var(--color-white);
+  background-image: linear-gradient(135deg, var(--color-indigo-500), var(--color-violet-600));
+  box-shadow: 0 6px 18px -6px var(--color-indigo-500);
+}
+.gate__brand-icon {
+  height: calc(var(--spacing) * 5);
+  width: calc(var(--spacing) * 5);
+}
+.gate__brand-name {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+}
+
+.gate__icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: calc(var(--spacing) * 6);
+}
+.gate__pulse {
+  position: absolute;
+  height: calc(var(--spacing) * 24);
+  width: calc(var(--spacing) * 24);
+  border-radius: calc(infinity * 1px);
+  background-image: radial-gradient(circle, var(--gate-accent), transparent 70%);
+  opacity: 0.35;
+  animation: gate-pulse 2.8s ease-in-out infinite;
+}
+.gate__icon {
+  position: relative;
+  display: flex;
+  height: calc(var(--spacing) * 18);
+  width: calc(var(--spacing) * 18);
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(infinity * 1px);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  color: var(--color-white);
+  background-image: linear-gradient(135deg, var(--gate-accent), var(--gate-accent-strong));
+  box-shadow: 0 16px 40px -12px var(--gate-accent);
+}
+.gate__icon-svg {
+  height: calc(var(--spacing) * 8);
+  width: calc(var(--spacing) * 8);
+}
+
+.gate__badge {
+  margin-bottom: calc(var(--spacing) * 4);
+}
+
+.gate__title {
+  font-size: var(--text-2xl);
+  line-height: var(--tw-leading, var(--text-2xl--line-height));
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-white);
+}
+@media (width >= 40rem) {
+  .gate__title {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
+  }
+}
+
+.gate__body {
+  margin: calc(var(--spacing) * 3) auto 0;
+  max-width: 46ch;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-slate-300);
+}
+
+.gate__account {
+  margin-top: calc(var(--spacing) * 5);
+  font-size: var(--text-sm);
+  color: var(--color-slate-400);
+}
+.gate__account-email {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate-100);
+}
+
+.gate__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 3);
+  margin-top: calc(var(--spacing) * 7);
+}
+.gate__action-icon {
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 4);
+}
+
+.gate__footnote {
+  margin: calc(var(--spacing) * 6) auto 0;
+  max-width: 42ch;
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  color: var(--color-slate-400);
+}
+
+@keyframes gate-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(6%, 4%, 0) scale(1.12);
+  }
+}
+@keyframes gate-pulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.28;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.5;
+  }
+}
+@keyframes gate-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate__aurora,
+  .gate__pulse,
+  .gate__card {
+    animation: none;
+  }
+}

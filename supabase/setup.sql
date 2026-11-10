@@ -34,6 +34,7 @@ create type public.evaluation_type as enum ('midterm', 'final');
 create type public.evaluation_role as enum ('site_supervisor', 'faculty_supervisor');
 create type public.checkin_type as enum ('visit', 'call', 'email');
 create type public.document_type as enum ('cv', 'report', 'other');
+create type public.account_status as enum ('pending', 'active', 'suspended', 'blocked');
 
 create table public.universities (
   id uuid primary key default gen_random_uuid(),
@@ -67,6 +68,7 @@ create table public.profiles (
   email text not null default '',
   phone text,
   avatar_url text,
+  account_status public.account_status not null default 'pending',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint profiles_tenant_check check (
@@ -225,6 +227,7 @@ create table public.audit_logs (
 create index profiles_university_idx on public.profiles (university_id);
 create index profiles_company_idx on public.profiles (company_id);
 create index profiles_role_idx on public.profiles (role);
+create index profiles_account_status_idx on public.profiles (account_status);
 create index job_postings_company_idx on public.job_postings (company_id, status);
 create index job_postings_deadline_idx on public.job_postings (deadline);
 create index posting_universities_university_idx on public.posting_universities (university_id);
@@ -295,7 +298,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select role from public.profiles where id = auth.uid();
+  select role from public.profiles where id = auth.uid() and account_status = 'active';
 $$;
 
 create or replace function public.auth_university_id()
@@ -305,7 +308,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select university_id from public.profiles where id = auth.uid();
+  select university_id from public.profiles where id = auth.uid() and account_status = 'active';
 $$;
 
 create or replace function public.auth_company_id()
@@ -315,7 +318,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select company_id from public.profiles where id = auth.uid();
+  select company_id from public.profiles where id = auth.uid() and account_status = 'active';
 $$;
 
 create or replace function public.is_platform_admin()
@@ -479,8 +482,9 @@ begin
     if new.role is distinct from old.role
       or new.university_id is distinct from old.university_id
       or new.company_id is distinct from old.company_id
-      or new.email is distinct from old.email then
-      raise exception 'You cannot change your role or tenant';
+      or new.email is distinct from old.email
+      or new.account_status is distinct from old.account_status then
+      raise exception 'You cannot change your role, tenant, or account status';
     end if;
   end if;
   return new;
@@ -552,6 +556,7 @@ declare
   v_meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
   v_provisioned boolean := coalesce(v_app ->> 'sims_provisioned', '') = 'true';
   v_role public.user_role := 'student';
+  v_status public.account_status := 'pending';
   v_university uuid;
   v_company uuid;
   v_name text := coalesce(nullif(v_meta ->> 'full_name', ''), split_part(new.email, '@', 1));
@@ -559,7 +564,7 @@ declare
 begin
   -- Only the service role can write app_metadata. Public sign-ups can submit arbitrary
   -- user_metadata, so privileged roles and company tenancy are accepted only from
-  -- accounts provisioned by the invite-user Edge Function (or seed data).
+  -- accounts provisioned by an Edge Function (or seed data).
   if v_provisioned
     and v_app ->> 'role' in (
       'student', 'faculty_supervisor', 'coordinator', 'site_supervisor', 'company_admin', 'platform_admin'
@@ -567,6 +572,7 @@ begin
     v_role := (v_app ->> 'role')::public.user_role;
     v_university := public.try_uuid(v_app ->> 'university_id');
     v_company := public.try_uuid(v_app ->> 'company_id');
+    v_status := 'active';
   else
     v_university := public.try_uuid(v_meta ->> 'university_id');
   end if;
@@ -590,8 +596,8 @@ begin
     v_year := (v_meta ->> 'year')::integer;
   end if;
 
-  insert into public.profiles (id, role, university_id, company_id, full_name, email)
-  values (new.id, v_role, v_university, v_company, v_name, coalesce(new.email, ''));
+  insert into public.profiles (id, role, university_id, company_id, full_name, email, account_status)
+  values (new.id, v_role, v_university, v_company, v_name, coalesce(new.email, ''), v_status);
 
   if v_role = 'student' then
     insert into public.student_profiles (user_id, student_id, program, year)
@@ -1556,3 +1562,185 @@ exception
   when duplicate_object then null;
 end;
 $$;
+
+-- General (platform) administrator management.
+-- Lets an authenticated platform administrator list peer administrator accounts
+-- (profiles RLS otherwise only exposes a user's own row). Account creation and
+-- deletion are handled by the manage-admins Edge Function, which enforces the
+-- two-account cap server-side.
+create or replace function public.list_platform_admins()
+returns table (id uuid, full_name text, email text, created_at timestamptz)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p.id, p.full_name, p.email, p.created_at
+  from public.profiles p
+  where p.role = 'platform_admin'
+    and public.is_platform_admin()
+  order by p.created_at, p.full_name;
+$$;
+
+-- Public, unauthenticated check used by the sign-up page to decide whether the
+-- administrator option is still offered. Returns only a boolean — no identities.
+-- Keep the literal in sync with MAX_PLATFORM_ADMINS in @sims/shared.
+create or replace function public.admin_signup_available()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select (select count(*) from public.profiles where role = 'platform_admin') < 2;
+$$;
+
+grant execute on function public.admin_signup_available() to anon, authenticated;
+
+-- Full user directory for general administrators. SECURITY DEFINER bypasses the
+-- self/tenant-only profiles RLS; the WHERE clause returns nothing for non-admins.
+create or replace function public.list_all_users()
+returns table (
+  id uuid,
+  full_name text,
+  email text,
+  role public.user_role,
+  account_status public.account_status,
+  university_id uuid,
+  company_id uuid,
+  university_name text,
+  company_name text,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    p.id, p.full_name, p.email, p.role, p.account_status,
+    p.university_id, p.company_id, u.name, c.name, p.created_at
+  from public.profiles p
+  left join public.universities u on u.id = p.university_id
+  left join public.companies c on c.id = p.company_id
+  where public.is_platform_admin()
+  order by p.created_at desc, p.full_name;
+$$;
+
+grant execute on function public.list_all_users() to authenticated;
+
+-- Approve / suspend / block / reactivate a non-administrator account.
+create or replace function public.set_user_status(target uuid, new_status public.account_status)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_role public.user_role;
+  v_title text;
+  v_body text;
+begin
+  if not public.is_platform_admin() then
+    raise exception 'Only a general administrator can manage user accounts';
+  end if;
+  if target = auth.uid() then
+    raise exception 'You cannot change your own account status';
+  end if;
+
+  select role into v_role from public.profiles where id = target;
+  if v_role is null then
+    raise exception 'User not found';
+  end if;
+  if v_role = 'platform_admin' then
+    raise exception 'Manage administrator accounts from General admins';
+  end if;
+
+  update public.profiles set account_status = new_status where id = target;
+
+  insert into public.audit_logs (actor_id, entity, entity_id, action, metadata)
+  values (auth.uid(), 'profile', target::text, 'status_change', jsonb_build_object('status', new_status));
+
+  v_title := case new_status
+    when 'active' then 'Account approved'
+    when 'suspended' then 'Account suspended'
+    when 'blocked' then 'Account blocked'
+    else 'Account updated'
+  end;
+  v_body := case new_status
+    when 'active' then 'Your account has been approved. You can now sign in and use SIMS.'
+    when 'suspended' then 'Your account has been temporarily suspended. Contact the platform team.'
+    when 'blocked' then 'Your account has been blocked. Contact the platform team.'
+    else 'Your account status was updated.'
+  end;
+  insert into public.notifications (user_id, title, body, link)
+  values (target, v_title, v_body, '/dashboard');
+end;
+$$;
+
+grant execute on function public.set_user_status(uuid, public.account_status) to authenticated;
+
+-- Permanently delete a university or company and everything that belongs to it.
+-- Runs in a single transaction so a failure never leaves a half-deleted tenant.
+-- Order matters: placements and applications hold RESTRICT foreign keys to the
+-- tenant (and placements.posting_id restricts the company's job_postings cascade),
+-- so they are removed before the member accounts and the tenant row. Deleting the
+-- member auth.users rows cascades their profiles, student profiles, notifications,
+-- documents, evaluations, and check-ins; the only non-cascading profile reference
+-- (placements.site_supervisor_id) is cleared explicitly first.
+create or replace function public.delete_tenant(p_kind text, p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_members uuid[];
+begin
+  if not public.is_platform_admin() then
+    raise exception 'Only a general administrator can delete tenants';
+  end if;
+  if p_kind not in ('university', 'company') then
+    raise exception 'Unknown tenant kind';
+  end if;
+
+  if p_kind = 'university' then
+    if not exists (select 1 from public.universities where id = p_id) then
+      raise exception 'University not found';
+    end if;
+    select array_agg(id) into v_members from public.profiles where university_id = p_id;
+
+    delete from public.placements
+      where university_id = p_id
+         or (v_members is not null and site_supervisor_id = any(v_members));
+    delete from public.applications where university_id = p_id;
+    delete from public.posting_universities where university_id = p_id;
+    if v_members is not null then
+      delete from auth.users where id = any(v_members);
+    end if;
+    delete from public.universities where id = p_id;
+  else
+    if not exists (select 1 from public.companies where id = p_id) then
+      raise exception 'Company not found';
+    end if;
+    select array_agg(id) into v_members from public.profiles where company_id = p_id;
+
+    delete from public.placements
+      where company_id = p_id
+         or (v_members is not null and site_supervisor_id = any(v_members));
+    delete from public.applications where company_id = p_id;
+    if v_members is not null then
+      delete from auth.users where id = any(v_members);
+    end if;
+    delete from public.companies where id = p_id;
+  end if;
+
+  insert into public.audit_logs (actor_id, entity, entity_id, action, metadata)
+  values (
+    auth.uid(), p_kind, p_id::text, 'delete',
+    jsonb_build_object('members_removed', coalesce(array_length(v_members, 1), 0))
+  );
+end;
+$$;
+
+grant execute on function public.delete_tenant(text, uuid) to authenticated;

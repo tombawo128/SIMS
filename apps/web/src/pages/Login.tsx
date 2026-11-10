@@ -1,17 +1,33 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { KeyRound } from 'lucide-react';
-import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '@sims/shared';
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useAdminSignupAvailable } from '@/hooks/useAdminConsole';
 import { AuthShell } from '@/components/AuthShell';
 import { Alert, Button, Field, Input } from '@/components/ui';
 import { errorMessage } from '@/lib/utils';
 
+/** Turns raw auth errors into messages people can act on. */
+function friendlyError(message: string): string {
+  const text = message.toLowerCase();
+  if (text.includes('invalid login credentials')) {
+    return 'Incorrect email or password. Please try again.';
+  }
+  if (text.includes('email not confirmed')) {
+    return 'Please confirm your email first. Check your inbox for the confirmation link.';
+  }
+  return message;
+}
+
 export function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const availability = useAdminSignupAvailable();
+  const adminAvailable = availability.data === true;
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -23,14 +39,14 @@ export function Login() {
       await signIn(email.trim(), password);
       navigate('/dashboard', { replace: true });
     } catch (caught) {
-      setError(errorMessage(caught));
+      setError(friendlyError(errorMessage(caught)));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to your university, company, or student workspace.">
+    <AuthShell title="Welcome back" subtitle="Sign in to your university, company, student, or administrator workspace.">
       <form onSubmit={handleSubmit} className='login-space-y-4-1'>
         {error ? <Alert tone="danger">{error}</Alert> : null}
 
@@ -47,15 +63,27 @@ export function Login() {
         </Field>
 
         <Field label="Password" htmlFor="password" required>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="••••••••"
-          />
+          <div className='login-password'>
+            <Input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              required
+              className='login-password__input'
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              className='login-password__toggle'
+              onClick={() => setShowPassword((current) => !current)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? <EyeOff className='login-h-4-1' /> : <Eye className='login-h-4-1' />}
+            </button>
+          </div>
         </Field>
 
         <div className='login-flex-1'>
@@ -70,33 +98,21 @@ export function Login() {
         <Button type="submit" className='login-w-full-1' loading={submitting}>
           Sign in
         </Button>
-      </form>
 
-      <details className='login-mt-6-1'>
-        <summary className='login-flex-2'>
-          <KeyRound className='login-h-4-1' />
-          Demo accounts
-        </summary>
-        <p className='login-mt-2-1'>
-          Password for every demo account: <code className='login-rounded-1'>{DEMO_PASSWORD}</code>
-        </p>
-        <div className='login-mt-3-1'>
-          {DEMO_ACCOUNTS.map((account) => (
-            <button
-              key={account.email}
-              type="button"
-              onClick={() => {
-                setEmail(account.email);
-                setPassword(DEMO_PASSWORD);
-              }}
-              className='login-flex-3'
-            >
-              <span className='login-text-xs-3'>{account.label}</span>
-              <span className='login-text-11px-1'>{account.email}</span>
-            </button>
-          ))}
-        </div>
-      </details>
+        {adminAvailable ? (
+          <div className='login-admin-note'>
+            <span className='login-admin-note__icon'>
+              <ShieldCheck className='login-h-4-1' />
+            </span>
+            <p className='login-admin-note__text'>
+              Setting up the platform?{' '}
+              <Link to="/signup?mode=admin" className='login-admin-note__link'>
+                Create an administrator account
+              </Link>
+            </p>
+          </div>
+        ) : null}
+      </form>
     </AuthShell>
   );
 }

@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import type { UserRole } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
+import { AccountGate } from '@/components/AccountGate';
 import { Button, FullPageSpinner } from '@/components/ui';
 
 export function ProtectedRoute() {
@@ -36,6 +37,10 @@ export function ProtectedRoute() {
         </div>
       </div>
     );
+  }
+
+  if (profile.account_status !== 'active') {
+    return <AccountGate status={profile.account_status} />;
   }
 
   return <Outlet />;

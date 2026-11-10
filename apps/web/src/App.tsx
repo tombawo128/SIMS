@@ -16,6 +16,7 @@ import { ManagePostings } from '@/pages/ManagePostings';
 import { PostingEditor } from '@/pages/PostingEditor';
 import { People } from '@/pages/People';
 import { Tenants } from '@/pages/Tenants';
+import { Users } from '@/pages/Users';
 import { ProfilePage } from '@/pages/Profile';
 import { Notifications } from '@/pages/Notifications';
 import { NotFound } from '@/pages/NotFound';
@@ -67,6 +68,7 @@ export function App() {
             </Route>
 
             <Route element={<RoleRoute allow={['platform_admin']} />}>
+              <Route path="/users" element={<Users />} />
               <Route path="/tenants" element={<Tenants />} />
             </Route>
 

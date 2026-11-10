@@ -1,4 +1,5 @@
 import type {
+  AccountStatus,
   ApplicationStatus,
   CheckInType,
   EvaluationType,
@@ -11,6 +12,11 @@ import type {
 
 export const DEMO_PASSWORD = 'Password123!';
 
+// Hard cap on general (platform) administrator accounts. The manage-admins Edge
+// Function enforces the same limit server-side; the UI hides the create option
+// once the cap is reached and restores it when an administrator is deleted.
+export const MAX_PLATFORM_ADMINS = 2;
+
 export const ROLE_LABELS: Record<UserRole, string> = {
   student: 'Student',
   faculty_supervisor: 'Faculty Supervisor',
@@ -18,6 +24,13 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   site_supervisor: 'Site Supervisor',
   company_admin: 'Company Admin',
   platform_admin: 'Platform Admin',
+};
+
+export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
+  pending: 'Pending approval',
+  active: 'Active',
+  suspended: 'Suspended',
+  blocked: 'Blocked',
 };
 
 export const POSTING_TYPE_LABELS: Record<PostingType, string> = {
@@ -86,6 +99,20 @@ export function statusTone(status: string): BadgeTone {
     case 'cancelled':
       return 'rose';
     case 'draft':
+    case 'suspended':
+    default:
+      return 'slate';
+  }
+}
+
+export function accountStatusTone(status: AccountStatus): BadgeTone {
+  switch (status) {
+    case 'active':
+      return 'emerald';
+    case 'pending':
+      return 'amber';
+    case 'blocked':
+      return 'rose';
     case 'suspended':
     default:
       return 'slate';
@@ -162,6 +189,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   ],
   platform_admin: [
     DASHBOARD,
+    { label: 'Users', to: '/users', icon: 'users' },
     { label: 'Universities & Companies', to: '/tenants', icon: 'school' },
     PROFILE,
   ],

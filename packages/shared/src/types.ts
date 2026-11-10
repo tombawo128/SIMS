@@ -23,6 +23,7 @@ export type EvaluationRole = 'site_supervisor' | 'faculty_supervisor';
 export type CheckInType = 'visit' | 'call' | 'email';
 export type DocumentType = 'cv' | 'report' | 'other';
 export type TenantStatus = 'active' | 'suspended';
+export type AccountStatus = 'pending' | 'active' | 'suspended' | 'blocked';
 
 export interface University {
   id: string;
@@ -54,6 +55,7 @@ export interface Profile {
   email: string;
   phone: string | null;
   avatar_url: string | null;
+  account_status: AccountStatus;
   created_at: string;
   university?: Pick<University, 'id' | 'name'> | null;
   company?: Pick<Company, 'id' | 'name'> | null;
@@ -246,4 +248,35 @@ export interface InviteResult {
   id: string;
   email: string;
   temporary_password: string;
+}
+
+export interface PlatformAdmin {
+  id: string;
+  full_name: string;
+  email: string;
+  created_at: string;
+}
+
+export interface AdminUser {
+  id: string;
+  full_name: string;
+  email: string;
+  role: UserRole;
+  account_status: AccountStatus;
+  university_id: string | null;
+  company_id: string | null;
+  university_name: string | null;
+  company_name: string | null;
+  created_at: string;
+}
+
+export interface AdminSignupPayload {
+  email: string;
+  password: string;
+  full_name: string;
+}
+
+export interface AdminSignupResult {
+  id: string;
+  email: string;
 }
