@@ -1,0 +1,21 @@
+{
+  "name": "sims-platform",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @sims/web",
+    "build": "npm run build -w @sims/web",
+    "preview": "npm run preview -w @sims/web",
+    "typecheck": "npm run typecheck -w @sims/web",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "db:reset": "npx supabase db reset",
+    "db:test": "npx supabase test db",
+    "functions:serve": "npx supabase functions serve invite-user",
+    "functions:deploy": "npx supabase functions deploy invite-user"
+  }
+}
