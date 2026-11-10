@@ -2,7 +2,6 @@ import { Route, Routes } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { ProtectedRoute, PublicOnlyRoute, RoleRoute } from '@/components/guards';
-import { isSupabaseConfigured } from '@/lib/supabase';
 import { Landing } from '@/pages/Landing';
 import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
