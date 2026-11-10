@@ -30,23 +30,9 @@ const WORKFLOW_ROLES = [
   'company_admin',
 ] as const;
 
-function ConfigNotice() {
-  if (isSupabaseConfigured) return null;
-  return (
-    <div className="config-notice" role="alert">
-      <AlertTriangle className="icon" aria-hidden />
-      <p>
-        Supabase is not configured yet. Copy <code>.env.example</code> to <code>.env</code>, set{' '}
-        <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>, then restart the dev server.
-      </p>
-    </div>
-  );
-}
-
 export function App() {
   return (
     <>
-      <ConfigNotice />
       <Routes>
         <Route path="/" element={<Landing />} />
 
