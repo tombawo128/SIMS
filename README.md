@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SIMS — Student Internship Management System
 
 A multi-tenant internship platform for universities and companies: companies post internships and graduate roles, students apply, companies hire, placements run week by week with logs and evaluations, and universities grade the result. Every tenant boundary is enforced by PostgreSQL Row Level Security.
@@ -247,3 +248,7 @@ The web app was built against the migration-defined schema. Until the database i
 ## Phase 2 — mobile
 
 The mobile app will live in `apps/mobile` (Expo, React Native) inside the same npm workspace and consume `@sims/shared` for types, roles, and formatting. It will use the same Supabase project and RLS model; no backend changes are expected. Web is intentionally completed first.
+=======
+# SIMS
+production-quality Student Internship Management System (SIMS) web application.
+>>>>>>> e0fc886fe9f9b78b882bd8b5df01e2555d93e5f2
