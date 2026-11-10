@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router-dom';
-import { AlertTriangle } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { ProtectedRoute, PublicOnlyRoute, RoleRoute } from '@/components/guards';
 import { Landing } from '@/pages/Landing';
