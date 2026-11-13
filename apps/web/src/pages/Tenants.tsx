@@ -237,7 +237,7 @@ export function Tenants() {
         actions={
           tab === 'admins' ? undefined : (
             <Button onClick={openCreate}>
-              <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'New university' : 'New company'}
+              <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'Add new university' : 'Add new company'}
             </Button>
           )
         }
@@ -293,7 +293,7 @@ export function Tenants() {
           description="Create the first tenant to get started."
           action={
             <Button size="sm" onClick={openCreate}>
-              Create tenant
+              {tab === 'company' ? 'Add new company' : 'Add new university'}
             </Button>
           }
         />
