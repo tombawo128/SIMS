@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 import {
   Activity, ArrowUpRight, BookOpen, Check, ChevronRight, Code2, Copy,
   ExternalLink, Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
@@ -7,6 +9,21 @@ import {
 import { PageHeader, Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
 
 type Section = 'overview' | 'api' | 'webhooks' | 'sso' | 'embed' | 'logs';
+type IntegrationConnection = {
+  id: string; name: string; organization_type: 'university' | 'company';
+  organization_name: string; status: 'active' | 'suspended'; created_at: string;
+};
+type IntegrationApiKey = {
+  id: string; integration_id: string; name: string; key_prefix: string;
+  scopes: string[]; expires_at: string | null; last_used_at: string | null;
+  revoked_at: string | null; created_at: string;
+};
+const integrationScopes = [
+  { value: 'organisation:read', label: 'Organisation details' },
+  { value: 'opportunities:read', label: 'Published opportunities' },
+  { value: 'applications:read', label: 'Applications' },
+  { value: 'placements:read', label: 'Placements and grades' },
+];
 
 const navigation: { id: Section; label: string; icon: typeof Code2 }[] = [
   { id: 'overview', label: 'Overview', icon: Activity },
@@ -17,7 +34,7 @@ const navigation: { id: Section; label: string; icon: typeof Code2 }[] = [
   { id: 'logs', label: 'Integration logs', icon: Radio },
 ];
 
-const apiExample = `curl -X GET "https://api.sims.example/v1/placements" \\\
+const apiExample = `curl -X GET "https://YOUR_PROJECT_REF.supabase.co/functions/v1/integration-api/v1/placements" \\\
   -H "Authorization: Bearer YOUR_API_KEY" \\\
   -H "Accept: application/json"`;
 
@@ -43,7 +60,95 @@ function ComingSoon({ title, description }: { title: string; description: string
 export function IntegrationCentre() {
   const [section, setSection] = useState<Section>('overview');
   const [copied, setCopied] = useState('');
+  const [orgType, setOrgType] = useState<'university' | 'company'>('university');
+  const [orgId, setOrgId] = useState('');
+  const [connectionName, setConnectionName] = useState('');
+  const [keyName, setKeyName] = useState('Production API key');
+  const [keyConnectionId, setKeyConnectionId] = useState('');
+  const [selectedScopes, setSelectedScopes] = useState<string[]>(['organisation:read', 'opportunities:read']);
+  const [keyExpiry, setKeyExpiry] = useState('');
+  const [oneTimeSecret, setOneTimeSecret] = useState('');
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const integrationData = useQuery({
+    queryKey: ['integration-centre-data'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('integration-admin', { body: { action: 'list' } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { connections: IntegrationConnection[]; api_keys: IntegrationApiKey[] };
+    },
+  });
+  const organizations = useQuery({
+    queryKey: ['integration-organisations', orgType],
+    queryFn: async () => {
+      const { data, error } = await supabase.from(orgType === 'university' ? 'universities' : 'companies')
+        .select('id,name').eq('status', 'active').order('name');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const createConnection = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('integration-admin', {
+        body: { action: 'create_connection', name: connectionName.trim(), organization_type: orgType, organization_id: orgId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      setConnectionName('');
+      setOrgId('');
+      void queryClient.invalidateQueries({ queryKey: ['integration-centre-data'] });
+      toast({ title: 'Organisation system registered', description: 'The integration connection is ready for API credentials.', tone: 'success' });
+    },
+    onError: (error: Error) => toast({ title: 'Could not register system', description: error.message, tone: 'error' }),
+  });
+  const createApiKey = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('integration-admin', {
+        body: { action: 'create_api_key', name: keyName.trim(), integration_id: keyConnectionId, scopes: selectedScopes, expires_at: keyExpiry || null },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data as { secret: string; api_key: IntegrationApiKey };
+    },
+    onSuccess: (data) => {
+      setOneTimeSecret(data.secret);
+      setKeyName('Production API key');
+      setKeyExpiry('');
+      void queryClient.invalidateQueries({ queryKey: ['integration-centre-data'] });
+      toast({ title: 'API credential created', description: 'Copy the secret now. It will not be shown again.', tone: 'success' });
+    },
+    onError: (error: Error) => toast({ title: 'Could not create API credential', description: error.message, tone: 'error' }),
+  });
+  const revokeApiKey = useMutation({
+    mutationFn: async (keyId: string) => {
+      const { data, error } = await supabase.functions.invoke('integration-admin', { body: { action: 'revoke_api_key', key_id: keyId } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['integration-centre-data'] });
+      toast({ title: 'API credential revoked', description: 'Requests using this key will be rejected.', tone: 'success' });
+    },
+    onError: (error: Error) => toast({ title: 'Could not revoke API credential', description: error.message, tone: 'error' }),
+  });
+  const setConnectionStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'active' | 'suspended' }) => {
+      const { data, error } = await supabase.functions.invoke('integration-admin', { body: { action: 'set_connection_status', integration_id: id, status } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['integration-centre-data'] }),
+    onError: (error: Error) => toast({ title: 'Could not update connection', description: error.message, tone: 'error' }),
+  });
+  const connections = integrationData.data?.connections ?? [];
+  const apiKeys = integrationData.data?.api_keys ?? [];
 
   const copyText = async (value: string, label: string) => {
     try {
@@ -118,6 +223,38 @@ export function IntegrationCentre() {
                 <article><span className="integration-stat-icon"><Webhook size={18} /></span><strong>0</strong><small>Active webhooks</small></article>
                 <article><span className="integration-stat-icon"><Activity size={18} /></span><strong>—</strong><small>Events delivered</small></article>
               </div>
+
+              <Card>
+                <CardHeader title="Register an organisation system" description="Connect an existing SIMS university or company tenant to an external system." />
+                <form className="integration-form" onSubmit={event => { event.preventDefault(); createConnection.mutate(); }}>
+                  <label>Organisation type
+                    <select value={orgType} onChange={event => { setOrgType(event.target.value as 'university' | 'company'); setOrgId(''); }}>
+                      <option value="university">University</option><option value="company">Company</option>
+                    </select>
+                  </label>
+                  <label>Organisation
+                    <select value={orgId} onChange={event => setOrgId(event.target.value)} required>
+                      <option value="">Choose an active {orgType}</option>
+                      {(organizations.data ?? []).map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
+                    </select>
+                  </label>
+                  <label>Connected system name
+                    <input value={connectionName} onChange={event => setConnectionName(event.target.value)} minLength={2} maxLength={100} placeholder="e.g. University student portal" required />
+                  </label>
+                  <div className="integration-form__actions"><span>Each connection belongs to exactly one organisation.</span><Button type="submit" disabled={!orgId || connectionName.trim().length < 2 || createConnection.isPending} loading={createConnection.isPending}><Plus size={15} /> Register system</Button></div>
+                </form>
+                {integrationData.isLoading ? <p className="integration-muted">Loading registered systems…</p> : integrationData.isError ? <Alert tone="danger" title="Could not load integrations">{(integrationData.error as Error).message}</Alert> : (
+                  <div className="integration-connection-list">
+                    {connections.length === 0 ? <EmptyState title="No connected systems" description="Register a university or company system to begin issuing API credentials." /> : connections.map(connection => (
+                      <div className="integration-connection-row" key={connection.id}>
+                        <div><strong>{connection.name}</strong><small>{connection.organization_name} · {connection.organization_type}</small></div>
+                        <Badge tone={connection.status === 'active' ? 'emerald' : 'amber'}>{connection.status}</Badge>
+                        <Button size="sm" variant="secondary" onClick={() => setConnectionStatus.mutate({ id: connection.id, status: connection.status === 'active' ? 'suspended' : 'active' })} disabled={setConnectionStatus.isPending}>{connection.status === 'active' ? 'Suspend' : 'Reactivate'}</Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
               <div className="integration-card-grid">
                 <Card><div className="integration-feature"><span><KeyRound /></span><div><h3>API management</h3><p>Issue organisation-scoped credentials and control access to approved SIMS resources.</p><button onClick={() => setSection('api')}>Explore API access <ArrowUpRight size={15} /></button></div></div></Card>
                 <Card><div className="integration-feature"><span><Webhook /></span><div><h3>Webhooks</h3><p>Notify external systems when applications, placements or report statuses change.</p><button onClick={() => setSection('webhooks')}>Configure webhooks <ArrowUpRight size={15} /></button></div></div></Card>
@@ -136,15 +273,48 @@ export function IntegrationCentre() {
             </>
           ) : null}
 
+
           {section === 'api' ? (
             <div className="integration-stack">
-              <Alert tone="info" title="API credentials are not enabled yet">This screen documents the planned management workflow. No API key is generated or stored by this page. A server-side credential service and scoped API endpoints must be implemented before activation.</Alert>
-              <Card><CardHeader title="API credentials" description="Each organisation should receive its own revocable credential with explicit scopes." actions={<Button disabled><Plus size={15} /> Create API key</Button>} /><EmptyState icon={<KeyRound />} title="No API credentials" description="Credentials will appear here after the secure API key service is implemented." /></Card>
-              <Card><CardHeader title="Example API request" description="Illustrative request format only — the endpoint is not live." actions={<Button size="sm" variant="secondary" onClick={() => void copyText(apiExample, 'API request example')}>{copied === 'API request example' ? <Check size={14} /> : <Copy size={14} />} Copy</Button>} /><pre className="integration-code"><code>{apiExample}</code></pre></Card>
-              <Card><CardHeader title="Planned permission scopes" /><div className="integration-scope-list"><span><code>placements:read</code><small>Read placements belonging to the connected tenant.</small></span><span><code>applications:read</code><small>Read permitted application records.</small></span><span><code>opportunities:write</code><small>Create or update approved opportunity records.</small></span><span><code>reports:read</code><small>Read approved reporting data.</small></span></div></Card>
+              <Alert tone="info" title="API credentials are managed securely">Keys are generated server-side, stored only as SHA-256 hashes, and displayed once. Each key is limited to one organisation and its selected scopes.</Alert>
+              <Card>
+                <CardHeader title="Create API credential" description="Use a separate key for each external application. Revoke keys immediately if they are exposed." />
+                <form className="integration-form" onSubmit={event => { event.preventDefault(); createApiKey.mutate(); }}>
+                  <label>Organisation connection
+                    <select value={keyConnectionId} onChange={event => setKeyConnectionId(event.target.value)} required>
+                      <option value="">Choose a registered connection</option>
+                      {connections.filter(item => item.status === 'active').map(item => <option key={item.id} value={item.id}>{item.organization_name} — {item.name}</option>)}
+                    </select>
+                  </label>
+                  <label>Credential name
+                    <input value={keyName} onChange={event => setKeyName(event.target.value)} minLength={2} maxLength={100} required />
+                  </label>
+                  <label>Expiry date (optional, maximum 12 months)
+                    <input type="date" value={keyExpiry} min={new Date().toISOString().slice(0,10)} onChange={event => setKeyExpiry(event.target.value)} />
+                  </label>
+                  <fieldset><legend>Permission scopes</legend>
+                    <div className="integration-scope-checks">
+                      {integrationScopes.map(scope => <label key={scope.value}><input type="checkbox" checked={selectedScopes.includes(scope.value)} onChange={event => setSelectedScopes(current => event.target.checked ? [...current, scope.value] : current.filter(item => item !== scope.value))} />{scope.label}<code>{scope.value}</code></label>)}
+                    </div>
+                  </fieldset>
+                  <div className="integration-form__actions"><span>Read-only access in this first API release.</span><Button type="submit" disabled={!keyConnectionId || keyName.trim().length < 2 || selectedScopes.length === 0 || createApiKey.isPending} loading={createApiKey.isPending}><KeyRound size={15} /> Generate API key</Button></div>
+                </form>
+                {oneTimeSecret ? <div className="integration-secret-panel"><strong>Copy your new API key now</strong><p>This is the only time SIMS will display the full secret.</p><code>{oneTimeSecret}</code><Button size="sm" onClick={() => void copyText(oneTimeSecret, 'New API key')}>{copied === 'New API key' ? <Check size={14} /> : <Copy size={14} />} Copy secret</Button><button type="button" onClick={() => setOneTimeSecret('')}>I have saved it</button></div> : null}
+              </Card>
+              <Card>
+                <CardHeader title="Issued credentials" description="Only key prefixes are visible. Full secrets are never retrievable." actions={<Button size="sm" variant="secondary" onClick={() => void integrationData.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
+                {integrationData.isLoading ? <p className="integration-muted">Loading API credentials…</p> : apiKeys.length === 0 ? <EmptyState icon={<KeyRound />} title="No API credentials" description="Register a system and generate its first API key." /> : <div className="integration-key-list">{apiKeys.map(key => {
+                  const connection = connections.find(item => item.id === key.integration_id);
+                  return <div className="integration-key-row" key={key.id}>
+                    <div><strong>{key.name}</strong><small>{connection?.organization_name ?? 'Organisation'} · {key.key_prefix}…</small><div className="integration-key-scopes">{key.scopes.map(scope => <code key={scope}>{scope}</code>)}</div></div>
+                    <div className="integration-key-meta"><Badge tone={key.revoked_at ? 'slate' : 'emerald'}>{key.revoked_at ? 'Revoked' : 'Active'}</Badge><small>{key.expires_at ? 'Expires '+new Date(key.expires_at).toLocaleDateString() : 'No expiry'}</small><small>{key.last_used_at ? 'Last used '+new Date(key.last_used_at).toLocaleString() : 'Never used'}</small></div>
+                    {!key.revoked_at ? <Button size="sm" variant="secondary" onClick={() => revokeApiKey.mutate(key.id)} disabled={revokeApiKey.isPending}>Revoke</Button> : null}
+                  </div>;
+                })}</div>}
+              </Card>
+              <Card><CardHeader title="API request example" description="The API gateway enforces the credential's organisation and permission scopes." actions={<Button size="sm" variant="secondary" onClick={() => void copyText(apiExample, 'API request example')}>{copied === 'API request example' ? <Check size={14} /> : <Copy size={14} />} Copy</Button>} /><pre className="integration-code"><code>{apiExample}</code></pre><div className="integration-note">Available endpoints: /v1/organisation, /v1/opportunities, /v1/applications and /v1/placements. Read-only access, maximum 100 records per request.</div></Card>
             </div>
           ) : null}
-
           {section === 'webhooks' ? (
             <div className="integration-stack">
               <Alert tone="info" title="Webhook delivery is not active">Endpoint registration, signing secrets, retry handling and delivery logs require backend services. The controls below are intentionally inactive until those services exist.</Alert>
