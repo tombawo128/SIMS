@@ -29,7 +29,6 @@
 - [Security](#security)
 - [Getting started](#getting-started)
 - [Environment configuration](#environment-configuration)
-- [Demo data](#demo-data)
 - [Database tests and verification](#database-tests-and-verification)
 - [Deployment](#deployment)
 - [Project structure](#project-structure)
