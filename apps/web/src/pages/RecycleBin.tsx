@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   Archive, RotateCcw, Users, Building2, GraduationCap, Search,
-  CalendarDays, ShieldCheck, Trash2, ArrowUpRight,
+  CalendarDays, ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDeletedEntities, useRestoreDeletedEntity, type DeletedEntity } from '@/hooks/useAdminConsole';
