@@ -141,7 +141,8 @@ Security is enforced at the database and server boundaries, not only through fro
 
 - **Tenant isolation:** RLS policies scope access to the authenticated user's university or company.
 - **Role protection:** Users cannot grant themselves a role or change their tenant assignment.
-- **Account approval:** Student registrations begin in a pending state. Pending, suspended, and blocked accounts are denied tenant data access by database authorization helpers.
+- **Account approval:** Student registrations begin in a pending state and must be approved by a platform administrator before application access is granted. Pending, suspended, and blocked accounts are denied tenant data access by database authorization helpers.
+- **Email confirmation:** SIMS separates email verification from administrator approval. The repository's local Supabase configuration sets `auth.email.enable_confirmations = false`, so local users can sign in without confirming an email address. For the hosted project, configure the equivalent **Authentication → Sign In / Providers → Email → Confirm email** setting to OFF if password sign-in should not require email verification. This does not approve an account or bypass the SIMS administrator-approval checks.
 - **Trusted provisioning:** Privileged account creation is performed by server-side functions using trusted application metadata.
 - **Admin authorization:** User directory, moderation, tenant deletion, and platform-admin management are restricted to authorized platform administrators.
 - **Private documents:** CVs and reports use private storage buckets and policy-controlled access. Company logos use a public bucket.
@@ -247,7 +248,7 @@ Seeded accounts use the development password `Password123!`. These credentials a
 | Company administrator | `admin@acme.com` |
 | Site supervisor | `supervisor1@acme.com` |
 
-Public student registrations start as **pending** and require administrator approval before accessing the application.
+Public student registrations start as **pending** and require administrator approval before accessing the application. Email confirmation is a separate Supabase Auth setting: local development has it disabled in `supabase/config.toml`. The hosted Supabase project must be configured separately; disabling email confirmation must never be treated as a substitute for SIMS account approval.
 
 ## Database tests and verification
 
@@ -292,7 +293,7 @@ The local Supabase database reset and pgTAP suite were **not run in the recorded
    npx supabase functions deploy signup-admin
    npx supabase functions deploy manage-users
    ```
-5. In Supabase Auth settings, configure the production Site URL and the allowed redirect URLs, including the password-reset route.
+5. In Supabase Auth settings, configure the production Site URL and the allowed redirect URLs, including the password-reset route. Under **Authentication → Sign In / Providers → Email**, turn **Confirm email** OFF if the intended SIMS login flow does not require email verification. This hosted dashboard setting is separate from the local `auth.email.enable_confirmations = false` setting in `supabase/config.toml`. Keep SIMS administrator approval and database authorization checks enabled.
 6. Configure the web host with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 7. Build and deploy the static web output from `apps/web/dist`. Configure the host to serve `index.html` as the SPA fallback.
 
