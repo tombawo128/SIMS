@@ -73,13 +73,13 @@ export function RecycleBin() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 recycle-page">
       <PageHeader
         title="Recycle Bin"
         description="Manage archived platform records and safely restore them when needed."
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 to-slate-800 p-5 text-white shadow-sm sm:p-6">
+      <section className="recycle-page__hero">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <div className="rounded-xl bg-white/10 p-3"><Archive className="h-6 w-6" /></div>
@@ -98,7 +98,7 @@ export function RecycleBin() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="recycle-page__stats">
         {stats.map(({ label, value, icon: Icon, tone, note }) => (
           <Card key={label} className="overflow-hidden">
             <div className="flex items-center justify-between gap-3 p-5">
@@ -115,7 +115,7 @@ export function RecycleBin() {
         ))}
       </section>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden recycle-page__records">
         <div className="border-b border-slate-200 p-4 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
