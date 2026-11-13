@@ -27,7 +27,7 @@ export function ProfilePage() {
   const studentProfile = useStudentProfile(profile?.role === 'student' ? profile?.id : undefined);
   const saveStudentProfile = useSaveStudentProfile(profile?.id);
 
-  const [form, setForm] = useState({ fullName: '', phone: '' });
+  const [form, setForm] = useState({ fullName: '', phone: '', department: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState('');
 
@@ -44,7 +44,7 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (!profile) return;
-    setForm({ fullName: profile.full_name, phone: profile.phone ?? '' });
+    setForm({ fullName: profile.full_name, phone: profile.phone ?? '', department: profile.department ?? '' });
   }, [profile]);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export function ProfilePage() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: form.fullName.trim(), phone: form.phone.trim() || null })
+        .update({ full_name: form.fullName.trim(), phone: form.phone.trim() || null, department: form.department.trim() || null })
         .eq('id', profile.id);
       if (error) throw error;
       await refreshProfile();
@@ -184,6 +184,16 @@ export function ProfilePage() {
                     placeholder="(555) 010-2030"
                   />
                 </Field>
+                {profile.role === 'student' || profile.role === 'faculty_supervisor' ? (
+                  <Field label="Department" htmlFor="department" hint="Use the same department name for students and their faculty supervisors.">
+                    <Input
+                      id="department"
+                      value={form.department}
+                      onChange={(event) => setForm((current) => ({ ...current, department: event.target.value }))}
+                      placeholder="e.g. Business Information Technology"
+                    />
+                  </Field>
+                ) : null}
               </div>
               <Button type="submit" loading={savingProfile}>
                 <Save className='profile-h-4-1' /> Save profile
