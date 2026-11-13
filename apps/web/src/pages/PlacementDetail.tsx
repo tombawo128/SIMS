@@ -406,9 +406,9 @@ export function PlacementDetail() {
                 <Plus className='placement-detail-h-4-1' /> Add weekly log
               </Button>
             ) : null}
-            {isCoordinator && !placement.faculty_supervisor_id ? (
-              <Button onClick={() => setAssignOpen(true)}>
-                <UserCheck className='placement-detail-h-4-1' /> Assign faculty
+            {isCoordinator ? (
+              <Button variant="secondary" onClick={() => setAssignOpen(true)}>
+                <UserCheck className='placement-detail-h-4-1' /> {placement.faculty_supervisor_id ? 'Change faculty supervisor' : 'Assign faculty'}
               </Button>
             ) : null}
             {canGrade ? (
