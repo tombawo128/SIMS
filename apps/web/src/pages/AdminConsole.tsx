@@ -252,7 +252,6 @@ export function Analytics() {
     { label: 'Platform admins', value: stats.platform_admins ?? 0, tone: 'admins' },
   ], [stats]);
   const totalRoleUsers = userBreakdown.reduce((sum, item) => sum + Number(item.value), 0);
-  const maxUsers = Math.max(1, ...userBreakdown.map(item => Number(item.value)));
   const active = stats.active_users ?? 0;
   const pending = stats.pending_users ?? 0;
   const total = stats.users_total ?? 0;
