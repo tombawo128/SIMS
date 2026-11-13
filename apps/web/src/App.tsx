@@ -7,6 +7,7 @@ import { Signup } from '@/pages/Signup';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
 import { Dashboard } from '@/pages/Dashboard';
+import { WorkspaceAnalytics } from '@/pages/WorkspaceAnalytics';
 import { Postings } from '@/pages/Postings';
 import { PostingDetail } from '@/pages/PostingDetail';
 import { Applications } from '@/pages/Applications';
@@ -52,6 +53,10 @@ export function App() {
             <Route path="/postings/:id" element={<PostingDetail />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/notifications" element={<Notifications />} />
+
+            <Route element={<RoleRoute allow={['coordinator', 'company_admin']} />}>
+              <Route path="/analytics" element={<WorkspaceAnalytics />} />
+            </Route>
 
             <Route element={<RoleRoute allow={[...WORKFLOW_ROLES]} />}>
               <Route path="/applications" element={<Applications />} />
