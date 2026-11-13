@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   Activity, ArrowUpRight, BookOpen, Check, ChevronRight, Code2, Copy,
   ExternalLink, Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
-  RefreshCw, ShieldCheck, Webhook, Workflow, X,
+  RefreshCw, ShieldCheck, Webhook, Workflow,
 } from 'lucide-react';
 import { PageHeader, Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
 
