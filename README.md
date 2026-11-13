@@ -169,22 +169,57 @@ Analytics are derived from tenant-visible records. Empty states indicate that no
 
 ## Integration Centre
 
-The platform administration dashboard includes an **Integration Centre** workspace at `/admin/integrations`. It provides a central place to plan and manage how university and company systems will connect to SIMS.
+The platform administrator dashboard includes an Integration Centre at `/admin/integrations`. Platform administrators can register an external system against an existing active university or company tenant, manage its connection status, issue scoped API credentials, and revoke credentials.
 
-### Workspace areas
+### Available in the current integration release
 
-- **Overview:** integration readiness, connected-system summary and a recommended organisation onboarding sequence.
-- **API management:** planned organisation-scoped API credentials, permission scopes and request examples.
-- **Webhooks:** planned event subscriptions for application, placement, weekly-report and evaluation lifecycle changes.
-- **Single sign-on:** planned OpenID Connect support first, with SAML 2.0 as a subsequent enterprise option.
-- **Embed tools:** example opportunity-listing embed and future organisation branding controls.
-- **Integration logs:** planned monitoring for API activity, authentication, webhook delivery and configuration changes.
+- Register a named external system for exactly one existing university or company.
+- Create separate API credentials for each connected system.
+- Credentials are generated on the server, returned only once, and stored as SHA-256 hashes. The full secret is never stored or retrievable.
+- Revoke credentials immediately or suspend/reactivate an entire integration connection.
+- Assign one or more permission scopes: `organisation:read`, `opportunities:read`, `applications:read`, and `placements:read`.
+- Optional API-key expiry, limited to 12 months.
+- Record integration connection and API-key creation/revocation in the platform audit log.
 
-### Implementation status and security
+### Integration API (read-only v1)
 
-The current release adds the protected administration route, navigation and Integration Centre interface. It is an administrative foundation and implementation guide; **live API credentials, public API endpoints, webhook delivery, SSO provider connections, embed endpoints and integration audit pipelines are not yet enabled**. Controls that would imply a live connection remain disabled, and example snippets are clearly labelled as illustrative.
+The API is served by the Supabase Edge Function `integration-api`:
 
-Before activating integrations, the backend must provide server-side credential issuance and revocation, per-tenant scopes, verified organisation ownership, strict RLS enforcement, signed webhook payloads with retry handling, secure identity-provider secret storage, origin restrictions for embeds, rate limiting and auditable configuration changes. Never place API secrets or Supabase service-role credentials in browser code.
+```text
+https://<SUPABASE_PROJECT_REF>.supabase.co/functions/v1/integration-api
+```
+
+Send the integration credential as a bearer token:
+
+```bash
+curl "https://<SUPABASE_PROJECT_REF>.supabase.co/functions/v1/integration-api/v1/placements" \
+  -H "Authorization: Bearer sims_live_YOUR_SECRET"
+```
+
+Available endpoints:
+
+| Endpoint | Required scope | Tenant boundary |
+| --- | --- | --- |
+| `GET /v1/organisation` | `organisation:read` | Returns only the connection's registered organisation |
+| `GET /v1/opportunities` | `opportunities:read` | Companies see their own published opportunities; universities see published opportunities |
+| `GET /v1/applications` | `applications:read` | Filtered to the connection's company or university |
+| `GET /v1/placements` | `placements:read` | Filtered to the connection's company or university |
+
+List endpoints accept an optional `limit` query parameter (1–100; default 50). The first release is deliberately read-only and returns limited record fields; it does not expose student CV files or student contact details.
+
+### Security model
+
+- The integration connection stores exactly one tenant reference: either a university ID or a company ID.
+- API keys are random secrets; only their SHA-256 hashes and display prefixes are stored.
+- The gateway validates the key, expiry, revocation state, connection state, organisation state and required scope on every request.
+- Every data query applies the organisation ID from the validated connection. The client cannot choose or override a tenant ID.
+- Credential tables have RLS enabled and direct `anon` / `authenticated` table privileges revoked. Trusted Edge Functions use server-side credentials; no service-role key is shipped to the browser.
+- Platform administrator actions are authenticated and role-checked server-side.
+- The API gateway has its own API-key authentication because external system keys are not Supabase user JWTs.
+
+### Still planned
+
+Write endpoints, webhook subscriptions and delivery retries, OIDC/SAML single sign-on, public opportunity embeds, per-tenant rate limiting, and deeper integration observability are not part of this read-only API release yet. Add these only with explicit scopes, audit coverage, and security tests.
 
 ## Security
 
