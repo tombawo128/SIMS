@@ -24,6 +24,7 @@
 - [Architecture](#architecture)
 - [User roles](#user-roles)
 - [Internship lifecycle](#internship-lifecycle)
+- [Analytics and reporting](#analytics-and-reporting)
 - [Security](#security)
 - [Getting started](#getting-started)
 - [Environment configuration](#environment-configuration)
@@ -49,10 +50,11 @@ The platform supports the process from opportunity publication and student appli
 | Opportunities | Company-managed internship and graduate-role postings, including university-specific visibility |
 | Applications | Student applications, withdrawal, review, shortlisting, acceptance, and rejection |
 | Placements | Placement creation and lifecycle management after an application is accepted |
-| Supervision | Weekly logs, review workflows, check-ins, and supervisor assignments |
+| Supervision | Daily activity reports, weekly roll-ups, assigned faculty review, check-ins, and supervisor workload visibility |
 | Evaluation | Midterm and final evaluations by the relevant supervisors |
-| Academic results | Coordinator-managed grading |
+| Academic results | Official final grades recorded by the assigned university faculty supervisor; company grade access is read-only |
 | Administration | Tenant management, account approval, user moderation, and platform administration |
+| Analytics | University and company dashboards with date, department, and programme filters; application pipeline, reporting compliance, workload, evaluations, grade bands, and CSV export |
 | Notifications | In-app notifications with Supabase Realtime |
 | Documents | CV and report storage with access controlled by storage policies |
 
@@ -97,9 +99,9 @@ SIMS supports six application roles:
 
 | Role | Main responsibilities |
 | --- | --- |
-| `student` | Browse eligible opportunities, apply, manage placement activity, and submit weekly logs |
-| `faculty_supervisor` | Review student logs and complete faculty evaluations |
-| `coordinator` | Assign faculty supervisors, oversee university placements, and record grades |
+| `student` | Browse eligible opportunities, apply, manage placement activity, submit daily reports, and roll them into weekly submissions |
+| `faculty_supervisor` | Review weekly submissions for assigned students, request revisions, complete faculty evaluations, and record official final grades |
+| `coordinator` | Assign faculty supervisors by student department and oversee university placements, reports, and analytics |
 | `site_supervisor` | Supervise workplace placements, review logs, and complete site evaluations |
 | `company_admin` | Manage company opportunities, review applicants, hire students, and invite site supervisors |
 | `platform_admin` | Manage tenants, oversee users, approve accounts, and administer the platform |
@@ -130,7 +132,7 @@ Placement
       ├── Supervisor check-ins
       ├── Midterm and final evaluations
       ├── CVs and reports
-      └── Final grade (recorded by coordinator)
+      └── Official final grade (recorded by assigned university faculty supervisor)
 ```
 
 Posting visibility can be open to all universities or restricted to selected universities. Students only receive published opportunities available to their university.
@@ -300,7 +302,9 @@ supabase/seed.sql         Local sample data
 - [x] Multi-role and multi-tenant application model
 - [x] Supabase authentication and database authorization model
 - [x] Internship application and placement workflows
-- [x] Supervisor logs and evaluation workflows
+- [x] Daily-to-weekly internship reporting and assigned faculty approval workflow
+- [x] Supervisor logs, evaluations, and official faculty grading workflow
+- [x] University and company analytics with filters, performance breakdowns, and CSV export
 - [x] Platform-admin and account-moderation workflows
 - [ ] Execute the full pgTAP suite against a running database
 - [ ] Complete live end-to-end verification of privileged Edge Functions
