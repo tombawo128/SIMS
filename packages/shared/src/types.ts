@@ -15,7 +15,8 @@ export type ApplicationStatus =
   | 'under_review'
   | 'shortlisted'
   | 'accepted'
-  | 'rejected';
+  | 'rejected'
+  | 'withdrawn';
 export type PlacementStatus = 'active' | 'completed' | 'cancelled';
 export type WeeklyLogStatus = 'draft' | 'submitted' | 'approved' | 'needs_revision';
 export type EvaluationType = 'midterm' | 'final';
