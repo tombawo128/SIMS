@@ -21,6 +21,7 @@ import { RecycleBin } from '@/pages/RecycleBin';
 import { ProfilePage } from '@/pages/Profile';
 import { Notifications } from '@/pages/Notifications';
 import { NotFound } from '@/pages/NotFound';
+import { ActivityLogs, AdminManagement, Analytics, Broadcasts, SystemAlerts } from '@/pages/AdminConsole';
 
 const WORKFLOW_ROLES = [
   'student',
@@ -72,6 +73,11 @@ export function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/recycle-bin" element={<RecycleBin />} />
               <Route path="/tenants" element={<Tenants />} />
+              <Route path="/admin/broadcasts" element={<Broadcasts />} />
+              <Route path="/admin/activity-logs" element={<ActivityLogs />} />
+              <Route path="/admin/system-alerts" element={<SystemAlerts />} />
+              <Route path="/admin/management" element={<AdminManagement />} />
+              <Route path="/admin/analytics" element={<Analytics />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
