@@ -36,6 +36,11 @@ Deno.serve(async (req) => {
     global: { headers: { Authorization: authorization } },
   });
 
+  // The service-role client is created before it is used to validate the session.
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+
   // Verify the bearer token inside the function. The gateway JWT check is disabled
   // for this deployment so asymmetric project signing keys are handled consistently;
   // no request proceeds unless Supabase Auth validates the token below.
@@ -43,10 +48,6 @@ Deno.serve(async (req) => {
   if (!bearerToken) return json({ error: 'Invalid authorization header' }, 401);
   const { data: userData, error: userError } = await admin.auth.getUser(bearerToken);
   if (userError || !userData.user) return json({ error: 'Invalid or expired session' }, 401);
-
-  const admin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
 
   const { data: caller, error: profileError } = await admin
     .from('profiles')
