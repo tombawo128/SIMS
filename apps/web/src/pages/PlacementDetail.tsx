@@ -592,7 +592,7 @@ export function PlacementDetail() {
             />
           ) : (
             sortedLogs.map((log) => {
-              const editable = isStudent && false && ['draft', 'needs_revision'].includes(log.status) && placement.status === 'active';
+              const editable = isStudent && false && ['draft', 'needs_revision'].includes(log.status) && placement?.status === 'active';
               return (
                 <Card key={log.id}>
                   <div className='placement-detail-flex-4'>
