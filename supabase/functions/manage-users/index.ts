@@ -36,8 +36,13 @@ Deno.serve(async (req) => {
     global: { headers: { Authorization: authorization } },
   });
 
-  const { data: userData, error: userError } = await callerClient.auth.getUser();
-  if (userError || !userData.user) return json({ error: 'Invalid session' }, 401);
+  // Verify the bearer token inside the function. The gateway JWT check is disabled
+  // for this deployment so asymmetric project signing keys are handled consistently;
+  // no request proceeds unless Supabase Auth validates the token below.
+  const bearerToken = authorization.replace(/^Bearer\s+/i, '').trim();
+  if (!bearerToken) return json({ error: 'Invalid authorization header' }, 401);
+  const { data: userData, error: userError } = await admin.auth.getUser(bearerToken);
+  if (userError || !userData.user) return json({ error: 'Invalid or expired session' }, 401);
 
   const admin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
