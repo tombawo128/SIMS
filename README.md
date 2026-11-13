@@ -233,22 +233,6 @@ Only the Supabase project URL and public anon key belong in the browser environm
 
 For local function development, Supabase CLI injects `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` when serving functions through the local stack.
 
-## Demo data
-
-The local seed file provides sample universities, companies, users, opportunities, applications, and placements for development.
-
-Seeded accounts use the development password `Password123!`. These credentials are for the local development environment only; do not use them in production.
-
-| Role | Example account |
-| --- | --- |
-| Platform administrator | `admin@sims.dev` |
-| University coordinator | `coordinator@baystate.edu` |
-| Faculty supervisor | `faculty1@baystate.edu` |
-| Student | `student1@baystate.edu` |
-| Company administrator | `admin@acme.com` |
-| Site supervisor | `supervisor1@acme.com` |
-
-Public student registrations start as **pending** and require administrator approval before accessing the application. Email confirmation is a separate Supabase Auth setting: local development has it disabled in `supabase/config.toml`. The hosted Supabase project must be configured separately; disabling email confirmation must never be treated as a substitute for SIMS account approval.
 
 ## Database tests and verification
 
