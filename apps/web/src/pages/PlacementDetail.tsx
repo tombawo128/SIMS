@@ -1129,7 +1129,7 @@ export function PlacementDetail() {
         open={gradeOpen}
         onClose={() => setGradeOpen(false)}
         title="Record final grade"
-        description="The student and coordinator are notified when a grade is recorded."
+        description="The student is notified. The official grade is visible to the university and company, but only you as the assigned faculty supervisor can change it."
         footer={
           <>
             <Button variant="secondary" onClick={() => setGradeOpen(false)}>
