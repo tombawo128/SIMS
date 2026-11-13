@@ -23,6 +23,7 @@ import { ProfilePage } from '@/pages/Profile';
 import { Notifications } from '@/pages/Notifications';
 import { NotFound } from '@/pages/NotFound';
 import { ActivityLogs, AdminManagement, Analytics, Broadcasts, SystemAlerts } from '@/pages/AdminConsole';
+import { IntegrationCentre } from '@/pages/IntegrationCentre';
 
 const WORKFLOW_ROLES = [
   'student',
