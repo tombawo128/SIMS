@@ -207,7 +207,7 @@ export function Users() {
     const target = deleteTarget;
     try {
       await deleteUser.mutateAsync(target.id);
-      toast({ title: `${target.full_name} deleted`, description: 'The account and its data were removed.', tone: 'success' });
+      toast({ title: `${target.full_name} archived`, description: 'The account was moved to the Recycle Bin and sign-in was blocked.', tone: 'success' });
       setDeleteTarget(null);
       setSelected((current) => {
         const next = new Set(current);
@@ -633,9 +633,9 @@ export function Users() {
               {isModeratable(detailUser) ? (
                 <div className='users-drawer__danger'>
                   <div>
-                    <h3 className='users-drawer__danger-title'>Delete account</h3>
+                    <h3 className='users-drawer__danger-title'>Archive account</h3>
                     <p className='users-drawer__danger-text'>
-                      Permanently remove this account and its data. This cannot be undone.
+                      Move this account to the Recycle Bin. Its records are preserved and it can be restored.
                     </p>
                   </div>
                   <Button variant="danger" onClick={() => setDeleteTarget(detailUser)}>
@@ -651,7 +651,7 @@ export function Users() {
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
-        title="Delete this account?"
+        title="Archive this account?"
         description={deleteTarget ? `${deleteTarget.full_name} · ${deleteTarget.email}` : undefined}
         size="sm"
         footer={
@@ -660,17 +660,13 @@ export function Users() {
               Cancel
             </Button>
             <Button variant="danger" onClick={confirmDelete} loading={deleteUser.isPending}>
-              <Trash2 className='users-icon-sm' /> Delete account
+              <Trash2 className='users-icon-sm' /> Archive account
             </Button>
           </>
         }
       >
-        <Alert tone="danger" title="This is permanent">
-          The account, profile, and associated applications, placements, and logs are permanently removed.
-          {deleteTarget?.role === 'site_supervisor'
-            ? ' Placements this person supervises are deleted too.'
-            : ''}{' '}
-          This action cannot be undone.
+        <Alert tone="warning" title="This account will be archived">
+          The account will be moved to the Recycle Bin and blocked from signing in. The profile, applications, placements, and activity history will be preserved. A platform administrator can restore it later.
         </Alert>
       </Modal>
 
