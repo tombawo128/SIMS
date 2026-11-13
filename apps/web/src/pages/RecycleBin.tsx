@@ -76,7 +76,6 @@ export function RecycleBin() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOrder>('newest');
   const [selectedItem, setSelectedItem] = useState<DeletedEntity | null>(null);
-  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const records = archive.data ?? [];
 
@@ -116,7 +115,6 @@ export function RecycleBin() {
   const confirmRestore = async () => {
     if (!selectedItem) return;
     const item = selectedItem;
-    setRestoringId(item.id);
     try {
       await restore.mutateAsync({ id: item.entity_id, kind: item.entity_type });
       toast({
@@ -131,8 +129,6 @@ export function RecycleBin() {
         description: errorMessage(error),
         tone: 'error',
       });
-    } finally {
-      setRestoringId(null);
     }
   };
 
