@@ -44,8 +44,8 @@ Deno.serve(async (req: Request) => {
       .order('created_at', { ascending: false });
     if (error) return json({ error: 'Could not load integration connections' }, 500);
     const [{ data: universities }, { data: companies }, { data: keys }] = await Promise.all([
-      admin.from('universities').select('id,name'),
-      admin.from('companies').select('id,name'),
+      admin.from('universities').select('id,name').is('deleted_at', null),
+      admin.from('companies').select('id,name').is('deleted_at', null),
       admin.from('integration_api_keys').select('id,integration_id,name,key_prefix,scopes,expires_at,last_used_at,revoked_at,created_at').order('created_at', { ascending: false }),
     ]);
     const orgNames = new Map<string, string>();
@@ -70,8 +70,8 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'Provide a valid connection name and organisation' }, 400);
     }
     const table = kind === 'university' ? 'universities' : 'companies';
-    const { data: organization } = await admin.from(table).select('id,status').eq('id', orgId).maybeSingle();
-    if (!organization || organization.status !== 'active') return json({ error: 'The selected organisation does not exist or is not active' }, 404);
+    const { data: organization } = await admin.from(table).select('id,status,deleted_at').eq('id', orgId).maybeSingle();
+    if (!organization || organization.status !== 'active' || organization.deleted_at) return json({ error: 'The selected organisation does not exist or is not active' }, 404);
     const insert = {
       name, organization_type: kind,
       university_id: kind === 'university' ? orgId : null,
