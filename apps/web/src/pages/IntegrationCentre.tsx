@@ -174,10 +174,10 @@ export function IntegrationCentre() {
       <section className="integration-hero">
         <div className="integration-hero__content">
           <span className="integration-eyebrow"><Globe2 size={14} /> SIMS CONNECTIVITY</span>
-          <h2>One platform. Connected organisations.</h2>
-          <p>Manage API access, event notifications, single sign-on and embeddable SIMS experiences from one administration workspace.</p>
+          <h2>Bring every organisation system together.</h2>
+          <p>A secure control centre for registering university and company systems, issuing scoped API credentials and managing access to SIMS data.</p>
           <div className="integration-hero__meta">
-            <span><i className="integration-dot" /> {connections.length > 0 ? `${connections.length} connected system(s) registered` : "No external systems registered yet"}</span>
+            <span><i className="integration-dot" /> {connections.filter(item => item.status === 'active').length} active connection(s)</span>
             <span><ShieldCheck size={15} /> Tenant-scoped access model</span>
           </div>
         </div>
@@ -218,10 +218,10 @@ export function IntegrationCentre() {
           {section === 'overview' ? (
             <>
               <div className="integration-stats">
-                <article><span className="integration-stat-icon"><Link2 size={18} /></span><strong>{connections.length}</strong><small>Registered systems</small></article>
-                <article><span className="integration-stat-icon"><KeyRound size={18} /></span><strong>{apiKeys.filter(key => !key.revoked_at).length}</strong><small>Active API credentials</small></article>
-                <article><span className="integration-stat-icon"><Webhook size={18} /></span><strong>0</strong><small>Active webhooks</small></article>
-                <article><span className="integration-stat-icon"><Activity size={18} /></span><strong>—</strong><small>Events delivered</small></article>
+                <article><span className="integration-stat-icon"><Link2 size={18} /></span><strong>{connections.filter(item => item.status === 'active').length}</strong><small>Active connections</small><em>Organisation systems</em></article>
+                <article><span className="integration-stat-icon"><KeyRound size={18} /></span><strong>{apiKeys.filter(key => !key.revoked_at).length}</strong><small>Active API keys</small><em>Credentials in use</em></article>
+                <article><span className="integration-stat-icon"><ShieldCheck size={18} /></span><strong>{connections.filter(item => item.status === 'suspended').length}</strong><small>Suspended systems</small><em>Access paused</em></article>
+                <article><span className="integration-stat-icon"><Code2 size={18} /></span><strong>{integrationScopes.length}</strong><small>Available scopes</small><em>Read-only permissions</em></article>
               </div>
 
               <Card>
