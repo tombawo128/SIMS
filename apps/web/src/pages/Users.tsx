@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Archive,
   Ban,
   CheckCircle2,
   ChevronRight,
@@ -216,7 +217,7 @@ export function Users() {
       });
       if (detailId === target.id) setDetailId(null);
     } catch (caught) {
-      toast({ title: 'Could not delete account', description: errorMessage(caught), tone: 'error' });
+      toast({ title: 'Could not archive account', description: errorMessage(caught), tone: 'error' });
     }
   };
 
@@ -518,9 +519,9 @@ export function Users() {
                             variant="ghost"
                             className='users-delete-btn'
                             onClick={() => setDeleteTarget(user)}
-                            aria-label={`Delete ${user.full_name}`}
+                            aria-label={`Archive ${user.full_name}`}
                           >
-                            <Trash2 className='users-icon-sm' />
+                            <Archive className='users-icon-sm' /> Archive
                           </Button>
                         ) : (
                           <span className='users-self-note'>
@@ -639,7 +640,7 @@ export function Users() {
                     </p>
                   </div>
                   <Button variant="danger" onClick={() => setDeleteTarget(detailUser)}>
-                    <Trash2 className='users-icon-sm' /> Delete
+                    <Archive className='users-icon-sm' /> Archive account
                   </Button>
                 </div>
               ) : null}
