@@ -52,6 +52,7 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
   shortlisted: 'Shortlisted',
   accepted: 'Accepted',
   rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
 };
 
 export const PLACEMENT_STATUS_LABELS: Record<PlacementStatus, string> = {
