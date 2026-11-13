@@ -1,0 +1,55 @@
+/* Calm theme overrides.
+ *
+ * Import this LAST (after your Tailwind/index css and every page css), e.g. in
+ * apps/web/src/main.tsx:
+ *
+ *   import './styles/calm-theme.css';
+ *
+ * It is unlayered on purpose, so it wins over Tailwind's theme layer.
+ * Every existing `indigo` and `violet` class becomes a muted steel blue, and
+ * the large rounded corners are tightened. No other file needs to change for
+ * this part to take effect.
+ */
+
+:root {
+  /* Accent: muted steel blue (replaces indigo) */
+  --color-indigo-50: #f2f6fb;
+  --color-indigo-100: #e4ecf6;
+  --color-indigo-200: #c9d9ec;
+  --color-indigo-300: #a1bcdc;
+  --color-indigo-400: #7499c6;
+  --color-indigo-500: #4d78b2;
+  --color-indigo-600: #355f99;
+  --color-indigo-700: #2b4d7f;
+  --color-indigo-800: #254166;
+  --color-indigo-900: #213854;
+  --color-indigo-950: #15233a;
+
+  /* Violet and purple used to make the gradients; map them to the same blue */
+  --color-violet-50: var(--color-indigo-50);
+  --color-violet-100: var(--color-indigo-100);
+  --color-violet-200: var(--color-indigo-200);
+  --color-violet-300: var(--color-indigo-300);
+  --color-violet-400: var(--color-indigo-400);
+  --color-violet-500: var(--color-indigo-500);
+  --color-violet-600: var(--color-indigo-600);
+  --color-violet-700: var(--color-indigo-700);
+  --color-purple-400: var(--color-indigo-400);
+  --color-purple-500: var(--color-indigo-500);
+
+  /* Corners: smaller, more even */
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.625rem;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-indigo-500);
+  outline-offset: 2px;
+}

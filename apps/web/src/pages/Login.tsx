@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useAdminSignupAvailable } from '@/hooks/useAdminConsole';
 import { AuthShell } from '@/components/AuthShell';
@@ -46,8 +46,8 @@ export function Login() {
   };
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in to your university, company, student, or administrator workspace.">
-      <form onSubmit={handleSubmit} className='login-space-y-4-1'>
+    <AuthShell title="Sign in" subtitle="Enter your email and password to continue.">
+      <form onSubmit={handleSubmit} className="login-form">
         {error ? <Alert tone="danger">{error}</Alert> : null}
 
         <Field label="Email" htmlFor="email" required>
@@ -58,60 +58,59 @@ export function Login() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@university.edu"
+            placeholder="you@example.com"
           />
         </Field>
 
         <Field label="Password" htmlFor="password" required>
-          <div className='login-password'>
+          <div className="login-password">
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               required
-              className='login-password__input'
+              className="login-password__input"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
             />
             <button
               type="button"
-              className='login-password__toggle'
+              className="login-password__toggle"
               onClick={() => setShowPassword((current) => !current)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
               aria-pressed={showPassword}
             >
-              {showPassword ? <EyeOff className='login-h-4-1' /> : <Eye className='login-h-4-1' />}
+              {showPassword ? <EyeOff className="login-h-4-1" /> : <Eye className="login-h-4-1" />}
             </button>
           </div>
         </Field>
 
-        <div className='login-flex-1'>
-          <Link to="/forgot-password" className='login-text-xs-1'>
+        <div className="login-forgot">
+          <Link to="/forgot-password" className="login-link">
             Forgot password?
-          </Link>
-          <Link to="/signup" className='login-text-xs-2'>
-            Student sign up
           </Link>
         </div>
 
-        <Button type="submit" className='login-w-full-1' loading={submitting}>
+        <Button type="submit" className="login-w-full-1" loading={submitting}>
           Sign in
         </Button>
 
-        {adminAvailable ? (
-          <div className='login-admin-note'>
-            <span className='login-admin-note__icon'>
-              <ShieldCheck className='login-h-4-1' />
-            </span>
-            <p className='login-admin-note__text'>
+        <div className="login-footer">
+          <p>
+            No account yet?{' '}
+            <Link to="/signup" className="login-link">
+              Create a student account
+            </Link>
+          </p>
+          {adminAvailable ? (
+            <p>
               Setting up the platform?{' '}
-              <Link to="/signup?mode=admin" className='login-admin-note__link'>
+              <Link to="/signup?mode=admin" className="login-link">
                 Create an administrator account
               </Link>
             </p>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </form>
     </AuthShell>
   );

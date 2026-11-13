@@ -1,0 +1,221 @@
+/* Frame for sign in, sign up and password pages.
+ * Large screens: solid blue information panel on the left, form on the right.
+ * Small screens: blue brand bar on top, form below.
+ * No gradients, glow or shadows.
+ */
+
+.sims-auth {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 100vh;
+    background-color: var(--color-slate-50);
+}
+
+@media (width >=64rem) {
+    .sims-auth {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+}
+
+/* ---------- Information panel ---------- */
+
+.sims-auth__aside {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 10);
+    padding: calc(var(--spacing) * 12);
+    background-color: var(--color-indigo-800);
+    color: var(--color-white);
+}
+
+@media (width >=64rem) {
+    .sims-auth__aside {
+        display: flex;
+    }
+}
+
+.sims-auth__aside-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+}
+
+.sims-auth__aside-logo {
+    display: flex;
+    height: calc(var(--spacing) * 10);
+    width: calc(var(--spacing) * 10);
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-white);
+    color: var(--color-indigo-800);
+}
+
+.sims-auth__brand-icon {
+    height: calc(var(--spacing) * 5);
+    width: calc(var(--spacing) * 5);
+}
+
+.sims-auth__aside-name {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-white);
+}
+
+.sims-auth__aside-body {
+    max-width: 30rem;
+}
+
+.sims-auth__aside-title {
+    font-size: var(--text-3xl);
+    line-height: 1.2;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-white);
+}
+
+.sims-auth__aside-text {
+    margin-top: calc(var(--spacing) * 4);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-indigo-200);
+}
+
+.sims-auth__aside-list {
+    margin-top: calc(var(--spacing) * 8);
+    border-top: 1px solid var(--color-indigo-700);
+}
+
+.sims-auth__aside-item {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 3.5);
+    border-bottom: 1px solid var(--color-indigo-700);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    color: var(--color-indigo-100);
+}
+
+.sims-auth__aside-check {
+    flex-shrink: 0;
+    height: calc(var(--spacing) * 4.5);
+    width: calc(var(--spacing) * 4.5);
+    color: var(--color-indigo-300);
+}
+
+.sims-auth__aside-foot {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: var(--color-indigo-300);
+}
+
+/* ---------- Form side ---------- */
+
+.sims-auth__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.sims-auth__bar {
+    padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
+    background-color: var(--color-indigo-800);
+}
+
+@media (width >=64rem) {
+    .sims-auth__bar {
+        display: none;
+    }
+}
+
+.sims-auth__content {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: flex-start;
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+}
+
+@media (width >=64rem) {
+    .sims-auth__content {
+        padding: calc(var(--spacing) * 12) calc(var(--spacing) * 10);
+    }
+}
+
+/* Auto margins centre the card vertically when there is room,
+ * and let long forms start at the top when there is not. */
+.sims-auth__inner {
+    width: 100%;
+    max-width: 30rem;
+    margin-block: auto;
+}
+
+.sims-auth__inner--wide {
+    max-width: 44rem;
+}
+
+.sims-auth__card {
+    padding: calc(var(--spacing) * 6);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xl);
+    background-color: var(--color-white);
+}
+
+@media (width >=40rem) {
+    .sims-auth__card {
+        padding: calc(var(--spacing) * 10);
+    }
+}
+
+.sims-auth__title {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-slate-900);
+}
+
+.sims-auth__subtitle {
+    margin-top: calc(var(--spacing) * 2);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-slate-600);
+}
+
+.sims-auth__body {
+    margin-top: calc(var(--spacing) * 7);
+}
+
+/* Slightly larger fields and buttons inside the form */
+.sims-auth__body input:not([type='checkbox']):not([type='radio']),
+.sims-auth__body select {
+    min-height: calc(var(--spacing) * 11);
+    font-size: var(--text-base);
+}
+
+.sims-auth__body button[type='submit'] {
+    min-height: calc(var(--spacing) * 11);
+    font-size: var(--text-base);
+}
+
+.sims-auth__back {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1.5);
+    margin-top: calc(var(--spacing) * 5);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    color: var(--color-slate-500);
+}
+
+.sims-auth__back-icon {
+    height: calc(var(--spacing) * 3.5);
+    width: calc(var(--spacing) * 3.5);
+}
+
+@media (hover: hover) {
+    .sims-auth__back:hover {
+        color: var(--color-slate-900);
+    }
+}

@@ -1,100 +1,85 @@
-import { Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, GraduationCap } from 'lucide-react';
-import { APP_NAME } from '@sims/shared';
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Check, GraduationCap } from 'lucide-react';
+import { APP_NAME } from '@sims/shared';
 import { cn } from '@/lib/utils';
+import './auth-shell.css';
 
 const points = [
-  'University and company workspaces stay isolated',
-  'One application-to-grade workflow',
+  'University and company workspaces stay separate',
+  'One workflow from application to final grade',
   'Weekly logs and evaluations built in',
 ];
 
-export function AuthShell({
-  title,
-  subtitle,
-  children,
-  wide = false,
-}: {
-  title: string;
-  subtitle: string;
-  children: ReactNode;
+interface AuthShellProps {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  /** Wider form card, used by the sign up page. */
   wide?: boolean;
-}) {
-  return (
-    <div className='auth-shell'>
-      <aside className='auth-aside'>
-        <div className='auth-aside__blob-1' />
-        <div className='auth-aside__blob-2' />
+  children: ReactNode;
+}
 
-        <Link to="/" className='auth-aside__brand'>
-          <div className='auth-aside__logo'>
-            <GraduationCap className='icon-lg' />
-          </div>
-          <div>
-            <p className='auth-aside__app-name'>{APP_NAME}</p>
-            <p className='auth-aside__app-tagline'>Internships & opportunities</p>
-          </div>
+/** Shared frame for the sign in, sign up and password pages. */
+export function AuthShell({ title, subtitle, wide = false, children }: AuthShellProps) {
+  return (
+    <div className="sims-auth">
+      {/* Information panel (large screens only) */}
+      <aside className="sims-auth__aside">
+        <Link to="/" className="sims-auth__aside-brand">
+          <span className="sims-auth__aside-logo">
+            <GraduationCap className="sims-auth__brand-icon" />
+          </span>
+          <span className="sims-auth__aside-name">{APP_NAME}</span>
         </Link>
 
-        <div className='auth-aside__hero'>
-          <p className='auth-aside__eyebrow'>
-            Multi-university, multi-company
-          </p>
-          <h2 className='auth-aside__headline'>
-            The operating system for student placements.
+        <div className="sims-auth__aside-body">
+          <h2 className="sims-auth__aside-title">
+            Internships and placements, managed in one place.
           </h2>
-          <p className='auth-aside__subhead'>
-            From the first application to the final grade, every stakeholder works from the same source of truth.
+          <p className="sims-auth__aside-text">
+            Students, universities and companies work from the same records, from the first
+            application to the final grade.
           </p>
-          <ul className='auth-aside__points'>
+
+          <ul className="sims-auth__aside-list">
             {points.map((point) => (
-              <li key={point} className='auth-aside__point'>
-                <CheckCircle2 className='auth-aside__point-icon' />
+              <li key={point} className="sims-auth__aside-item">
+                <Check className="sims-auth__aside-check" />
                 {point}
               </li>
             ))}
           </ul>
-
         </div>
 
-        <div className='auth-aside__quote'>
-          <p className='auth-aside__quote-text'>
-
-          </p>
-
-        </div>
+        <p className="sims-auth__aside-foot">
+          &copy; {new Date().getFullYear()} {APP_NAME}
+        </p>
       </aside>
 
-      <main className='auth-main'>
-        <div className={cn('auth-form-wrap', wide ? 'auth-form-wrap--wide' : 'auth-form-wrap--narrow')}>
-          <div className='auth-mobile-bar'>
-            <Link to="/" className='auth-mobile-brand'>
-              <div className='auth-mobile-logo'>
-                <GraduationCap className='icon-lg' />
-              </div>
-              <span className='auth-mobile-name'>{APP_NAME}</span>
-            </Link>
-            <Link to="/" className='auth-mobile-home'>
-              <ArrowLeft className='icon-sm' />
-              Home
-            </Link>
-          </div>
-
-          <div className='auth-heading'>
-            <h1 className='auth-heading__title'>{title}</h1>
-            <p className='auth-heading__subtitle'>{subtitle}</p>
-          </div>
-
-          {children}
-
-          <Link
-            to="/"
-            className='auth-back'
-          >
-            <ArrowLeft className='icon-sm' />
-            Back to home
+      <main className="sims-auth__main">
+        {/* Brand bar (small screens only) */}
+        <div className="sims-auth__bar">
+          <Link to="/" className="sims-auth__aside-brand">
+            <span className="sims-auth__aside-logo">
+              <GraduationCap className="sims-auth__brand-icon" />
+            </span>
+            <span className="sims-auth__aside-name">{APP_NAME}</span>
           </Link>
+        </div>
+
+        <div className="sims-auth__content">
+          <div className={cn('sims-auth__inner', wide && 'sims-auth__inner--wide')}>
+            <div className="sims-auth__card">
+              <h1 className="sims-auth__title">{title}</h1>
+              {subtitle ? <p className="sims-auth__subtitle">{subtitle}</p> : null}
+              <div className="sims-auth__body">{children}</div>
+            </div>
+
+            <Link to="/" className="sims-auth__back">
+              <ArrowLeft className="sims-auth__back-icon" />
+              Back to home
+            </Link>
+          </div>
         </div>
       </main>
     </div>

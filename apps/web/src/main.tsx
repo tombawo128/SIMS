@@ -8,6 +8,7 @@ import { ToastProvider } from '@/components/ui';
 import { queryClient } from '@/lib/queryClient';
 import './index.css';
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>

@@ -46,15 +46,17 @@
 
 .signup-text-xs-1 {
   font-size: var(--text-xs);
-  line-height: var(--text-xs--line-height);
+  line-height: var(--leading-relaxed);
   color: var(--color-slate-500);
 }
 
 .signup-text-center-1 {
+  padding-top: calc(var(--spacing) * 4);
+  border-top: 1px solid var(--color-slate-200);
   text-align: center;
-  font-size: var(--text-xs);
-  line-height: var(--text-xs--line-height);
-  color: var(--color-slate-500);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  color: var(--color-slate-600);
 }
 
 .signup-font-medium-1 {
@@ -65,35 +67,28 @@
 @media (hover: hover) {
   .signup-font-medium-1:hover {
     color: var(--color-indigo-700);
+    text-decoration: underline;
   }
 }
 
-/* Student / Administrator switch */
+/* Student / Administrator switch: two plain tabs */
 .signup-mode {
   display: flex;
-  gap: calc(var(--spacing) * 1);
+  gap: calc(var(--spacing) * 6);
   margin-bottom: calc(var(--spacing) * 5);
-  padding: calc(var(--spacing) * 1);
-  border-radius: var(--radius-xl);
-  background-color: var(--color-slate-100);
+  border-bottom: 1px solid var(--color-slate-200);
 }
 
 .signup-mode__btn {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--spacing) * 2);
-  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
-  border-radius: var(--radius-lg);
+  margin-bottom: -1px;
+  padding: calc(var(--spacing) * 2) 0;
+  border-bottom: 2px solid transparent;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   font-weight: var(--font-weight-medium);
-  color: var(--color-slate-600);
+  color: var(--color-slate-500);
   cursor: pointer;
-  transition: color var(--default-transition-duration) var(--default-transition-timing-function),
-    background-color var(--default-transition-duration) var(--default-transition-timing-function),
-    box-shadow var(--default-transition-duration) var(--default-transition-timing-function);
+  transition: color 150ms ease, border-color 150ms ease;
 }
 
 @media (hover: hover) {
@@ -103,84 +98,40 @@
 }
 
 .signup-mode__btn:focus-visible {
-  outline: 2px solid var(--color-indigo-400);
-  outline-offset: 1px;
+  outline: 2px solid var(--color-indigo-500);
+  outline-offset: 2px;
 }
 
 .signup-mode__btn--active,
 .signup-mode__btn--active:hover {
-  background-color: var(--color-white);
-  color: var(--color-indigo-700);
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border-bottom-color: var(--color-indigo-600);
+  color: var(--color-slate-900);
 }
 
-.signup-mode__icon {
-  height: calc(var(--spacing) * 4);
-  width: calc(var(--spacing) * 4);
-}
-
-/* Administrator explainer */
-.signup-admin-note {
-  display: flex;
-  align-items: flex-start;
-  gap: calc(var(--spacing) * 3);
-  padding: calc(var(--spacing) * 4);
-  border: 1px solid var(--color-indigo-100);
-  border-radius: var(--radius-xl);
-  background-color: color-mix(in oklab, var(--color-indigo-50) 60%, transparent);
-}
-
-.signup-admin-note__icon {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  height: calc(var(--spacing) * 8);
-  width: calc(var(--spacing) * 8);
+/* Plain notes: administrator explainer and student approval notice */
+.signup-admin-note,
+.signup-approval {
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-lg);
-  background-color: var(--color-indigo-100);
-  color: var(--color-indigo-600);
-}
-
-.signup-admin-note__text {
-  min-width: 0;
+  background-color: var(--color-slate-50);
 }
 
 .signup-admin-note__title {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-indigo-950);
+  color: var(--color-slate-900);
 }
 
-.signup-admin-note__body {
+.signup-admin-note__body,
+.signup-approval__text {
   margin-top: calc(var(--spacing) * 0.5);
   font-size: var(--text-xs);
   line-height: var(--leading-relaxed);
-  color: color-mix(in oklab, var(--color-indigo-900) 70%, transparent);
-}
-
-/* Student approval notice */
-.signup-approval {
-  display: flex;
-  align-items: flex-start;
-  gap: calc(var(--spacing) * 2.5);
-  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
-  border: 1px solid var(--color-amber-200);
-  border-radius: var(--radius-xl);
-  background-color: var(--color-amber-50);
-}
-
-.signup-approval__icon {
-  flex-shrink: 0;
-  margin-top: calc(var(--spacing) * 0.5);
-  height: calc(var(--spacing) * 4);
-  width: calc(var(--spacing) * 4);
-  color: var(--color-amber-800);
+  color: var(--color-slate-600);
 }
 
 .signup-approval__text {
-  font-size: var(--text-xs);
-  line-height: var(--leading-relaxed);
-  color: var(--color-amber-900);
+  margin-top: 0;
 }

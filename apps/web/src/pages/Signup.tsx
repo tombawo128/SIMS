@@ -1,7 +1,5 @@
-
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { GraduationCap, Info, ShieldCheck } from 'lucide-react';
 import { MAX_PLATFORM_ADMINS } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import { useUniversities } from '@/hooks/useLookups';
@@ -154,13 +152,11 @@ export function Signup() {
           <strong>{wasAdmin ? adminForm.email : form.email}</strong>.{' '}
           {wasAdmin
             ? 'After confirming, sign in to start managing the platform.'
-            : 'After confirming, sign in — a general administrator will approve your account before you can use SIMS.'}
+            : 'After confirming, sign in. A general administrator will approve your account before you can use SIMS.'}
         </Alert>
 
         <Link to="/login" className="signup-mt-5-1">
-          <Button className="signup-w-full-1">
-            Go to sign in
-          </Button>
+          <Button className="signup-w-full-1">Go to sign in</Button>
         </Link>
       </AuthShell>
     );
@@ -178,16 +174,12 @@ export function Signup() {
       }
       subtitle={
         isAdmin
-          ? 'Bootstrap a general administrator with full oversight of the platform.'
-          : 'Find internships and graduate roles from every partner university and company.'
+          ? 'Set up an administrator account with full access to the platform.'
+          : 'Register to browse and apply for internships and graduate roles.'
       }
     >
       {/* Account type selector */}
-      <div
-        className="signup-mode"
-        role="group"
-        aria-label="Account type"
-      >
+      <div className="signup-mode" role="group" aria-label="Account type">
         <button
           type="button"
           onClick={() => switchMode('student')}
@@ -197,7 +189,6 @@ export function Signup() {
             !isAdmin && 'signup-mode__btn--active',
           )}
         >
-          <GraduationCap className="signup-mode__icon" />
           Student
         </button>
 
@@ -210,7 +201,6 @@ export function Signup() {
             isAdmin && 'signup-mode__btn--active',
           )}
         >
-          <ShieldCheck className="signup-mode__icon" />
           Administrator
         </button>
       </div>
@@ -245,21 +235,13 @@ export function Signup() {
             )}
 
             <div className="signup-admin-note">
-              <span className="signup-admin-note__icon">
-                <ShieldCheck className="signup-h-4-1" />
-              </span>
+              <p className="signup-admin-note__title">Full platform access</p>
 
-              <div className="signup-admin-note__text">
-                <p className="signup-admin-note__title">
-                  Full platform access
-                </p>
-
-                <p className="signup-admin-note__body">
-                  General administrators approve new accounts, manage every
-                  user, and oversee all universities and companies. Only{' '}
-                  {MAX_PLATFORM_ADMINS} administrator accounts can exist.
-                </p>
-              </div>
+              <p className="signup-admin-note__body">
+                General administrators approve new accounts, manage every
+                user, and oversee all universities and companies. Only{' '}
+                {MAX_PLATFORM_ADMINS} administrator accounts can exist.
+              </p>
             </div>
 
             <div className="signup-grid-1">
@@ -276,7 +258,7 @@ export function Signup() {
                   onChange={(event) =>
                     updateAdmin('fullName', event.target.value)
                   }
-                  placeholder="Dana Whitfield"
+                  placeholder="Jane Doe"
                 />
               </Field>
 
@@ -290,7 +272,7 @@ export function Signup() {
                   onChange={(event) =>
                     updateAdmin('email', event.target.value)
                   }
-                  placeholder="admin@platform.dev"
+                  placeholder="you@example.com"
                 />
               </Field>
 
@@ -310,7 +292,6 @@ export function Signup() {
                   onChange={(event) =>
                     updateAdmin('password', event.target.value)
                   }
-                  placeholder="••••••••"
                 />
               </Field>
             </div>
@@ -321,7 +302,6 @@ export function Signup() {
               loading={submitting}
               disabled={!adminAvailable || submitting}
             >
-              <ShieldCheck className="signup-h-4-1" />
               Create administrator account
             </Button>
           </>
@@ -342,7 +322,7 @@ export function Signup() {
                   onChange={(event) =>
                     update('fullName', event.target.value)
                   }
-                  placeholder="Ava Thompson"
+                  placeholder="John Doe"
                 />
               </Field>
 
@@ -376,7 +356,6 @@ export function Signup() {
                   onChange={(event) =>
                     update('password', event.target.value)
                   }
-                  placeholder="••••••••"
                 />
               </Field>
 
@@ -403,10 +382,7 @@ export function Signup() {
                     <option value="">Select your university</option>
 
                     {(universities.data ?? []).map((university) => (
-                      <option
-                        key={university.id}
-                        value={university.id}
-                      >
+                      <option key={university.id} value={university.id}>
                         {university.name}
                       </option>
                     ))}
@@ -444,9 +420,7 @@ export function Signup() {
                 <Select
                   id="year"
                   value={form.year}
-                  onChange={(event) =>
-                    update('year', event.target.value)
-                  }
+                  onChange={(event) => update('year', event.target.value)}
                 >
                   {[1, 2, 3, 4, 5, 6].map((year) => (
                     <option key={year} value={year}>
@@ -458,11 +432,10 @@ export function Signup() {
             </div>
 
             <div className="signup-approval">
-              <Info className="signup-approval__icon" />
               <p className="signup-approval__text">
                 New accounts need approval. After you sign up, a general
-                administrator reviews and approves your account before you
-                can sign in and use SIMS.
+                administrator reviews your account before you can sign in
+                and use SIMS.
               </p>
             </div>
 
