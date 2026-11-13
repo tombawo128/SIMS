@@ -102,7 +102,7 @@ begin
   if not found then raise exception 'User not found or already archived'; end if;
 
   update public.profiles
-  set deleted_at = now(), deleted_by = auth.uid()
+  set deleted_at = now(), deleted_by = auth.uid(), account_status = 'blocked'
   where id = p_id;
 
   insert into public.deleted_entities(entity_type, entity_id, display_name, details, deleted_by)
@@ -115,20 +115,37 @@ returns void
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $
+declare
+  v_details jsonb;
 begin
   if not public.is_platform_admin() then
     raise exception 'Only a platform administrator can restore archived records';
   end if;
 
+  select details into v_details
+  from public.deleted_entities
+  where entity_type = p_kind and entity_id = p_id and restored_at is null
+  order by deleted_at desc
+  limit 1
+  for update;
+
+  if not found then raise exception 'Archived record not found'; end if;
+
   if p_kind = 'user' then
-    update public.profiles set deleted_at = null, deleted_by = null
+    update public.profiles
+    set deleted_at = null, deleted_by = null,
+        account_status = coalesce(v_details->>'account_status', 'active')::public.account_status
     where id = p_id and deleted_at is not null;
   elsif p_kind = 'university' then
-    update public.universities set deleted_at = null, deleted_by = null, status = 'active'
+    update public.universities
+    set deleted_at = null, deleted_by = null,
+        status = coalesce(v_details->>'status', 'active')
     where id = p_id and deleted_at is not null;
   elsif p_kind = 'company' then
-    update public.companies set deleted_at = null, deleted_by = null, status = 'active'
+    update public.companies
+    set deleted_at = null, deleted_by = null,
+        status = coalesce(v_details->>'status', 'active')
     where id = p_id and deleted_at is not null;
   else
     raise exception 'Invalid archive type';
@@ -140,7 +157,7 @@ begin
   set restored_at = now(), restored_by = auth.uid()
   where entity_type = p_kind and entity_id = p_id and restored_at is null;
 end;
-$$;
+$;
 
 revoke all on function public.delete_tenant(text, uuid) from public, anon;
 revoke all on function public.archive_user(uuid) from public, anon;
