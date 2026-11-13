@@ -246,30 +246,92 @@ export function Analytics() {
   });
   const stats = analytics.data ?? {};
   const userBreakdown = useMemo(() => [
-    ['Students', stats.students ?? 0], ['University staff', stats.university_staff ?? 0],
-    ['Company staff', stats.company_staff ?? 0], ['Platform admins', stats.platform_admins ?? 0],
+    { label: 'Students', value: stats.students ?? 0, tone: 'students' },
+    { label: 'University staff', value: stats.university_staff ?? 0, tone: 'university' },
+    { label: 'Company staff', value: stats.company_staff ?? 0, tone: 'company' },
+    { label: 'Platform admins', value: stats.platform_admins ?? 0, tone: 'admins' },
   ], [stats]);
-  const maxUsers = Math.max(1, ...userBreakdown.map(([, value]) => Number(value)));
+  const totalRoleUsers = userBreakdown.reduce((sum, item) => sum + Number(item.value), 0);
+  const maxUsers = Math.max(1, ...userBreakdown.map(item => Number(item.value)));
+  const active = stats.active_users ?? 0;
+  const pending = stats.pending_users ?? 0;
+  const total = stats.users_total ?? 0;
+  const other = Math.max(0, total - active - pending);
+  const organizationTotal = (stats.universities ?? 0) + (stats.companies ?? 0);
+
   return (
-    <div className='admin-console'>
-      <PageHeader title='Analytics' description='Platform-wide operational metrics across users, organizations, and internship activity.' actions={<Button size='sm' variant='secondary' onClick={() => void analytics.refetch()}><RefreshCw size={14} /> Refresh data</Button>} />
-      {analytics.isLoading ? <div className='admin-console__loading'><Spinner /></div> : analytics.isError ? <Alert tone='danger' title='Could not load analytics'>{(analytics.error as Error).message}</Alert> : (
+    <div className='admin-console analytics-page'>
+      <PageHeader
+        title='Platform analytics'
+        description='A clear view of user growth, organizations, and internship activity across SIMS.'
+        actions={<Button size='sm' variant='secondary' onClick={() => void analytics.refetch()} loading={analytics.isFetching}><RefreshCw size={14} /> Refresh data</Button>}
+      />
+      {analytics.isLoading ? <div className='admin-console__loading'><Spinner /></div> : analytics.isError ? (
+        <Alert tone='danger' title='Analytics could not be loaded'>{(analytics.error as Error).message}</Alert>
+      ) : (
         <>
-          <div className='admin-console__stats'>
-            <StatCard label='Total users' value={count(stats.users_total)} icon={<Activity />} hint='Non-archived accounts' />
-            <StatCard label='Active users' value={count(stats.active_users)} icon={<ShieldCheck />} />
-            <StatCard label='Pending approvals' value={count(stats.pending_users)} icon={<BellRing />} />
-            <StatCard label='Organizations' value={count((stats.universities ?? 0) + (stats.companies ?? 0))} icon={<BarChart3 />} hint={count(stats.universities) + ' universities · ' + count(stats.companies) + ' companies'} />
-            <StatCard label='Applications' value={count(stats.applications)} />
-            <StatCard label='Placements' value={count(stats.placements)} />
-            <StatCard label='Job postings' value={count(stats.job_postings)} />
-            <StatCard label='Broadcasts sent' value={count(stats.broadcasts)} icon={<Megaphone />} />
-          </div>
-          <div className='admin-console__split'>
-            <Card><CardHeader title='User composition' description='Accounts grouped by platform role.' /><div className='admin-console__bars'>{userBreakdown.map(([label, value]) => <div className='admin-console__bar-row' key={label as string}><div><span>{label}</span><strong>{count(Number(value))}</strong></div><div className='admin-console__bar-track'><span style={{ width: ((Number(value) / maxUsers) * 100) + '%' }} /></div></div>)}</div></Card>
-            <Card><CardHeader title='Account status' description='Current approval and access state.' /><div className='admin-console__status-grid'><div><strong>{count(stats.active_users)}</strong><span>Active</span></div><div><strong>{count(stats.pending_users)}</strong><span>Pending</span></div><div><strong>{count((stats.users_total ?? 0) - (stats.active_users ?? 0) - (stats.pending_users ?? 0))}</strong><span>Other / archived</span></div></div></Card>
-          </div>
-          <p className='admin-console__muted'>Metrics are live database counts. Refresh to request the latest snapshot.</p>
+          <section className='analytics-page__overview'>
+            <div>
+              <span className='analytics-page__eyebrow'>PLATFORM OVERVIEW</span>
+              <h2>SIMS at a glance</h2>
+              <p>Current database totals across all active platform workflows.</p>
+            </div>
+            <div className='analytics-page__overview-meta'>
+              <span className='analytics-page__live-dot' />
+              Live database snapshot
+            </div>
+          </section>
+
+          <section className='analytics-page__metrics' aria-label='Platform key metrics'>
+            <StatCard label='Total users' value={count(total)} icon={<Activity />} hint='Registered accounts' />
+            <StatCard label='Active users' value={count(active)} icon={<ShieldCheck />} hint={total ? Math.round((active / total) * 100) + '% of all users' : 'No user records'} />
+            <StatCard label='Pending approvals' value={count(pending)} icon={<BellRing />} hint='Awaiting administrator review' />
+            <StatCard label='Organizations' value={count(organizationTotal)} icon={<BarChart3 />} hint={count(stats.universities) + ' universities · ' + count(stats.companies) + ' companies'} />
+          </section>
+
+          <section className='analytics-page__section-heading'>
+            <div><h2>Internship activity</h2><p>Key workflow totals recorded in the platform.</p></div>
+          </section>
+          <section className='analytics-page__workflow-grid'>
+            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Megaphone size={18} /></span><div><span>Job postings</span><strong>{count(stats.job_postings)}</strong><small>Opportunities published</small></div></article>
+            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Activity size={18} /></span><div><span>Applications</span><strong>{count(stats.applications)}</strong><small>Student applications submitted</small></div></article>
+            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><ShieldCheck size={18} /></span><div><span>Placements</span><strong>{count(stats.placements)}</strong><small>Internship placements recorded</small></div></article>
+            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Send size={18} /></span><div><span>Broadcasts sent</span><strong>{count(stats.broadcasts)}</strong><small>Platform announcements</small></div></article>
+          </section>
+
+          <section className='analytics-page__detail-grid'>
+            <Card>
+              <CardHeader title='User composition' description='Breakdown by account role.' />
+              <div className='analytics-page__composition'>
+                {userBreakdown.map(item => {
+                  const value = Number(item.value);
+                  const share = totalRoleUsers ? Math.round((value / totalRoleUsers) * 100) : 0;
+                  return (
+                    <div className='analytics-page__role' key={item.label}>
+                      <div className='analytics-page__role-heading'><span><i className={'analytics-page__legend analytics-page__legend--' + item.tone} />{item.label}</span><strong>{count(value)} <small>{share}%</small></strong></div>
+                      <div className='analytics-page__track'><span className={'analytics-page__fill analytics-page__fill--' + item.tone} style={{ width: share + '%' }} /></div>
+                    </div>
+                  );
+                })}
+                {!totalRoleUsers ? <p className='analytics-page__empty-note'>Role counts will appear when user records are available.</p> : null}
+              </div>
+              <div className='analytics-page__card-foot'>Role totals are based on the current analytics response.</div>
+            </Card>
+
+            <Card>
+              <CardHeader title='Account status' description='Current user approval and access state.' />
+              <div className='analytics-page__status'>
+                <div className='analytics-page__status-total'><strong>{count(total)}</strong><span>Total accounts</span></div>
+                <div className='analytics-page__status-list'>
+                  <div><span><i className='analytics-page__status-dot analytics-page__status-dot--active' />Active</span><strong>{count(active)}</strong></div>
+                  <div><span><i className='analytics-page__status-dot analytics-page__status-dot--pending' />Pending</span><strong>{count(pending)}</strong></div>
+                  <div><span><i className='analytics-page__status-dot analytics-page__status-dot--other' />Other / archived</span><strong>{count(other)}</strong></div>
+                </div>
+              </div>
+              <div className='analytics-page__card-foot'>Status values reflect the latest database snapshot.</div>
+            </Card>
+          </section>
+          <p className='analytics-page__footnote'>Figures are returned by the SIMS analytics database function. No estimated or sample values are shown.</p>
         </>
       )}
     </div>
