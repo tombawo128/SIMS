@@ -216,6 +216,11 @@ export function ProfilePage() {
               />
               <form onSubmit={saveStudentDetails} className='profile-space-y-4-1'>
                 {studentError ? <Alert tone="danger">{studentError}</Alert> : null}
+                {studentProfile.isError ? (
+                  <Alert tone="danger" title="Could not load student details">
+                    Refresh the page before updating your CV or student information.
+                  </Alert>
+                ) : null}
                 <div className='profile-grid-2'>
                   <Field label="Student ID" htmlFor="student-id">
                     <Input
