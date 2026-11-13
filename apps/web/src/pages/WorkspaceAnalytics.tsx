@@ -155,6 +155,8 @@ export function WorkspaceAnalytics() {
   const completed = filteredPlacements.filter((p) => p.status === 'completed').length;
   const students = new Set(filteredPlacements.map((p) => p.student_id)).size;
   const pendingWeekly = filteredWeekly.filter((r) => r.status === 'submitted').length;
+  const placementsWithoutDailyReports = filteredPlacements.filter((p) => !filteredDaily.some((r) => r.placement_id === p.id)).length;
+  const placementsWithoutWeeklySubmissions = filteredPlacements.filter((p) => !filteredWeekly.some((r) => r.placement_id === p.id)).length;
   const approvedWeekly = filteredWeekly.filter((r) => r.status === 'approved').length;
   const needsRevision = filteredWeekly.filter((r) => r.status === 'needs_revision').length;
   const gradedEvaluations = filteredEvaluations.filter((e) => e.overall_score !== null);
@@ -220,9 +222,11 @@ export function WorkspaceAnalytics() {
           </div>
         </Card>
         <Card>
-          <CardHeader title="Weekly reporting compliance" description="Report workflow status for the placements in the current filter." />
+          <CardHeader title="Weekly reporting status" description="Report workflow status for the placements in the current filter." />
           <div style={{ padding: 16, display: 'grid', gap: 14 }}>
             <MetricBar label="Daily reports recorded" value={filteredDaily.length} max={Math.max(1, filteredDaily.length)} />
+            <MetricBar label="Placements with no daily reports" value={placementsWithoutDailyReports} max={Math.max(1, filteredPlacements.length)} />
+            <MetricBar label="Placements with no weekly submission" value={placementsWithoutWeeklySubmissions} max={Math.max(1, filteredPlacements.length)} />
             <MetricBar label="Weekly reports approved" value={approvedWeekly} max={Math.max(1, filteredWeekly.length)} />
             <MetricBar label="Awaiting supervisor review" value={pendingWeekly} max={Math.max(1, filteredWeekly.length)} />
             <MetricBar label="Returned for revision" value={needsRevision} max={Math.max(1, filteredWeekly.length)} />
