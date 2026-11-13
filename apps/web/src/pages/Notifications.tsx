@@ -9,6 +9,7 @@ import {
   useNotifications,
 } from '@/hooks/useNotifications';
 import {
+  Alert,
   Button,
   Card,
   EmptyState,
@@ -58,6 +59,10 @@ export function Notifications() {
         <div className='notifications-flex-1'>
           <Spinner className='notifications-h-6-1' />
         </div>
+      ) : notifications.isError ? (
+        <Alert tone="danger" title="Could not load notifications">
+          Refresh the page and try again. Your notifications have not been marked as read.
+        </Alert>
       ) : visible.length === 0 ? (
         <EmptyState
           icon={<Bell className='notifications-h-5-1' />}
