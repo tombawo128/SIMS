@@ -25,6 +25,7 @@
 - [User roles](#user-roles)
 - [Internship lifecycle](#internship-lifecycle)
 - [Analytics and reporting](#analytics-and-reporting)
+- [Integration Centre](#integration-centre)
 - [Security](#security)
 - [Getting started](#getting-started)
 - [Environment configuration](#environment-configuration)
@@ -166,6 +167,25 @@ The analytics workspace is available to university coordinators and company admi
 Students record daily work reports against an active placement. Daily reports are rolled up into a weekly submission. The assigned university faculty supervisor reviews the weekly submission and either approves it or requests a revision. The university coordinator assigns supervisors, with department matching used to guide assignment. Only the assigned faculty supervisor can record the official final internship grade after weekly reports have been approved. Company administrators may view the official grade but cannot edit it.
 
 Analytics are derived from tenant-visible records. Empty states indicate that no matching records are available; dashboards do not use fabricated sample metrics.
+
+## Integration Centre
+
+The platform administration dashboard includes an **Integration Centre** workspace at `/admin/integrations`. It provides a central place to plan and manage how university and company systems will connect to SIMS.
+
+### Workspace areas
+
+- **Overview:** integration readiness, connected-system summary and a recommended organisation onboarding sequence.
+- **API management:** planned organisation-scoped API credentials, permission scopes and request examples.
+- **Webhooks:** planned event subscriptions for application, placement, weekly-report and evaluation lifecycle changes.
+- **Single sign-on:** planned OpenID Connect support first, with SAML 2.0 as a subsequent enterprise option.
+- **Embed tools:** example opportunity-listing embed and future organisation branding controls.
+- **Integration logs:** planned monitoring for API activity, authentication, webhook delivery and configuration changes.
+
+### Implementation status and security
+
+The current release adds the protected administration route, navigation and Integration Centre interface. It is an administrative foundation and implementation guide; **live API credentials, public API endpoints, webhook delivery, SSO provider connections, embed endpoints and integration audit pipelines are not yet enabled**. Controls that would imply a live connection remain disabled, and example snippets are clearly labelled as illustrative.
+
+Before activating integrations, the backend must provide server-side credential issuance and revocation, per-tenant scopes, verified organisation ownership, strict RLS enforcement, signed webhook payloads with retry handling, secure identity-provider secret storage, origin restrictions for embeds, rate limiting and auditable configuration changes. Never place API secrets or Supabase service-role credentials in browser code.
 
 ## Security
 
