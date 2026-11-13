@@ -111,3 +111,43 @@ export function useDeleteTenant() {
     },
   });
 }
+
+export interface DeletedEntity {
+  id: string;
+  entity_type: 'user' | 'university' | 'company';
+  entity_id: string;
+  display_name: string;
+  details: Record<string, unknown>;
+  deleted_at: string;
+  deleted_by: string | null;
+}
+
+export function useDeletedEntities() {
+  return useQuery({
+    queryKey: ['deleted-entities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('deleted_entities')
+        .select('id, entity_type, entity_id, display_name, details, deleted_at, deleted_by')
+        .is('restored_at', null)
+        .order('deleted_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as DeletedEntity[];
+    },
+  });
+}
+
+export function useRestoreDeletedEntity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, kind }: { id: string; kind: DeletedEntity['entity_type'] }) =>
+      invokeManageUsers<{ id: string }>({ action: 'restore_entity', id, kind }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['deleted-entities'] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      void queryClient.invalidateQueries({ queryKey: ['universities'] });
+      void queryClient.invalidateQueries({ queryKey: ['companies'] });
+      void queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+    },
+  });
+}
