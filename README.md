@@ -128,7 +128,7 @@ Application
 Placement
   active → completed / cancelled
       │
-      ├── Weekly activity logs → review / revision
+      ├── Daily activity reports → weekly roll-up → assigned faculty review / revision
       ├── Supervisor check-ins
       ├── Midterm and final evaluations
       ├── CVs and reports
@@ -136,6 +136,36 @@ Placement
 ```
 
 Posting visibility can be open to all universities or restricted to selected universities. Students only receive published opportunities available to their university.
+
+## Analytics and reporting
+
+The analytics workspace is available to university coordinators and company administrators. Results are limited to records visible to the authenticated user's university or company.
+
+### University coordinator analytics
+
+- University-wide student and faculty counts, active and completed placements, pending applications, weekly reports awaiting review, and placements without an assigned faculty supervisor.
+- Placement breakdowns by student department and programme.
+- Faculty supervisor workload based on assigned placements.
+- Application pipeline by status.
+- Daily report volume and weekly submission states: approved, awaiting review, and returned for revision.
+- Official final-grade average and grade bands.
+- Date, department, and programme filters for placement and application reports.
+- CSV export of the filtered placement register.
+
+### Company administrator analytics
+
+- Students hosted, active and completed placements, company opportunities, and application activity.
+- Placement portfolio by department and application pipeline.
+- Daily and weekly reporting activity for company placements.
+- Midterm and final evaluation score summaries.
+- University-issued final grades displayed as read-only information; company administrators cannot change official grades.
+- Date, department, and programme filters and filtered placement-register CSV export.
+
+### Reporting workflow and grade ownership
+
+Students record daily work reports against an active placement. Daily reports are rolled up into a weekly submission. The assigned university faculty supervisor reviews the weekly submission and either approves it or requests a revision. The university coordinator assigns supervisors, with department matching used to guide assignment. Only the assigned faculty supervisor can record the official final internship grade after weekly reports have been approved. Company administrators may view the official grade but cannot edit it.
+
+Analytics are derived from tenant-visible records. Empty states indicate that no matching records are available; dashboards do not use fabricated sample metrics.
 
 ## Security
 
