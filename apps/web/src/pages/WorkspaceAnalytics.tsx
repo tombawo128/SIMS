@@ -1,10 +1,17 @@
-import { useMemo } from 'react';
-import { Briefcase, CheckCircle2, GraduationCap, Users } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Briefcase, CheckCircle2, Download, GraduationCap, Users } from 'lucide-react';
+import type { Application, Placement } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import { usePlacements } from '@/hooks/usePlacements';
 import { useApplications } from '@/hooks/useApplications';
 import { useCompanyStats, useUniversityStats } from '@/hooks/useDashboardStats';
+import { supabase } from '@/lib/supabase';
 import { Alert, Card, CardHeader, EmptyState, PageHeader, Spinner, StatCard } from '@/components/ui';
+
+type WeeklyReport = { id: string; placement_id: string; week_number: number; status: string; submitted_at: string | null };
+type DailyReport = { id: string; placement_id: string; report_date: string; week_number: number; status: string };
+type EvaluationRow = { id: string; placement_id: string; type: string; overall_score: number | null };
 
 function MetricBar({ label, value, max, suffix = '' }: { label: string; value: number; max: number; suffix?: string }) {
   const width = max > 0 ? Math.max(2, (value / max) * 100) : 0;
@@ -20,6 +27,22 @@ function MetricBar({ label, value, max, suffix = '' }: { label: string; value: n
   );
 }
 
+function csvCell(value: unknown) {
+  const text = value == null ? '' : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function downloadCsv(filename: string, rows: unknown[][]) {
+  const csv = rows.map((row) => row.map(csvCell).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 export function WorkspaceAnalytics() {
   const { profile } = useAuth();
   const isUniversity = profile?.role === 'coordinator';
@@ -28,14 +51,68 @@ export function WorkspaceAnalytics() {
   const applicationsQuery = useApplications();
   const universityStats = useUniversityStats(isUniversity);
   const companyStats = useCompanyStats(isCompany);
-  const placements = placementsQuery.data ?? [];
-  const applications = applicationsQuery.data ?? [];
+  const weeklyQuery = useQuery({
+    queryKey: ['analytics-weekly-reports'],
+    enabled: isUniversity || isCompany,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('weekly_logs').select('id,placement_id,week_number,status,submitted_at');
+      if (error) throw error;
+      return (data ?? []) as WeeklyReport[];
+    },
+  });
+  const dailyQuery = useQuery({
+    queryKey: ['analytics-daily-reports'],
+    enabled: isUniversity || isCompany,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('daily_reports').select('id,placement_id,report_date,week_number,status');
+      if (error) throw error;
+      return (data ?? []) as DailyReport[];
+    },
+  });
+  const evaluationsQuery = useQuery({
+    queryKey: ['analytics-evaluations'],
+    enabled: isUniversity || isCompany,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('evaluations').select('id,placement_id,type,overall_score');
+      if (error) throw error;
+      return (data ?? []) as EvaluationRow[];
+    },
+  });
+
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [department, setDepartment] = useState('all');
+  const [program, setProgram] = useState('all');
+  const placements = (placementsQuery.data ?? []) as Placement[];
+  const applications = (applicationsQuery.data ?? []) as Application[];
+  const weeklyReports = weeklyQuery.data ?? [];
+  const dailyReports = dailyQuery.data ?? [];
+  const evaluations = evaluationsQuery.data ?? [];
+
+  const departments = useMemo(() => [...new Set(placements.map((p) => p.student?.department).filter((v): v is string => Boolean(v)))].sort(), [placements]);
+  const programs = useMemo(() => [...new Set(placements.map((p) => p.student?.student_profile?.program).filter((v): v is string => Boolean(v)))].sort(), [placements]);
+
+  const filteredPlacements = useMemo(() => placements.filter((p) => {
+    const created = p.created_at.slice(0, 10);
+    return (!startDate || created >= startDate)
+      && (!endDate || created <= endDate)
+      && (department === 'all' || p.student?.department === department)
+      && (program === 'all' || p.student?.student_profile?.program === program);
+  }), [placements, startDate, endDate, department, program]);
+  const placementIds = useMemo(() => new Set(filteredPlacements.map((p) => p.id)), [filteredPlacements]);
+  const filteredApplications = useMemo(() => applications.filter((a) => {
+    const created = a.created_at.slice(0, 10);
+    return (!startDate || created >= startDate) && (!endDate || created <= endDate)
+      && (department === 'all' || a.student?.department === department)
+      && (program === 'all' || a.student?.student_profile?.program === program);
+  }), [applications, startDate, endDate, department, program]);
+  const filteredWeekly = weeklyReports.filter((r) => placementIds.has(r.placement_id));
+  const filteredDaily = dailyReports.filter((r) => placementIds.has(r.placement_id));
+  const filteredEvaluations = evaluations.filter((r) => placementIds.has(r.placement_id));
 
   const gradeStats = useMemo(() => {
-    const graded = placements.filter((item) => item.final_grade !== null);
-    const average = graded.length
-      ? graded.reduce((sum, item) => sum + Number(item.final_grade), 0) / graded.length
-      : null;
+    const graded = filteredPlacements.filter((item) => item.final_grade !== null);
+    const average = graded.length ? graded.reduce((sum, item) => sum + Number(item.final_grade), 0) / graded.length : null;
     return {
       graded: graded.length,
       average,
@@ -46,90 +123,160 @@ export function WorkspaceAnalytics() {
         { label: 'Below 60', value: graded.filter((p) => Number(p.final_grade) < 60).length },
       ],
     };
-  }, [placements]);
+  }, [filteredPlacements]);
 
+  const departmentCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    filteredPlacements.forEach((p) => {
+      const key = p.student?.department || 'Department not set';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [filteredPlacements]);
   const programCounts = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const placement of placements) {
-      const program = placement.student?.student_profile?.program?.trim() || 'Program not set';
-      counts.set(program, (counts.get(program) ?? 0) + 1);
-    }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-  }, [placements]);
+    filteredPlacements.forEach((p) => {
+      const key = p.student?.student_profile?.program || 'Program not set';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [filteredPlacements]);
+  const supervisorCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    filteredPlacements.forEach((p) => {
+      const key = p.faculty_supervisor?.full_name || 'Not assigned';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [filteredPlacements]);
+  const applicationStages = ['submitted', 'under_review', 'shortlisted', 'accepted', 'rejected', 'withdrawn']
+    .map((status) => ({ label: status.replace('_', ' '), value: filteredApplications.filter((a) => a.status === status).length }));
+  const active = filteredPlacements.filter((p) => p.status === 'active').length;
+  const completed = filteredPlacements.filter((p) => p.status === 'completed').length;
+  const students = new Set(filteredPlacements.map((p) => p.student_id)).size;
+  const pendingWeekly = filteredWeekly.filter((r) => r.status === 'submitted').length;
+  const approvedWeekly = filteredWeekly.filter((r) => r.status === 'approved').length;
+  const needsRevision = filteredWeekly.filter((r) => r.status === 'needs_revision').length;
+  const gradedEvaluations = filteredEvaluations.filter((e) => e.overall_score !== null);
+  const evaluationAverage = gradedEvaluations.length ? gradedEvaluations.reduce((sum, e) => sum + Number(e.overall_score), 0) / gradedEvaluations.length : null;
+  const maxBand = Math.max(1, ...gradeStats.bands.map((band) => band.value));
+  const loading = placementsQuery.isLoading || applicationsQuery.isLoading || weeklyQuery.isLoading || dailyQuery.isLoading || evaluationsQuery.isLoading
+    || (isUniversity && universityStats.isLoading) || (isCompany && companyStats.isLoading);
+  const hasError = placementsQuery.isError || applicationsQuery.isError || weeklyQuery.isError || dailyQuery.isError || evaluationsQuery.isError
+    || (isUniversity && universityStats.isError) || (isCompany && companyStats.isError);
 
   if (!profile || (!isUniversity && !isCompany)) return <EmptyState title="Analytics unavailable" description="This workspace is available to university coordinators and company administrators." />;
-  if (placementsQuery.isLoading || applicationsQuery.isLoading || (isUniversity && universityStats.isLoading) || (isCompany && companyStats.isLoading)) return <div style={{ padding: 48, display: 'flex', justifyContent: 'center' }}><Spinner /></div>;
-  if (placementsQuery.isError || applicationsQuery.isError || (isUniversity && universityStats.isError) || (isCompany && companyStats.isError)) return <Alert tone="danger">Analytics could not be loaded. Check your access and refresh the page.</Alert>;
-
-  const active = placements.filter((p) => p.status === 'active').length;
-  const completed = placements.filter((p) => p.status === 'completed').length;
-  const students = new Set(placements.map((p) => p.student_id)).size;
-  const maxBand = Math.max(1, ...gradeStats.bands.map((band) => band.value));
+  if (loading) return <div style={{ padding: 48, display: 'flex', justifyContent: 'center' }}><Spinner /></div>;
+  if (hasError) return <Alert tone="danger">Analytics could not be loaded. Check your access and refresh the page.</Alert>;
 
   return (
     <div style={{ display: 'grid', gap: 20 }}>
       <PageHeader
         title={isUniversity ? 'University analytics' : 'Company analytics'}
-        description={isUniversity ? 'Student participation, placement progress, weekly supervision, and official internship grades.' : 'Your interns, placement activity, application pipeline, and university-issued final internship grades.'}
+        description={isUniversity ? 'Department performance, supervisor workload, reporting compliance, applications, and official grades.' : 'Internship pipeline, student performance, reporting compliance, and university-issued final grades.'}
       />
+
+      <Card>
+        <CardHeader title="Report filters" description="Filter placement-based reports by creation date, student department, and programme." />
+        <div style={{ padding: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12 }}>
+          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>From date<input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
+          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>To date<input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
+          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>Department<select value={department} onChange={(e) => setDepartment(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }}><option value="all">All departments</option>{departments.map((d) => <option key={d} value={d}>{d}</option>)}</select></label>
+          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>Programme<select value={program} onChange={(e) => setProgram(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }}><option value="all">All programmes</option>{programs.map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
+          <div style={{ display: 'flex', alignItems: 'end' }}><button type="button" onClick={() => { setStartDate(''); setEndDate(''); setDepartment('all'); setProgram('all'); }} style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}>Clear filters</button></div>
+        </div>
+      </Card>
 
       {isUniversity ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 }}>
-          <StatCard label="Total students" value={universityStats.data?.students ?? 0} icon={<Users size={19} />} hint="Students registered at your university" />
+          <StatCard label="Total students" value={universityStats.data?.students ?? 0} icon={<Users size={19} />} hint="All registered students at your university" />
           <StatCard label="Faculty supervisors" value={universityStats.data?.faculty ?? 0} icon={<GraduationCap size={19} />} />
-          <StatCard label="Active placements" value={universityStats.data?.active_placements ?? active} icon={<Briefcase size={19} />} />
-          <StatCard label="Completed placements" value={universityStats.data?.completed_placements ?? completed} icon={<CheckCircle2 size={19} />} />
-          <StatCard label="Pending applications" value={universityStats.data?.pending_applications ?? 0} />
-          <StatCard label="Weekly reports awaiting review" value={universityStats.data?.pending_logs ?? 0} />
-          <StatCard label="Placements without faculty" value={universityStats.data?.placements_without_faculty ?? 0} />
+          <StatCard label="Filtered placements" value={filteredPlacements.length} icon={<Briefcase size={19} />} />
+          <StatCard label="Active placements" value={active} />
+          <StatCard label="Completed placements" value={completed} icon={<CheckCircle2 size={19} />} />
+          <StatCard label="Pending applications" value={filteredApplications.filter((a) => ['submitted', 'under_review'].includes(a.status)).length} />
+          <StatCard label="Weekly reports awaiting review" value={pendingWeekly} />
+          <StatCard label="Placements without faculty" value={filteredPlacements.filter((p) => !p.faculty_supervisor_id).length} />
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 }}>
-          <StatCard label="Students hosted" value={students} icon={<Users size={19} />} hint="Unique students with placements at your company" />
+          <StatCard label="Students hosted" value={students} icon={<Users size={19} />} hint="Unique students in the filtered portfolio" />
           <StatCard label="Active placements" value={active} icon={<Briefcase size={19} />} />
           <StatCard label="Completed placements" value={completed} icon={<CheckCircle2 size={19} />} />
           <StatCard label="Total opportunities" value={companyStats.data?.total_postings ?? 0} />
           <StatCard label="Published opportunities" value={companyStats.data?.published_postings ?? 0} />
-          <StatCard label="New applications" value={companyStats.data?.new_applications ?? applications.length} />
-          <StatCard label="Pending weekly reports" value={companyStats.data?.pending_logs ?? 0} />
+          <StatCard label="Applications in filter" value={filteredApplications.length} />
+          <StatCard label="Weekly reports pending review" value={pendingWeekly} />
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
         <Card>
-          <CardHeader title="Final grade performance" description="Official grades recorded by assigned university faculty supervisors. Companies can view but cannot edit these grades." />
+          <CardHeader title="Final grade performance" description="Official grades recorded by assigned university faculty supervisors. Company users have read-only access." />
           <div style={{ padding: 16, display: 'grid', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-              <strong style={{ fontSize: 32 }}>{gradeStats.average === null ? '—' : gradeStats.average.toFixed(1)}</strong>
-              <span style={{ color: '#64748b', fontSize: 13 }}>average out of 100 · {gradeStats.graded} graded students</span>
-            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}><strong style={{ fontSize: 32 }}>{gradeStats.average === null ? '—' : gradeStats.average.toFixed(1)}</strong><span style={{ color: '#64748b', fontSize: 13 }}>average / 100 · {gradeStats.graded} graded</span></div>
             {gradeStats.bands.map((band) => <MetricBar key={band.label} label={band.label} value={band.value} max={maxBand} />)}
-            {gradeStats.graded === 0 ? <p style={{ color: '#64748b', fontSize: 13 }}>Final grades will appear here after the university supervisor completes grading.</p> : null}
+            {!gradeStats.graded && <p style={{ color: '#64748b', fontSize: 13 }}>No final grades in the selected scope yet.</p>}
           </div>
         </Card>
-
         <Card>
-          <CardHeader title={isUniversity ? 'Placements by student program' : 'Your placement portfolio'} description={isUniversity ? 'Programs represented among students with placements.' : 'Current distribution of students hosted by your company.'} />
+          <CardHeader title="Weekly reporting compliance" description="Report workflow status for the placements in the current filter." />
           <div style={{ padding: 16, display: 'grid', gap: 14 }}>
-            {isUniversity ? programCounts.length ? programCounts.map(([program, count]) => <MetricBar key={program} label={program} value={count} max={Math.max(1, ...programCounts.map((x) => x[1]))} />) : <p style={{ color: '#64748b' }}>No placement program data yet.</p> : (
-              <>
-                <MetricBar label="Active" value={active} max={Math.max(1, placements.length)} />
-                <MetricBar label="Completed" value={completed} max={Math.max(1, placements.length)} />
-                <MetricBar label="Other statuses" value={placements.length - active - completed} max={Math.max(1, placements.length)} />
-              </>
-            )}
+            <MetricBar label="Daily reports recorded" value={filteredDaily.length} max={Math.max(1, filteredDaily.length)} />
+            <MetricBar label="Weekly reports approved" value={approvedWeekly} max={Math.max(1, filteredWeekly.length)} />
+            <MetricBar label="Awaiting supervisor review" value={pendingWeekly} max={Math.max(1, filteredWeekly.length)} />
+            <MetricBar label="Returned for revision" value={needsRevision} max={Math.max(1, filteredWeekly.length)} />
+            <p style={{ color: '#64748b', fontSize: 12 }}>{filteredWeekly.length} weekly submissions tracked.</p>
+          </div>
+        </Card>
+        <Card>
+          <CardHeader title={isUniversity ? 'Placements by department' : 'Internship portfolio by department'} description="Distribution of placed students across departments." />
+          <div style={{ padding: 16, display: 'grid', gap: 14 }}>
+            {departmentCounts.length ? departmentCounts.map(([name, count]) => <MetricBar key={name} label={name} value={count} max={Math.max(1, ...departmentCounts.map((x) => x[1]))} />) : <p style={{ color: '#64748b' }}>No department data available.</p>}
+          </div>
+        </Card>
+        {isUniversity && <Card>
+          <CardHeader title="Placements by programme" description="Student programmes represented in the filtered placements." />
+          <div style={{ padding: 16, display: 'grid', gap: 14 }}>
+            {programCounts.length ? programCounts.map(([name, count]) => <MetricBar key={name} label={name} value={count} max={Math.max(1, ...programCounts.map((x) => x[1]))} />) : <p style={{ color: '#64748b' }}>No programme data available.</p>}
+          </div>
+        </Card>}
+        <Card>
+          <CardHeader title="Application pipeline" description="Application status distribution in the selected date and student filters." />
+          <div style={{ padding: 16, display: 'grid', gap: 14 }}>
+            {applicationStages.map((stage) => <MetricBar key={stage.label} label={stage.label} value={stage.value} max={Math.max(1, ...applicationStages.map((s) => s.value))} />)}
+          </div>
+        </Card>
+        <Card>
+          <CardHeader title="Supervisor workload" description="Number of placements assigned to each university faculty supervisor." />
+          <div style={{ padding: 16, display: 'grid', gap: 14 }}>
+            {supervisorCounts.length ? supervisorCounts.map(([name, count]) => <MetricBar key={name} label={name} value={count} max={Math.max(1, ...supervisorCounts.map((x) => x[1]))} />) : <p style={{ color: '#64748b' }}>No supervisor assignments yet.</p>}
+          </div>
+        </Card>
+        <Card>
+          <CardHeader title="Evaluation performance" description="Average score from submitted midterm and final evaluations." />
+          <div style={{ padding: 16, display: 'grid', gap: 8 }}>
+            <strong style={{ fontSize: 30 }}>{evaluationAverage === null ? '—' : evaluationAverage.toFixed(1)}</strong>
+            <span style={{ color: '#64748b', fontSize: 13 }}>{gradedEvaluations.length} scored evaluations · {filteredEvaluations.filter((e) => e.type === 'midterm').length} midterm · {filteredEvaluations.filter((e) => e.type === 'final').length} final</span>
           </div>
         </Card>
       </div>
 
       <Card>
-        <CardHeader title={isUniversity ? 'Student and placement overview' : 'Student grade register'} description={isUniversity ? 'Students with placements, active supervision, and completed internships.' : 'Final grades are read-only for company users and are entered by the assigned university faculty supervisor.'} />
-        {placements.length === 0 ? <EmptyState title="No placements yet" description="Placement records will appear here when applications are accepted." /> : (
+        <CardHeader title={isUniversity ? 'Student and placement register' : 'Student grade register'} description={isUniversity ? 'Placement, faculty assignment, and official grade records.' : 'Final grades are read-only for company users and are entered by assigned university faculty supervisors.'} />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 12px' }}>
+          <button type="button" onClick={() => downloadCsv(isUniversity ? 'sims-university-placement-register.csv' : 'sims-company-placement-register.csv', [
+            ['Student', 'Email', 'Department', 'Programme', 'Opportunity', 'Status', 'Faculty supervisor', 'Final grade', 'Created at'],
+            ...filteredPlacements.map((p) => [p.student?.full_name, p.student?.email, p.student?.department, p.student?.student_profile?.program, p.posting?.title, p.status, p.faculty_supervisor?.full_name, p.final_grade, p.created_at]),
+          ])} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 13px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}><Download size={16} /> Export CSV</button>
+        </div>
+        {filteredPlacements.length === 0 ? <EmptyState title="No placements match these filters" description="Change or clear the filters to see more records." /> : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead><tr>{['Student','Opportunity','Status','Faculty supervisor','Final grade'].map((label) => <th key={label} style={{ textAlign: 'left', padding: 12, borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{label}</th>)}</tr></thead>
-              <tbody>{placements.map((placement) => <tr key={placement.id}>
+              <thead><tr>{['Student', 'Department / programme', 'Opportunity', 'Status', 'Faculty supervisor', 'Final grade'].map((label) => <th key={label} style={{ textAlign: 'left', padding: 12, borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{label}</th>)}</tr></thead>
+              <tbody>{filteredPlacements.map((placement) => <tr key={placement.id}>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.student?.full_name ?? 'Student'}<div style={{ color: '#64748b' }}>{placement.student?.email}</div></td>
+                <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.student?.department ?? '—'}<div style={{ color: '#64748b' }}>{placement.student?.student_profile?.program ?? '—'}</div></td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.posting?.title ?? '—'}</td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9', textTransform: 'capitalize' }}>{placement.status}</td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.faculty_supervisor?.full_name ?? 'Not assigned'}</td>
