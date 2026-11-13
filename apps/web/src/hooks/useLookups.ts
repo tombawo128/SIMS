@@ -16,10 +16,14 @@ export interface PersonRow extends Profile {
 export function useUniversities() {
   return useQuery({
     queryKey: ['universities'],
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('universities')
         .select('id,name,slug,domain,logo_url,status,created_at')
+        .eq('status', 'active')
         .is('deleted_at', null)
         .order('name');
       if (error) throw error;
