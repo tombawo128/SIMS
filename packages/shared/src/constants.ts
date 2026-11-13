@@ -96,6 +96,7 @@ export function statusTone(status: string): BadgeTone {
     case 'shortlisted':
       return 'violet';
     case 'rejected':
+    case 'withdrawn':
     case 'closed':
     case 'cancelled':
       return 'rose';
