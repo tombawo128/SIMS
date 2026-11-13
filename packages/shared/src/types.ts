@@ -55,6 +55,7 @@ export interface Profile {
   full_name: string;
   email: string;
   phone: string | null;
+  department: string | null;
   avatar_url: string | null;
   account_status: AccountStatus;
   created_at: string;
@@ -71,7 +72,7 @@ export interface StudentProfile {
   skills: string[];
 }
 
-export interface ProfileSummary extends Pick<Profile, 'id' | 'full_name' | 'email'> {
+export interface ProfileSummary extends Pick<Profile, 'id' | 'full_name' | 'email' | 'department'> {
   student_profile?: StudentProfile | null;
 }
 
