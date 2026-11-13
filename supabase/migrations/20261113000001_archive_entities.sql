@@ -102,7 +102,7 @@ begin
   if not found then raise exception 'User not found or already archived'; end if;
 
   update public.profiles
-  set deleted_at = now(), deleted_by = auth.uid(), account_status = 'blocked'
+  set deleted_at = now(), deleted_by = auth.uid()
   where id = p_id;
 
   insert into public.deleted_entities(entity_type, entity_id, display_name, details, deleted_by)
@@ -134,13 +134,12 @@ begin
 
   if p_kind = 'user' then
     update public.profiles
-    set deleted_at = null, deleted_by = null,
-        account_status = coalesce(v_details->>'account_status', 'active')::public.account_status
+    set deleted_at = null, deleted_by = null
     where id = p_id and deleted_at is not null;
   elsif p_kind = 'university' then
     update public.universities
     set deleted_at = null, deleted_by = null,
-        status = coalesce(v_details->>'status', 'active')
+        status = coalesce(v_details->>'status', 'active')::public.tenant_status
     where id = p_id and deleted_at is not null;
   elsif p_kind = 'company' then
     update public.companies
