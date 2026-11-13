@@ -1,192 +1,286 @@
 import { useMemo, useState } from 'react';
 import {
-  Archive, RotateCcw, Users, Building2, GraduationCap, Search,
-  CalendarDays, ShieldCheck,
+  Archive,
+  ArrowUpDown,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  GraduationCap,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  Users,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useDeletedEntities, useRestoreDeletedEntity, type DeletedEntity } from '@/hooks/useAdminConsole';
+import {
+  useDeletedEntities,
+  useRestoreDeletedEntity,
+  type DeletedEntity,
+} from '@/hooks/useAdminConsole';
 import { errorMessage } from '@/lib/utils';
-import { Alert, Badge, Button, Card, EmptyState, PageHeader, Spinner, Tabs, useToast } from '@/components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Modal,
+  PageHeader,
+  Spinner,
+  Tabs,
+  useToast,
+} from '@/components/ui';
 
 type ArchiveTab = 'all' | DeletedEntity['entity_type'];
+type SortOrder = 'newest' | 'oldest' | 'name';
 
-const labels: Record<DeletedEntity['entity_type'], string> = {
-  user: 'User',
+const ENTITY_LABELS: Record<DeletedEntity['entity_type'], string> = {
+  user: 'User account',
   university: 'University',
   company: 'Company',
 };
 
-const dateLabel = (value: string) =>
-  new Date(value).toLocaleString(undefined, {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
+const ENTITY_TONES: Record<DeletedEntity['entity_type'], 'blue' | 'violet' | 'emerald'> = {
+  user: 'blue',
+  university: 'violet',
+  company: 'emerald',
+};
+
+function EntityIcon({ type, className }: { type: DeletedEntity['entity_type']; className?: string }) {
+  if (type === 'user') return <Users className={className} />;
+  if (type === 'university') return <GraduationCap className={className} />;
+  return <Building2 className={className} />;
+}
+
+function formatArchivedDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Date unavailable';
+  return new Intl.DateTimeFormat(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
 
 export function RecycleBin() {
   const { profile } = useAuth();
   const { toast } = useToast();
   const archive = useDeletedEntities();
   const restore = useRestoreDeletedEntity();
+
   const [tab, setTab] = useState<ArchiveTab>('all');
-  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortOrder>('newest');
+  const [selectedItem, setSelectedItem] = useState<DeletedEntity | null>(null);
   const [restoringId, setRestoringId] = useState<string | null>(null);
 
-  const rows = archive.data ?? [];
-  const counts = {
-    all: rows.length,
-    user: rows.filter((item) => item.entity_type === 'user').length,
-    university: rows.filter((item) => item.entity_type === 'university').length,
-    company: rows.filter((item) => item.entity_type === 'company').length,
-  };
+  const records = archive.data ?? [];
 
-  const items = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    return rows.filter((row) => {
-      const matchesTab = tab === 'all' || row.entity_type === tab;
-      const matchesQuery = !term ||
-        row.display_name.toLowerCase().includes(term) ||
-        labels[row.entity_type].toLowerCase().includes(term);
-      return matchesTab && matchesQuery;
+  const counts = useMemo(() => ({
+    all: records.length,
+    user: records.filter((record) => record.entity_type === 'user').length,
+    university: records.filter((record) => record.entity_type === 'university').length,
+    company: records.filter((record) => record.entity_type === 'company').length,
+  }), [records]);
+
+  const filteredRecords = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const result = records.filter((record) => {
+      const matchesCategory = tab === 'all' || record.entity_type === tab;
+      const matchesSearch = !term ||
+        record.display_name.toLowerCase().includes(term) ||
+        ENTITY_LABELS[record.entity_type].toLowerCase().includes(term);
+      return matchesCategory && matchesSearch;
     });
-  }, [rows, tab, query]);
+
+    if (sort === 'name') result.sort((a, b) => a.display_name.localeCompare(b.display_name));
+    else if (sort === 'oldest') result.sort((a, b) => a.deleted_at.localeCompare(b.deleted_at));
+    else result.sort((a, b) => b.deleted_at.localeCompare(a.deleted_at));
+    return result;
+  }, [records, search, sort, tab]);
 
   if (profile?.role !== 'platform_admin') {
-    return <EmptyState icon={<Archive />} title="Administrators only" description="The Recycle Bin is available to platform administrators." />;
+    return (
+      <EmptyState
+        icon={<ShieldCheck className="recycle-icon recycle-icon--large" />}
+        title="Administrator access required"
+        description="Only platform administrators can view and restore archived SIMS records."
+      />
+    );
   }
 
-  const restoreItem = async (item: DeletedEntity) => {
+  const confirmRestore = async () => {
+    if (!selectedItem) return;
+    const item = selectedItem;
     setRestoringId(item.id);
     try {
       await restore.mutateAsync({ id: item.entity_id, kind: item.entity_type });
-      toast({ title: `${item.display_name} restored`, description: 'The record has been returned to its original area.', tone: 'success' });
+      toast({
+        title: 'Record restored',
+        description: `${item.display_name} has been returned to its original section.`,
+        tone: 'success',
+      });
+      setSelectedItem(null);
     } catch (error) {
-      toast({ title: 'Could not restore record', description: errorMessage(error), tone: 'error' });
+      toast({
+        title: 'Restore failed',
+        description: errorMessage(error),
+        tone: 'error',
+      });
     } finally {
       setRestoringId(null);
     }
   };
 
-  const stats = [
-    { label: 'Archived users', value: counts.user, icon: Users, tone: 'blue', note: 'User accounts' },
-    { label: 'Archived universities', value: counts.university, icon: GraduationCap, tone: 'violet', note: 'University records' },
-    { label: 'Archived companies', value: counts.company, icon: Building2, tone: 'emerald', note: 'Company records' },
+  const metricCards = [
+    { label: 'User accounts', value: counts.user, helper: 'Archived profiles', type: 'user' as const },
+    { label: 'Universities', value: counts.university, helper: 'Archived institutions', type: 'university' as const },
+    { label: 'Companies', value: counts.company, helper: 'Archived organisations', type: 'company' as const },
   ];
 
   return (
-    <div className="space-y-6 recycle-page">
+    <main className="recycle-v2">
       <PageHeader
         title="Recycle Bin"
-        description="Manage archived platform records and safely restore them when needed."
+        description="Review archived records, track what has been removed, and restore items when needed."
       />
 
-      <section className="recycle-page__hero">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-white/10 p-3"><Archive className="h-6 w-6" /></div>
-            <div>
-              <p className="text-sm font-medium text-slate-300">Archive overview</p>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-3xl font-semibold tracking-tight">{counts.all}</span>
-                <span className="text-sm text-slate-300">total archived records</span>
-              </div>
-              <p className="mt-1 text-xs text-slate-400">Records remain here until an administrator restores them.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-start rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs text-slate-200 sm:self-center">
-            <ShieldCheck className="h-4 w-4" /> Platform administrator
-          </div>
+      <section className="recycle-v2__summary">
+        <div className="recycle-v2__summary-copy">
+          <span className="recycle-v2__eyebrow"><Archive size={14} /> ARCHIVE MANAGEMENT</span>
+          <h2>Keep your platform organised.</h2>
+          <p>Archived records are kept safely here instead of being permanently removed.</p>
+        </div>
+        <div className="recycle-v2__total">
+          <span>Total archived records</span>
+          <strong>{counts.all}</strong>
+          <small>Across all categories</small>
         </div>
       </section>
 
-      <section className="recycle-page__stats">
-        {stats.map(({ label, value, icon: Icon, tone, note }) => (
-          <Card key={label} className="overflow-hidden">
-            <div className="flex items-center justify-between gap-3 p-5">
-              <div>
-                <p className="text-sm font-medium text-slate-500">{label}</p>
-                <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
-                <p className="mt-1 text-xs text-slate-400">{note}</p>
-              </div>
-              <div className={`rounded-xl p-3 ${tone === 'blue' ? 'bg-blue-50 text-blue-700' : tone === 'violet' ? 'bg-violet-50 text-violet-700' : 'bg-emerald-50 text-emerald-700'}`}>
-                <Icon className="h-5 w-5" />
-              </div>
-            </div>
-          </Card>
+      <section className="recycle-v2__metrics" aria-label="Archive categories">
+        {metricCards.map((metric) => (
+          <button
+            type="button"
+            key={metric.type}
+            className={`recycle-v2__metric recycle-v2__metric--${metric.type}`}
+            onClick={() => setTab(metric.type)}
+          >
+            <span className="recycle-v2__metric-icon"><EntityIcon type={metric.type} /></span>
+            <span className="recycle-v2__metric-content">
+              <span className="recycle-v2__metric-label">{metric.label}</span>
+              <strong>{metric.value}</strong>
+              <small>{metric.helper}</small>
+            </span>
+            <span className="recycle-v2__metric-arrow">View records →</span>
+          </button>
         ))}
       </section>
 
-      <Card className="overflow-hidden recycle-page__records">
-        <div className="border-b border-slate-200 p-4 sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">Archived records</h2>
-              <p className="mt-1 text-sm text-slate-500">Browse records by category or search by name.</p>
-            </div>
-            <label className="relative block w-full lg:max-w-sm">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search archived records..."
-                aria-label="Search archived records"
-                className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
-            </label>
+      <Card className="recycle-v2__workspace">
+        <div className="recycle-v2__workspace-head">
+          <div>
+            <div className="recycle-v2__section-kicker"><ShieldCheck size={14} /> CONTROL CENTRE</div>
+            <h2>Archived records</h2>
+            <p>Search, filter and restore records from one place.</p>
           </div>
-          <div className="mt-5 overflow-x-auto">
-            <Tabs value={tab} onChange={(value) => setTab(value as ArchiveTab)} options={[
+          <div className="recycle-v2__workspace-count">
+            <Archive size={15} />
+            <span>{filteredRecords.length} shown</span>
+          </div>
+        </div>
+
+        <div className="recycle-v2__toolbar">
+          <label className="recycle-v2__search">
+            <Search size={17} />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by record name or category..."
+              aria-label="Search archived records"
+            />
+            {search && (
+              <button type="button" onClick={() => setSearch('')} aria-label="Clear search">
+                <X size={15} />
+              </button>
+            )}
+          </label>
+          <label className="recycle-v2__sort">
+            <ArrowUpDown size={15} />
+            <select value={sort} onChange={(event) => setSort(event.target.value as SortOrder)} aria-label="Sort archived records">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="name">Name A–Z</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="recycle-v2__tabs">
+          <Tabs
+            value={tab}
+            onChange={(value) => setTab(value as ArchiveTab)}
+            options={[
               { key: 'all', label: 'All records', count: counts.all },
               { key: 'user', label: 'Users', count: counts.user },
               { key: 'university', label: 'Universities', count: counts.university },
               { key: 'company', label: 'Companies', count: counts.company },
-            ]} />
-          </div>
+            ]}
+          />
         </div>
 
         {archive.isLoading ? (
-          <div className="flex justify-center p-12"><Spinner /></div>
+          <div className="recycle-v2__state"><Spinner /><span>Loading archived records...</span></div>
         ) : archive.isError ? (
-          <div className="p-5"><Alert tone="danger" title="Could not load archived records">{errorMessage(archive.error)}</Alert></div>
-        ) : items.length === 0 ? (
-          <div className="p-8 sm:p-12">
+          <div className="recycle-v2__error">
+            <Alert tone="danger" title="Archive could not be loaded">{errorMessage(archive.error)}</Alert>
+            <Button variant="secondary" onClick={() => void archive.refetch()}>Try again</Button>
+          </div>
+        ) : filteredRecords.length === 0 ? (
+          <div className="recycle-v2__empty">
             <EmptyState
-              icon={<Archive />}
-              title={query ? 'No matching records' : 'Recycle Bin is empty'}
-              description={query ? 'Try another search term or select a different category.' : 'Archived users, universities and companies will appear here.'}
+              icon={<Archive className="recycle-icon recycle-icon--large" />}
+              title={search ? 'No records found' : tab === 'all' ? 'Your Recycle Bin is clear' : `No archived ${tab === 'user' ? 'users' : tab === 'university' ? 'universities' : 'companies'}`}
+              description={search ? 'Try a different search term or clear the search.' : 'When a record is archived, it will appear here and can be restored.'}
             />
+            {search && <Button variant="secondary" size="sm" onClick={() => setSearch('')}>Clear search</Button>}
           </div>
         ) : (
           <>
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[680px] text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <div className="recycle-v2__table-wrap">
+              <table className="recycle-v2__table">
+                <thead>
                   <tr>
-                    <th className="px-5 py-3 font-semibold">Record</th>
-                    <th className="px-5 py-3 font-semibold">Category</th>
-                    <th className="px-5 py-3 font-semibold">Date archived</th>
-                    <th className="px-5 py-3 text-right font-semibold">Action</th>
+                    <th>Record</th>
+                    <th>Category</th>
+                    <th>Date archived</th>
+                    <th className="recycle-v2__actions-heading">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {items.map((item) => (
-                    <tr key={item.id} className="transition hover:bg-slate-50/80">
-                      <td className="px-5 py-4">
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
-                            {item.entity_type === 'user' ? <Users className="h-4 w-4" /> : item.entity_type === 'university' ? <GraduationCap className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
-                          </div>
-                          <span className="truncate font-medium text-slate-900">{item.display_name}</span>
+                <tbody>
+                  {filteredRecords.map((record) => (
+                    <tr key={record.id}>
+                      <td>
+                        <div className="recycle-v2__record">
+                          <span className={`recycle-v2__record-icon recycle-v2__record-icon--${record.entity_type}`}>
+                            <EntityIcon type={record.entity_type} />
+                          </span>
+                          <span className="recycle-v2__record-copy">
+                            <strong>{record.display_name}</strong>
+                            <small>Record ID: {record.entity_id.slice(0, 8)}…</small>
+                          </span>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <Badge tone={item.entity_type === 'user' ? 'blue' : item.entity_type === 'university' ? 'violet' : 'emerald'}>{labels[item.entity_type]}</Badge>
+                      <td><Badge tone={ENTITY_TONES[record.entity_type]}>{ENTITY_LABELS[record.entity_type]}</Badge></td>
+                      <td>
+                        <span className="recycle-v2__date"><CalendarDays size={15} />{formatArchivedDate(record.deleted_at)}</span>
                       </td>
-                      <td className="px-5 py-4 text-slate-500">
-                        <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4 text-slate-400" />{dateLabel(item.deleted_at)}</span>
-                      </td>
-                      <td className="px-5 py-4 text-right">
-                        <Button size="sm" variant="secondary" onClick={() => void restoreItem(item)} loading={restoringId === item.id}>
-                          <RotateCcw className="h-4 w-4" /> Restore
+                      <td className="recycle-v2__actions-cell">
+                        <Button size="sm" variant="secondary" onClick={() => setSelectedItem(record)}>
+                          <RotateCcw size={15} /> Restore
                         </Button>
                       </td>
                     </tr>
@@ -194,34 +288,67 @@ export function RecycleBin() {
                 </tbody>
               </table>
             </div>
-            <div className="divide-y divide-slate-100 md:hidden">
-              {items.map((item) => (
-                <div key={item.id} className="space-y-3 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
-                        {item.entity_type === 'user' ? <Users className="h-4 w-4" /> : item.entity_type === 'university' ? <GraduationCap className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-900">{item.display_name}</p>
-                        <div className="mt-1"><Badge tone={item.entity_type === 'user' ? 'blue' : item.entity_type === 'university' ? 'violet' : 'emerald'}>{labels[item.entity_type]}</Badge></div>
-                      </div>
+
+            <div className="recycle-v2__mobile-list">
+              {filteredRecords.map((record) => (
+                <article className="recycle-v2__mobile-record" key={record.id}>
+                  <div className="recycle-v2__mobile-top">
+                    <span className={`recycle-v2__record-icon recycle-v2__record-icon--${record.entity_type}`}>
+                      <EntityIcon type={record.entity_type} />
+                    </span>
+                    <div className="recycle-v2__mobile-copy">
+                      <strong>{record.display_name}</strong>
+                      <Badge tone={ENTITY_TONES[record.entity_type]}>{ENTITY_LABELS[record.entity_type]}</Badge>
                     </div>
-                    <Button size="sm" variant="secondary" onClick={() => void restoreItem(item)} loading={restoringId === item.id}>
-                      <RotateCcw className="h-4 w-4" /> Restore
+                  </div>
+                  <div className="recycle-v2__mobile-bottom">
+                    <span><Clock3 size={14} /> {formatArchivedDate(record.deleted_at)}</span>
+                    <Button size="sm" variant="secondary" onClick={() => setSelectedItem(record)}>
+                      <RotateCcw size={15} /> Restore
                     </Button>
                   </div>
-                  <p className="flex items-center gap-2 pl-11 text-xs text-slate-500"><CalendarDays className="h-3.5 w-3.5" /> Archived {dateLabel(item.deleted_at)}</p>
-                </div>
+                </article>
               ))}
-            </div>
-            <div className="flex flex-col gap-1 border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-              <span>Showing {items.length} of {counts.all} archived records</span>
-              <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5" /> Restore returns a record to its original area</span>
             </div>
           </>
         )}
+
+        {!archive.isLoading && !archive.isError && filteredRecords.length > 0 && (
+          <footer className="recycle-v2__footer">
+            <span>Showing {filteredRecords.length} of {counts.all} archived records</span>
+            <span><CheckCircle2 size={14} /> Original data is preserved when archived</span>
+          </footer>
+        )}
       </Card>
-    </div>
+
+      <div className="recycle-v2__notice">
+        <ShieldCheck size={17} />
+        <p><strong>Safe recovery:</strong> Restoring a record returns it to its original section. Existing archive history is retained for administration.</p>
+      </div>
+
+      <Modal
+        open={Boolean(selectedItem)}
+        onClose={() => !restore.isPending && setSelectedItem(null)}
+        title="Restore archived record?"
+        description={selectedItem ? selectedItem.display_name : undefined}
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setSelectedItem(null)} disabled={restore.isPending}>Cancel</Button>
+            <Button onClick={() => void confirmRestore()} loading={restore.isPending}>
+              <RotateCcw size={15} /> Restore record
+            </Button>
+          </>
+        }
+      >
+        <div className="recycle-v2__confirm">
+          <span className="recycle-v2__confirm-icon"><RotateCcw size={20} /></span>
+          <div>
+            <strong>This record will become available again.</strong>
+            <p>{selectedItem ? `${selectedItem.display_name} will be returned to the ${selectedItem.entity_type === 'user' ? 'user directory' : selectedItem.entity_type === 'university' ? 'universities list' : 'companies list'}.` : 'The selected record will be restored to its original area.'}</p>
+          </div>
+        </div>
+      </Modal>
+    </main>
   );
 }
