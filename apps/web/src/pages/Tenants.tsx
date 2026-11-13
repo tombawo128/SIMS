@@ -190,8 +190,8 @@ export function Tenants() {
     try {
       await deleteTenant.mutateAsync({ id: deleteTarget.tenant.id, kind: deleteTarget.kind });
       toast({
-        title: `${deleteTarget.tenant.name} deleted`,
-        description: 'The tenant and all of its members and records were permanently removed.',
+        title: `${deleteTarget.tenant.name} archived`,
+        description: 'The tenant was moved to the Recycle Bin. Its related records are preserved.',
         tone: 'success',
       });
       setDeleteTarget(null);
