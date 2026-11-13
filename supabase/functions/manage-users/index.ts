@@ -2,9 +2,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
 interface ManageBody {
-  action?: 'delete_user' | 'delete_tenant';
+  action?: 'delete_user' | 'delete_tenant' | 'restore_entity';
   id?: string;
-  kind?: 'university' | 'company';
+  kind?: 'user' | 'university' | 'company';
 }
 
 function json(body: unknown, status = 200): Response {
@@ -14,17 +14,9 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-// Privileged moderation for general administrators: hard-delete a user account or
-// an entire tenant. Status changes (approve/suspend/block) go through the
-// set_user_status RPC instead. The caller is verified here and every database
-// operation re-checks is_platform_admin() inside SECURITY DEFINER functions.
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-  if (req.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405);
-  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
@@ -34,18 +26,14 @@ Deno.serve(async (req) => {
   }
 
   const authorization = req.headers.get('Authorization');
-  if (!authorization) {
-    return json({ error: 'Missing authorization header' }, 401);
-  }
+  if (!authorization) return json({ error: 'Missing authorization header' }, 401);
 
   const callerClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authorization } },
   });
 
   const { data: userData, error: userError } = await callerClient.auth.getUser();
-  if (userError || !userData.user) {
-    return json({ error: 'Invalid session' }, 401);
-  }
+  if (userError || !userData.user) return json({ error: 'Invalid session' }, 401);
 
   const admin = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -57,9 +45,7 @@ Deno.serve(async (req) => {
     .eq('id', userData.user.id)
     .single();
 
-  if (profileError || !caller) {
-    return json({ error: 'Profile not found' }, 403);
-  }
+  if (profileError || !caller) return json({ error: 'Profile not found' }, 403);
   if (caller.role !== 'platform_admin') {
     return json({ error: 'Only a general administrator can manage accounts' }, 403);
   }
@@ -73,41 +59,35 @@ Deno.serve(async (req) => {
 
   if (body.action === 'delete_user') {
     const id = body.id?.trim();
-    if (!id) {
-      return json({ error: 'A user id is required' }, 400);
-    }
-    if (id === caller.id) {
-      return json({ error: 'You cannot delete your own account' }, 400);
-    }
+    if (!id) return json({ error: 'A user id is required' }, 400);
+    if (id === caller.id) return json({ error: 'You cannot archive your own account' }, 400);
 
     const { data: target, error: targetError } = await admin
       .from('profiles')
-      .select('id, role')
+      .select('id, role, deleted_at')
       .eq('id', id)
-      .single();
-    if (targetError || !target) {
-      return json({ error: 'User not found' }, 404);
-    }
+      .maybeSingle();
+
+    if (targetError || !target) return json({ error: 'User not found' }, 404);
     if (target.role === 'platform_admin') {
       return json({ error: 'Manage administrator accounts from General admins' }, 400);
     }
+    if (target.deleted_at) return json({ error: 'User is already archived' }, 409);
 
-    // placements.site_supervisor_id is the only RESTRICT reference to a profile;
-    // remove those placements (cascading their logs/evaluations) before the account
-    // so auth.admin.deleteUser can cascade the rest of the user's data cleanly.
-    const { error: placementError } = await admin
-      .from('placements')
-      .delete()
-      .eq('site_supervisor_id', id);
-    if (placementError) {
-      return json({ error: 'Could not delete the account' }, 500);
+    const { error: archiveError } = await callerClient.rpc('archive_user', { p_id: id });
+    if (archiveError) {
+      return json({ error: archiveError.message || 'Could not archive the user' }, 500);
     }
 
-    const { error: deleteError } = await admin.auth.admin.deleteUser(id);
-    if (deleteError) {
-      return json({ error: 'Could not delete the account' }, 500);
+    const { error: banError } = await admin.auth.admin.updateUserById(id, {
+      ban_duration: '876000h',
+    });
+    if (banError) {
+      // The profile remains safely archived. Surface the access-control failure
+      // so an administrator knows the account may still have an active session.
+      return json({ error: 'User archived, but sign-in blocking failed. Contact support.' }, 500);
     }
-    return json({ id });
+    return json({ id, archived: true });
   }
 
   if (body.action === 'delete_tenant') {
@@ -117,17 +97,45 @@ Deno.serve(async (req) => {
       return json({ error: 'A tenant id and kind are required' }, 400);
     }
 
-    // Run as the caller so auth.uid() resolves inside the SECURITY DEFINER RPC,
-    // which re-checks is_platform_admin() and deletes everything in one transaction.
     const { error } = await callerClient.rpc('delete_tenant', { p_kind: kind, p_id: id });
     if (error) {
       const notFound = error.message?.toLowerCase().includes('not found');
       return json(
-        { error: notFound ? 'That tenant no longer exists' : 'Could not delete the tenant' },
+        { error: notFound ? 'That tenant no longer exists or is already archived' : 'Could not archive the tenant' },
         notFound ? 404 : 500,
       );
     }
-    return json({ id });
+    return json({ id, archived: true });
+  }
+
+  if (body.action === 'restore_entity') {
+    const id = body.id?.trim();
+    const kind = body.kind;
+    if (!id || !kind || !['user', 'university', 'company'].includes(kind)) {
+      return json({ error: 'An archive id and valid entity type are required' }, 400);
+    }
+
+    const { error } = await callerClient.rpc('restore_deleted_entity', {
+      p_kind: kind,
+      p_id: id,
+    });
+    if (error) {
+      const notFound = error.message?.toLowerCase().includes('not found');
+      return json(
+        { error: notFound ? 'Archived record not found' : 'Could not restore the record' },
+        notFound ? 404 : 500,
+      );
+    }
+
+    if (kind === 'user') {
+      const { error: unbanError } = await admin.auth.admin.updateUserById(id, {
+        ban_duration: 'none',
+      });
+      if (unbanError) {
+        return json({ error: 'Record restored, but sign-in access could not be re-enabled.' }, 500);
+      }
+    }
+    return json({ id, restored: true });
   }
 
   return json({ error: 'Unknown action' }, 400);
