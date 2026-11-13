@@ -46,10 +46,10 @@ begin
     else 'Account updated'
   end;
   v_body := case new_status
-    when 'active' then 'Account approved'
-    when 'suspended' then 'Account suspended'
-    when 'blocked' then 'Account blocked'
-    else 'Account status updated'
+    when 'active' then 'Your account has been approved. You can now sign in and use SIMS.'
+    when 'suspended' then 'Your account has been temporarily suspended. Contact the platform team.'
+    when 'blocked' then 'Your account has been blocked. Contact the platform team.'
+    else 'Your account status was updated.'
   end;
   insert into public.notifications (user_id, title, body, link)
   values (target, v_title, v_body, '/dashboard');
