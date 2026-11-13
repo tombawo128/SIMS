@@ -172,6 +172,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Students & Faculty', to: '/people', icon: 'users' },
     APPLICATIONS,
     PLACEMENTS,
+    { label: 'Analytics', to: '/analytics', icon: 'dashboard' },
     PROFILE,
   ],
   site_supervisor: [
@@ -187,6 +188,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     APPLICATIONS,
     PLACEMENTS,
     { label: 'Team', to: '/people', icon: 'team' },
+    { label: 'Analytics', to: '/analytics', icon: 'dashboard' },
     PROFILE,
   ],
   platform_admin: [
