@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { BarChart3, BriefcaseBusiness, CheckCircle2, GraduationCap, Users } from 'lucide-react';
+import { BriefcaseBusiness, CheckCircle2, GraduationCap, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePlacements } from '@/hooks/usePlacements';
 import { useApplications } from '@/hooks/useApplications';
