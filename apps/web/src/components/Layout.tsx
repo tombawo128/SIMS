@@ -5,6 +5,7 @@ import {
   Briefcase,
   Building2,
   ClipboardList,
+  Code2,
   FileText,
   GraduationCap,
   LayoutDashboard,
@@ -37,6 +38,7 @@ const iconMap: Record<NavIcon, LucideIcon> = {
   building: Building2,
   user: UserRound,
   school: GraduationCap,
+  integration: Code2,
 };
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -84,6 +86,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           );
         })}
+        {profile.role === 'platform_admin' ? (
+          <NavLink
+            to="/admin/integrations"
+            onClick={onNavigate}
+            className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}
+          >
+            <Code2 className='nav-link__icon' />
+            Integration Centre
+          </NavLink>
+        ) : null}
         {profile.role === 'platform_admin' ? (
           <NavLink
             to="/recycle-bin"
