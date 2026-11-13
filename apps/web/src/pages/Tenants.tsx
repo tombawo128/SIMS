@@ -216,7 +216,7 @@ export function Tenants() {
         company_id: tab === 'company' ? inviteTenant.id : undefined,
       });
       setInviteResult(result);
-      toast({ title: 'Admin invited', description: `Share the temporary password with ${result.email}.`, tone: 'success' });
+      toast({ title: tab === 'company' ? 'Company account created' : 'Coordinator account created', description: `Share the temporary password securely with ${result.email}.`, tone: 'success' });
     } catch (caught) {
       setInviteError(errorMessage(caught));
     }
@@ -329,7 +329,7 @@ export function Tenants() {
                   <Pencil className='tenants-h-35-1' /> Edit
                 </Button>
                 <Button size="sm" variant="secondary" onClick={() => openInvite(tenant)}>
-                  <UserPlus className='tenants-h-35-1' /> Invite admin
+                  <UserPlus className='tenants-h-35-1' /> {tab === 'company' ? 'Create company account' : 'Create coordinator account'}
                 </Button>
                 <Button
                   size="sm"
@@ -448,8 +448,8 @@ export function Tenants() {
       <Modal
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
-        title={`Invite ${tab === 'university' ? 'coordinator' : 'company admin'}`}
-        description={inviteTenant ? `Create the first administrator for ${inviteTenant.name}.` : undefined}
+        title={tab === 'company' ? 'Create company account' : 'Create coordinator account'}
+        description={inviteTenant ? (tab === 'company' ? `Create a company administrator login for ${inviteTenant.name}.` : `Create a coordinator login for ${inviteTenant.name}.`) : undefined}
         footer={
           inviteResult ? (
             <Button onClick={() => setInviteOpen(false)}>Done</Button>
@@ -459,7 +459,7 @@ export function Tenants() {
                 Cancel
               </Button>
               <Button onClick={submitInvite} loading={invite.isPending}>
-                Create account
+                {tab === 'company' ? 'Create company account' : 'Create coordinator account'}
               </Button>
             </>
           )
@@ -468,7 +468,7 @@ export function Tenants() {
         <div className='tenants-space-y-4-1'>
           {inviteError ? <Alert tone="danger">{inviteError}</Alert> : null}
           {inviteResult ? (
-            <Alert tone="success" title="Administrator created">
+            <Alert tone="success" title={tab === 'company' ? 'Company account created' : 'Coordinator account created'}>
               <div className='tenants-space-y-1-1'>
                 <p>Email: <strong>{inviteResult.email}</strong></p>
                 <p>
@@ -480,7 +480,7 @@ export function Tenants() {
             </Alert>
           ) : (
             <>
-              <Field label="Full name" htmlFor="invite-admin-name" required>
+              <Field label={tab === 'company' ? 'Company representative name' : 'Coordinator full name'} htmlFor="invite-admin-name" required>
                 <Input
                   id="invite-admin-name"
                   value={inviteForm.fullName}
@@ -488,7 +488,7 @@ export function Tenants() {
                   placeholder="Dana Whitfield"
                 />
               </Field>
-              <Field label="Email" htmlFor="invite-admin-email" required>
+              <Field label="Login email" htmlFor="invite-admin-email" required>
                 <Input
                   id="invite-admin-email"
                   type="email"
@@ -498,8 +498,8 @@ export function Tenants() {
                 />
               </Field>
               <div className='tenants-rounded-xl-1'>
-                <Badge tone="violet">{tab === 'university' ? 'Coordinator' : 'Company admin'}</Badge>
-                <span className='tenants-ml-2-1'>Scoped to {inviteTenant?.name}. The account is created by the invite-user function.</span>
+                <Badge tone="violet">{tab === 'university' ? 'University coordinator' : 'Company administrator'}</Badge>
+                <span className='tenants-ml-2-1'>This login is linked to {inviteTenant?.name} and receives access for that organization only.</span>
               </div>
             </>
           )}
