@@ -38,7 +38,6 @@ const iconMap: Record<NavIcon, LucideIcon> = {
   building: Building2,
   user: UserRound,
   school: GraduationCap,
-  integration: Code2,
 };
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
