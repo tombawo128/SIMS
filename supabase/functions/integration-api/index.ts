@@ -33,9 +33,9 @@ Deno.serve(async (req: Request) => {
   const tenantId = isUniversity ? connection.university_id : connection.company_id;
   if (!tenantId) return json({ error: 'Integration tenant configuration is invalid' }, 403);
   const tenantTable = isUniversity ? 'universities' : 'companies';
-  const { data: tenant } = await admin.from(tenantTable).select('id,name,status')
+  const { data: tenant } = await admin.from(tenantTable).select('id,name,status,deleted_at')
     .eq('id', tenantId).maybeSingle();
-  if (!tenant || tenant.status !== 'active') return json({ error: 'Organisation is not active' }, 403);
+  if (!tenant || tenant.status !== 'active' || tenant.deleted_at) return json({ error: 'Organisation is not active' }, 403);
 
   await admin.from('integration_api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', key.id);
 
@@ -57,13 +57,32 @@ Deno.serve(async (req: Request) => {
   const limitParam = Number(new URL(req.url).searchParams.get('limit') ?? '50');
   const limit = Number.isFinite(limitParam) ? Math.min(Math.max(Math.floor(limitParam), 1), 100) : 50;
   if (path === '/v1/opportunities') {
-    let query = admin.from('job_postings')
-      .select('id,title,type,description,requirements,location,is_remote,duration_months,stipend,deadline,status,created_at')
-      .eq('status', 'published').order('created_at', { ascending: false }).limit(limit);
-    if (!isUniversity) query = query.eq('company_id', tenantId);
-    const { data, error } = await query;
-    if (error) return json({ error: 'Could not load opportunities' }, 500);
-    return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
+    const fields = 'id,title,type,description,requirements,location,is_remote,duration_months,stipend,deadline,status,created_at';
+    if (!isUniversity) {
+      const { data, error } = await admin.from('job_postings').select(fields)
+        .eq('company_id', tenantId).eq('status', 'published')
+        .order('created_at', { ascending: false }).limit(limit);
+      if (error) return json({ error: 'Could not load opportunities' }, 500);
+      return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
+    }
+    const [{ data: publicPosts, error: publicError }, { data: mappings, error: mappingError }] = await Promise.all([
+      admin.from('job_postings').select(fields).eq('status', 'published')
+        .eq('visibility', 'all_universities').order('created_at', { ascending: false }).limit(limit),
+      admin.from('posting_universities').select('posting_id').eq('university_id', tenantId),
+    ]);
+    if (publicError || mappingError) return json({ error: 'Could not load opportunities' }, 500);
+    const selectedIds = (mappings ?? []).map(item => item.posting_id);
+    let selectedPosts: typeof publicPosts = [];
+    if (selectedIds.length) {
+      const { data, error } = await admin.from('job_postings').select(fields)
+        .in('id', selectedIds).eq('status', 'published').eq('visibility', 'selected_universities')
+        .order('created_at', { ascending: false }).limit(limit);
+      if (error) return json({ error: 'Could not load selected opportunities' }, 500);
+      selectedPosts = data ?? [];
+    }
+    const combined = [...(publicPosts ?? []), ...selectedPosts]
+      .sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit);
+    return json({ data: combined, pagination: { limit, returned: combined.length } });
   }
   if (path === '/v1/applications') {
     let query = admin.from('applications')
