@@ -77,7 +77,7 @@ export function WorkspaceAnalytics() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 }}>
           <StatCard label="Total students" value={universityStats.data?.students ?? 0} icon={<Users size={19} />} hint="Students registered at your university" />
           <StatCard label="Faculty supervisors" value={universityStats.data?.faculty ?? 0} icon={<GraduationCap size={19} />} />
-          <StatCard label="Active placements" value={universityStats.data?.active_placements ?? active} icon={<BriefcaseBusiness size={19} />} />
+          <StatCard label="Active placements" value={universityStats.data?.active_placements ?? active} icon={<Briefcase size={19} />} />
           <StatCard label="Completed placements" value={universityStats.data?.completed_placements ?? completed} icon={<CheckCircle2 size={19} />} />
           <StatCard label="Pending applications" value={universityStats.data?.pending_applications ?? 0} />
           <StatCard label="Weekly reports awaiting review" value={universityStats.data?.pending_logs ?? 0} />
@@ -86,7 +86,7 @@ export function WorkspaceAnalytics() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 }}>
           <StatCard label="Students hosted" value={students} icon={<Users size={19} />} hint="Unique students with placements at your company" />
-          <StatCard label="Active placements" value={active} icon={<BriefcaseBusiness size={19} />} />
+          <StatCard label="Active placements" value={active} icon={<Briefcase size={19} />} />
           <StatCard label="Completed placements" value={completed} icon={<CheckCircle2 size={19} />} />
           <StatCard label="Total opportunities" value={companyStats.data?.total_postings ?? 0} />
           <StatCard label="Published opportunities" value={companyStats.data?.published_postings ?? 0} />
