@@ -566,7 +566,7 @@ export function PlacementDetail() {
             <p className='placement-detail-text-sm-1'>
               {sortedLogs.length} log{sortedLogs.length === 1 ? '' : 's'} · {approvedLogs} approved
             </p>
-            {isStudent && placement.status === 'active' ? (
+            {isStudent && placement.status === 'active' && false ? (
               <Button size="sm" onClick={() => openLogModal()}>
                 <Plus className='placement-detail-h-4-1' /> Add weekly log
               </Button>
@@ -579,7 +579,7 @@ export function PlacementDetail() {
               title="No weekly logs yet"
               description={isStudent ? 'Add your first weekly log to start the supervision trail.' : 'The student has not submitted any logs yet.'}
               action={
-                isStudent && placement.status === 'active' ? (
+                isStudent && placement.status === 'active' && false ? (
                   <Button size="sm" onClick={() => openLogModal()}>
                     Add weekly summary
                   </Button>
@@ -588,7 +588,7 @@ export function PlacementDetail() {
             />
           ) : (
             sortedLogs.map((log) => {
-              const editable = isStudent && ['draft', 'needs_revision'].includes(log.status) && placement.status === 'active';
+              const editable = isStudent && false && ['draft', 'needs_revision'].includes(log.status) && placement.status === 'active';
               return (
                 <Card key={log.id}>
                   <div className='placement-detail-flex-4'>
