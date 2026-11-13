@@ -54,7 +54,7 @@ export function useFacultyList(universityId: string | null | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id,full_name,email,role,university_id,company_id')
+        .select('id,full_name,email,role,university_id,company_id,department')
         .eq('university_id', universityId)
         .eq('role', 'faculty_supervisor')
         .is('deleted_at', null)
