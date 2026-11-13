@@ -47,7 +47,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 export function Dashboard() {
   const { profile } = useAuth();
   const role = profile?.role;
-  const isStaff = role !== 'student' && role !== 'platform_admin';
+  const isStaff = role === 'faculty_supervisor';
   const canSeeApplications = role !== 'platform_admin';
 
   const applications = useApplications(canSeeApplications);
@@ -253,12 +253,12 @@ export function Dashboard() {
         actions={primaryAction}
       />
 
-      {role !== 'platform_admin' && role !== 'student' ? (
+      {role === 'faculty_supervisor' ? (
         <div className='dashboard-mb-6-1'>
           <Card>
             <CardHeader
               title="Logs awaiting review"
-              description="Submitted weekly logs from placements you can access."
+              description="Daily entries combined into weekly reports that need your approval."
               actions={
                 <Link to="/placements" className='dashboard-text-xs-1'>
                   All placements
