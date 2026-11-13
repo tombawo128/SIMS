@@ -17,6 +17,7 @@ import { PostingEditor } from '@/pages/PostingEditor';
 import { People } from '@/pages/People';
 import { Tenants } from '@/pages/Tenants';
 import { Users } from '@/pages/Users';
+import { RecycleBin } from '@/pages/RecycleBin';
 import { ProfilePage } from '@/pages/Profile';
 import { Notifications } from '@/pages/Notifications';
 import { NotFound } from '@/pages/NotFound';
@@ -69,6 +70,7 @@ export function App() {
 
             <Route element={<RoleRoute allow={['platform_admin']} />}>
               <Route path="/users" element={<Users />} />
+              <Route path="/recycle-bin" element={<RecycleBin />} />
               <Route path="/tenants" element={<Tenants />} />
             </Route>
 
