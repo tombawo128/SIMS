@@ -218,8 +218,8 @@ export function IntegrationCentre() {
           {section === 'overview' ? (
             <>
               <div className="integration-stats">
-                <article><span className="integration-stat-icon"><Link2 size={18} /></span><strong>0</strong><small>Connected systems</small></article>
-                <article><span className="integration-stat-icon"><KeyRound size={18} /></span><strong>0</strong><small>Active API credentials</small></article>
+                <article><span className="integration-stat-icon"><Link2 size={18} /></span><strong>{connections.length}</strong><small>Registered systems</small></article>
+                <article><span className="integration-stat-icon"><KeyRound size={18} /></span><strong>{apiKeys.filter(key => !key.revoked_at).length}</strong><small>Active API credentials</small></article>
                 <article><span className="integration-stat-icon"><Webhook size={18} /></span><strong>0</strong><small>Active webhooks</small></article>
                 <article><span className="integration-stat-icon"><Activity size={18} /></span><strong>—</strong><small>Events delivered</small></article>
               </div>
