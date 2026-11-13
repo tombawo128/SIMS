@@ -51,6 +51,7 @@ const STATUS_TABS: { key: ApplicationStatus | 'all'; label: string }[] = [
   { key: 'shortlisted', label: 'Shortlisted' },
   { key: 'accepted', label: 'Accepted' },
   { key: 'rejected', label: 'Rejected' },
+  { key: 'withdrawn', label: 'Withdrawn' },
 ];
 
 const ACTIVE_STATUSES: ApplicationStatus[] = ['submitted', 'under_review', 'shortlisted'];
