@@ -11,7 +11,7 @@ import type {
 import { supabase } from '@/lib/supabase';
 
 const PLACEMENT_SELECT =
-  '*, student:profiles!placements_student_id_fkey(id,full_name,email,student_profile:student_profiles(*)), site_supervisor:profiles!placements_site_supervisor_id_fkey(id,full_name,email), faculty_supervisor:profiles!placements_faculty_supervisor_id_fkey(id,full_name,email), company:companies(id,name), university:universities(id,name), posting:job_postings(id,title,type)';
+  '*, student:profiles!placements_student_id_fkey(id,full_name,email,department,student_profile:student_profiles(*)), site_supervisor:profiles!placements_site_supervisor_id_fkey(id,full_name,email), faculty_supervisor:profiles!placements_faculty_supervisor_id_fkey(id,full_name,email,department), company:companies(id,name), university:universities(id,name), posting:job_postings(id,title,type)';
 
 export interface PlacementDetail extends Placement {
   weekly_logs: WeeklyLog[];
