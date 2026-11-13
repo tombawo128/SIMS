@@ -374,6 +374,11 @@ export function PostingDetail() {
       >
         <div className='posting-detail-space-y-4-2'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
+          {studentProfile.isError ? (
+            <Alert tone="danger" title="Could not load your student profile">
+              Close this window, refresh the page, and try again before submitting your application.
+            </Alert>
+          ) : null}
 
           <Field label="Cover letter" htmlFor="cover-letter" required hint="Tell the company why you're a strong fit.">
             <Textarea
