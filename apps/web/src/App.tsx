@@ -83,6 +83,7 @@ export function App() {
               <Route path="/admin/system-alerts" element={<SystemAlerts />} />
               <Route path="/admin/management" element={<AdminManagement />} />
               <Route path="/admin/analytics" element={<Analytics />} />
+              <Route path="/admin/integrations" element={<IntegrationCentre />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
