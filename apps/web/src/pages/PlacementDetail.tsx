@@ -173,6 +173,10 @@ export function PlacementDetail() {
   const isCompanyAdmin = profile?.role === 'company_admin' && profile.company_id === placement.company_id;
   const isCoordinator = profile?.role === 'coordinator' && profile.university_id === placement.university_id;
 
+  const facultyOptions = (facultyList.data ?? []).filter((faculty) =>
+    !placement.student?.department || faculty.department?.trim().toLowerCase() === placement.student.department.trim().toLowerCase(),
+  );
+
   const canReviewLogs = isFaculty;
   const canEvaluateSite = isSiteSupervisor || isCompanyAdmin;
   const canEvaluateFaculty = isFaculty;
@@ -409,7 +413,7 @@ export function PlacementDetail() {
               </Button>
             ) : null}
             {isCoordinator ? (
-              <Button variant="secondary" onClick={() => setAssignOpen(true)}>
+              <Button variant="secondary" onClick={() => { setFacultyId(facultyOptions[0]?.id ?? ''); setActionError(''); setAssignOpen(true); }}>
                 <UserCheck className='placement-detail-h-4-1' /> {placement.faculty_supervisor_id ? 'Change faculty supervisor' : 'Assign faculty'}
               </Button>
             ) : null}
@@ -1093,7 +1097,7 @@ export function PlacementDetail() {
         open={assignOpen}
         onClose={() => setAssignOpen(false)}
         title="Assign faculty supervisor"
-        description="Choose a faculty supervisor from your university."
+        description={placement.student?.department ? "Choose a faculty supervisor from " + placement.student.department + "." : "Choose a faculty supervisor from your university. Set the student department in their profile to enforce department matching."}
         footer={
           <>
             <Button variant="secondary" onClick={() => setAssignOpen(false)}>
@@ -1110,13 +1114,14 @@ export function PlacementDetail() {
           <Field label="Faculty supervisor" htmlFor="assign-faculty" required>
             <Select id="assign-faculty" value={facultyId} onChange={(event) => setFacultyId(event.target.value)}>
               <option value="">Select a faculty supervisor</option>
-              {(facultyList.data ?? []).map((faculty) => (
+              {facultyOptions.map((faculty) => (
                 <option key={faculty.id} value={faculty.id}>
-                  {faculty.full_name} · {faculty.email}
+                  {faculty.full_name} · {faculty.department ?? 'Department not set'} · {faculty.email}
                 </option>
               ))}
             </Select>
           </Field>
+          {placement.student?.department && facultyOptions.length === 0 ? <Alert tone="warning">No faculty supervisor has the matching department set. Ask a faculty member to update their profile department first.</Alert> : null}
         </div>
       </Modal>
 
