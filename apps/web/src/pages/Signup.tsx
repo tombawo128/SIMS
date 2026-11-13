@@ -365,21 +365,25 @@ export function Signup() {
                 required
                 className="signup-col-span-2-1"
               >
-                {universities.isLoading ? (
-                  <div className="signup-flex-1">
-                    <Spinner className="signup-h-4-1" />
-                    Loading universities…
-                  </div>
-                ) : (
+                <>
                   <Select
                     id="university"
                     required
                     value={form.universityId}
+                    disabled={universities.isLoading || universities.isError || !(universities.data?.length)}
                     onChange={(event) =>
                       update('universityId', event.target.value)
                     }
                   >
-                    <option value="">Select your university</option>
+                    <option value="">
+                      {universities.isLoading
+                        ? 'Loading universities…'
+                        : universities.isError
+                          ? 'Could not load universities'
+                          : universities.data?.length
+                            ? 'Select your university'
+                            : 'No active universities available'}
+                    </option>
 
                     {(universities.data ?? []).map((university) => (
                       <option key={university.id} value={university.id}>
@@ -387,7 +391,24 @@ export function Signup() {
                       </option>
                     ))}
                   </Select>
-                )}
+                  {universities.isError && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-red-600">
+                      <span>{errorMessage(universities.error)}</span>
+                      <button
+                        type="button"
+                        onClick={() => void universities.refetch()}
+                        className="font-semibold underline"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  )}
+                  {!universities.isLoading && !universities.isError && !universities.data?.length && (
+                    <p className="mt-2 text-sm text-slate-500">
+                      No active universities were returned. Contact the platform administrator.
+                    </p>
+                  )}
+                </>
               </Field>
 
               <Field label="Student ID" htmlFor="studentId">
