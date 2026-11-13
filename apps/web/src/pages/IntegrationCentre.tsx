@@ -177,7 +177,7 @@ export function IntegrationCentre() {
           <h2>One platform. Connected organisations.</h2>
           <p>Manage API access, event notifications, single sign-on and embeddable SIMS experiences from one administration workspace.</p>
           <div className="integration-hero__meta">
-            <span><i className="integration-dot" /> Integration services are not configured</span>
+            <span><i className="integration-dot" /> {connections.length > 0 ? `${connections.length} connected system(s) registered` : "No external systems registered yet"}</span>
             <span><ShieldCheck size={15} /> Tenant-scoped access model</span>
           </div>
         </div>
@@ -212,7 +212,7 @@ export function IntegrationCentre() {
         <div className="integration-main">
           <div className="integration-section-heading">
             <div><span className="integration-eyebrow">CONFIGURATION</span><h2>{title}</h2></div>
-            <Badge tone="slate">Not connected</Badge>
+            <Badge tone={section === "overview" ? "blue" : "slate"}>{section === "overview" ? "Integration workspace" : "Configuration"}</Badge>
           </div>
 
           {section === 'overview' ? (
