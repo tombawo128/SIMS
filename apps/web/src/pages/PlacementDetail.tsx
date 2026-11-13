@@ -68,8 +68,9 @@ import {
   useToast,
 } from '@/components/ui';
 import { StatusBadge } from '@/components/StatusBadge';
+import { DailyReportsPanel } from '@/components/DailyReportsPanel';
 
-type TabKey = 'overview' | 'logs' | 'evaluations' | 'checkins' | 'documents';
+type TabKey = 'overview' | 'daily' | 'logs' | 'evaluations' | 'checkins' | 'documents';
 
 const DEFAULT_RUBRIC: Record<string, number> = {
   professionalism: 4,
@@ -172,11 +173,11 @@ export function PlacementDetail() {
   const isCompanyAdmin = profile?.role === 'company_admin' && profile.company_id === placement.company_id;
   const isCoordinator = profile?.role === 'coordinator' && profile.university_id === placement.university_id;
 
-  const canReviewLogs = isSiteSupervisor || isCompanyAdmin || isFaculty;
+  const canReviewLogs = isFaculty;
   const canEvaluateSite = isSiteSupervisor || isCompanyAdmin;
   const canEvaluateFaculty = isFaculty;
   const canSubmitEvaluation = canEvaluateSite || canEvaluateFaculty;
-  const canGrade = isFaculty || isCoordinator;
+  const canGrade = isFaculty;
   const evaluatorRole: EvaluationRole = canEvaluateSite ? 'site_supervisor' : 'faculty_supervisor';
 
   const approvedLogs = sortedLogs.filter((log) => log.status === 'approved').length;
@@ -380,7 +381,8 @@ export function PlacementDetail() {
 
   const tabs: { key: TabKey; label: string; count?: number }[] = [
     { key: 'overview', label: 'Overview' },
-    { key: 'logs', label: 'Weekly logs', count: sortedLogs.length },
+    { key: 'daily', label: 'Daily reports' },
+    { key: 'logs', label: 'Weekly approvals', count: sortedLogs.length },
     { key: 'evaluations', label: 'Evaluations', count: placement.evaluations?.length ?? 0 },
     { key: 'checkins', label: 'Check-ins', count: placement.check_ins?.length ?? 0 },
     { key: 'documents', label: 'Documents', count: placement.documents?.length ?? 0 },
@@ -531,7 +533,7 @@ export function PlacementDetail() {
                     <>
                       <p className='placement-detail-flex-2'>
                         <ClipboardList className='placement-detail-mt-05-2' />
-                        Submit a weekly log every week. Logs can be edited until a supervisor reviews them.
+                        Record daily reports and submit them together at the end of each week. Your assigned university faculty supervisor approves each week.
                       </p>
                       <p className='placement-detail-flex-2'>
                         <FileText className='placement-detail-mt-05-2' />
@@ -546,6 +548,16 @@ export function PlacementDetail() {
             ) : null}
           </div>
         </div>
+      ) : null}
+
+      {tab === 'daily' ? (
+        <DailyReportsPanel
+          placementId={placement.id}
+          startDate={placement.start_date}
+          endDate={placement.end_date}
+          isStudent={isStudent && placement.status === 'active'}
+          weeklyLogs={sortedLogs.map((log) => ({ week_number: log.week_number, status: log.status }))}
+        />
       ) : null}
 
       {tab === 'logs' ? (
@@ -569,7 +581,7 @@ export function PlacementDetail() {
               action={
                 isStudent && placement.status === 'active' ? (
                   <Button size="sm" onClick={() => openLogModal()}>
-                    Add week 1
+                    Add weekly summary
                   </Button>
                 ) : undefined
               }
