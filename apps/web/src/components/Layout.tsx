@@ -12,6 +12,7 @@ import {
   Menu,
   UserRound,
   Users,
+  Archive,
   UsersRound,
   X,
 } from 'lucide-react';
@@ -83,6 +84,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           );
         })}
+        {profile.role === 'platform_admin' ? (
+          <NavLink
+            to="/recycle-bin"
+            onClick={onNavigate}
+            className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}
+          >
+            <Archive className='nav-link__icon' />
+            Recycle Bin
+          </NavLink>
+        ) : null}
       </nav>
 
       <div className='sidebar__footer'>
@@ -217,7 +228,7 @@ export function Layout() {
   const navItem = NAV_BY_ROLE[profile.role].find(
     (item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`),
   );
-  const title = navItem?.label ?? (location.pathname.startsWith('/notifications') ? 'Notifications' : 'Workspace');
+  const title = navItem?.label ?? (location.pathname.startsWith('/notifications') ? 'Notifications' : location.pathname.startsWith('/recycle-bin') ? 'Recycle Bin' : 'Workspace');
 
   return (
     <div className='app-shell'>
