@@ -8,7 +8,7 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 ## Observed production state (2026-11-14)
 
-- Supabase reports 15 application migration-history entries after the isolated `disable_public_admin_signup` migration was applied.
+- Supabase reports 18 application migration-history entries after four hardening migrations were applied and recorded.
 - The `backend-hardening` branch contains 23 SQL migration files after the storage/RPC hardening migration was added.
 - Production currently exposes 21 public application tables. All 21 have RLS enabled.
 - The production schema already contains the application areas represented by the repository baseline and later migrations: tenant directories, profiles, applications, placements, reports, integrations, deleted entities, broadcasts and system alerts.
@@ -33,6 +33,9 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 20261113234110 add_integration_connections_and_api_credentials
 20261114084822 create_post_images_storage_bucket
 20261114220336 disable_public_admin_signup
+20261114220440 harden_profile_lifecycle_and_notifications
+20261114220457 harden_storage_and_rpc_grants
+20261114220630 enforce_platform_admin_limit
 ```
 
 ## Required reconciliation procedure
@@ -60,6 +63,11 @@ These changes are branch-only until reviewed and released. The storage policy de
 
 - `signup-admin` is now production version 3 with JWT verification enabled; POST requests return HTTP 410 and public administrator registration is disabled.
 - Production RPC `admin_signup_available()` now returns `false`; the migration is recorded as `20261114220336_disable_public_admin_signup` and mirrored in this branch.
+- Active-account role helpers and profile self-update protection were hardened; `notify_user()` is service-role-only; internal trigger functions are no longer callable as RPCs.
+- Report-storage deletion is now restricted to authenticated students deleting their own placement-scoped report path.
+- Anonymous execution was revoked from internal authorization and administrative helper RPCs; authenticated/service-role grants were explicitly restored where needed.
+- Mutable search paths were fixed for `set_updated_at()` and `try_uuid()`.
+- A database trigger and unique slot constraint now enforce the two-platform-admin maximum. Production currently has one platform admin, assigned slot 1.
 - `manage-users` is now production version 5; it verifies the caller's Supabase Auth token and rejects suspended or archived profiles before privileged account-management actions.
 
 These two function deployments do not apply database migrations or alter production rows.
@@ -68,10 +76,10 @@ These two function deployments do not apply database migrations or alter product
 
 - Validate the new migration by a clean local database rebuild and the full pgTAP suite.
 - Validate real storage upload/download/delete using separate student accounts and a non-owner account in a non-production environment.
-- Reconcile the production migration ledger and schema snapshot.
+- Finish reconciling the original 14-entry production ledger against the repository's pre-existing baseline and older migrations. The four new hardening migrations now have matching production and repository versions.
 - Deploy the hardened `invite-user` and `integration-admin` Edge Function sources after resolving the deployment packaging issue; both currently lack the active-account check present in the branch versions.
 - Resolve the Vercel deployment quota before preview deployment and browser smoke testing.
 
 ## Safety
 
-Only the isolated `disable_public_admin_signup` migration was applied; it changed a feature-availability function and did not modify application rows. No migration history was rewritten, no production rows were modified, no paid Supabase branch was created, and no Vercel deployment was triggered.
+Four additive/hardening migrations were applied and recorded in production. They changed authorization functions, grants, storage policy, utility function search paths, and the platform-admin slot invariant; one existing platform-admin row was assigned slot 1. No application records were deleted or rewritten, no migration history was repaired or rewritten, no paid Supabase branch was created, and no Vercel deployment was triggered.
