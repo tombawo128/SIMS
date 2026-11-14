@@ -76,7 +76,9 @@ export function Placements() {
         placement.final_grade,
       ]),
     );
-    downloadCsv(`placements-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    const today = new Date();
+    const dateStamp = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    downloadCsv(`placements-${dateStamp}.csv`, csv);
   };
 
   return (
@@ -119,7 +121,11 @@ export function Placements() {
           <Spinner className='placements-h-6-1' />
         </div>
       ) : placements.isError ? (
-        <EmptyState title="Could not load placements" description="Refresh the page and try again." />
+        <EmptyState
+          title="Could not load placements"
+          description="Your placement records could not be retrieved. Try again."
+          action={<Button size="sm" variant="secondary" onClick={() => void placements.refetch()} loading={placements.isFetching}>Retry</Button>}
+        />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={<GraduationCap className='placements-h-5-1' />}
