@@ -16,6 +16,7 @@ import {
   PageHeader,
   Spinner,
   Tabs,
+  useToast,
 } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +27,7 @@ export function Notifications() {
   const markRead = useMarkNotificationRead(profile?.id);
   const markAll = useMarkAllNotificationsRead(profile?.id);
   const [tab, setTab] = useState<'all' | 'unread'>('all');
+  const { toast } = useToast();
 
   const items = notifications.data ?? [];
   const unread = items.filter((item) => !item.read_at);
@@ -38,7 +40,12 @@ export function Notifications() {
         description="Application updates, log reviews, evaluations, and placement changes."
         actions={
           unread.length ? (
-            <Button variant="secondary" onClick={() => markAll.mutate()} loading={markAll.isPending}>
+            <Button
+              variant="secondary"
+              onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })}
+              loading={markAll.isPending}
+              disabled={markAll.isPending}
+            >
               <CheckCheck className='notifications-h-4-1' /> Mark all read
             </Button>
           ) : undefined
@@ -61,7 +68,7 @@ export function Notifications() {
         </div>
       ) : notifications.isError ? (
         <Alert tone="danger" title="Could not load notifications">
-          Refresh the page and try again. Your notifications have not been marked as read.
+          Your notifications could not be retrieved. <Button size="sm" variant="secondary" onClick={() => void notifications.refetch()} loading={notifications.isFetching}>Retry</Button>
         </Alert>
       ) : visible.length === 0 ? (
         <EmptyState
@@ -77,7 +84,11 @@ export function Notifications() {
                 key={notification.id}
                 type="button"
                 onClick={() => {
-                  if (!notification.read_at) markRead.mutate(notification.id);
+                  if (!notification.read_at) {
+                    markRead.mutate(notification.id, {
+                      onError: (error) => toast({ title: 'Could not mark notification as read', description: error.message, tone: 'error' }),
+                    });
+                  }
                   navigate(notification.link ?? '/dashboard');
                 }}
                 className={cn(
