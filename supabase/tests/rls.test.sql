@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(44);
+select plan(46);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -288,6 +288,18 @@ select is(
   has_function_privilege('anon', 'public.admin_signup_available()', 'execute'),
   true,
   'legacy signup clients can still call the disabled feature check'
+);
+
+select is(
+  has_function_privilege('anon', 'public.assign_platform_admin_slot()', 'execute'),
+  false,
+  'anonymous users cannot execute the platform-admin slot trigger'
+);
+
+select is(
+  has_function_privilege('authenticated', 'public.assign_platform_admin_slot()', 'execute'),
+  false,
+  'authenticated users cannot execute the platform-admin slot trigger'
 );
 
 select is(
