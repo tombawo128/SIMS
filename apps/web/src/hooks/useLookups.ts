@@ -13,19 +13,19 @@ export interface PersonRow extends Profile {
   student_profile?: StudentProfile | null;
 }
 
-export function useUniversities() {
+export function useUniversities(includeInactive = false) {
   return useQuery({
-    queryKey: ['universities'],
+    queryKey: ['universities', includeInactive],
     staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('universities')
         .select('id,name,slug,domain,logo_url,status,created_at')
-        .eq('status', 'active')
-        .is('deleted_at', null)
-        .order('name');
+        .is('deleted_at', null);
+      if (!includeInactive) query = query.eq('status', 'active');
+      const { data, error } = await query.order('name');
       if (error) throw error;
       return (data ?? []) as University[];
     },
