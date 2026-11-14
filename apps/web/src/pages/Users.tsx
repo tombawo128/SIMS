@@ -87,6 +87,13 @@ interface UndoState {
   label: string;
 }
 
+function localDateStamp() {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export function Users() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -276,7 +283,7 @@ export function Users() {
         formatDate(user.created_at),
       ]),
     );
-    downloadCsv(`sims-users-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    downloadCsv(`sims-users-${localDateStamp()}.csv`, csv);
   };
 
   const primaryAction = (user: AdminUser) => {
