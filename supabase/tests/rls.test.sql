@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(40);
+select plan(43);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
