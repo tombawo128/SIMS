@@ -118,7 +118,11 @@ export function Postings() {
           <Spinner className='postings-h-6-1' />
         </div>
       ) : postings.isError ? (
-        <EmptyState title="Could not load opportunities" description="Please refresh the page and try again." />
+        <EmptyState
+          title="Could not load opportunities"
+          description="Opportunities could not be retrieved. Try again."
+          action={<Button size="sm" variant="secondary" onClick={() => void postings.refetch()} loading={postings.isFetching}>Retry</Button>}
+        />
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='postings-h-5-1' />}
