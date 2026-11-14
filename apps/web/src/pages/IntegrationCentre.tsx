@@ -197,7 +197,7 @@ export function IntegrationCentre() {
           {navigation.map(item => {
             const Icon = item.icon;
             return (
-              <button key={item.id} type="button" className={section === item.id ? 'integration-nav__item is-active' : 'integration-nav__item'} onClick={() => setSection(item.id)}>
+              <button key={item.id} type="button" aria-current={section === item.id ? 'page' : undefined} className={section === item.id ? 'integration-nav__item is-active' : 'integration-nav__item'} onClick={() => setSection(item.id)}>
                 <Icon size={17} /><span>{item.label}</span><ChevronRight size={15} />
               </button>
             );
@@ -211,7 +211,7 @@ export function IntegrationCentre() {
 
         <div className="integration-main">
           <div className="integration-section-heading">
-            <div><span className="integration-eyebrow">CONFIGURATION</span><h2>{title}</h2></div>
+            <div><span className="integration-eyebrow">WORKSPACE / CONFIGURATION</span><h2>{title}</h2></div>
             <Badge tone={section === "overview" ? "blue" : "slate"}>{section === "overview" ? "Integration workspace" : "Configuration"}</Badge>
           </div>
 
@@ -256,10 +256,10 @@ export function IntegrationCentre() {
                 )}
               </Card>
               <div className="integration-card-grid">
-                <Card><div className="integration-feature"><span><KeyRound /></span><div><h3>API management</h3><p>Issue organisation-scoped credentials and control access to approved SIMS resources.</p><button onClick={() => setSection('api')}>Explore API access <ArrowUpRight size={15} /></button></div></div></Card>
-                <Card><div className="integration-feature"><span><Webhook /></span><div><h3>Webhooks</h3><p>Notify external systems when applications, placements or report statuses change.</p><button onClick={() => setSection('webhooks')}>Configure webhooks <ArrowUpRight size={15} /></button></div></div></Card>
-                <Card><div className="integration-feature"><span><LockKeyhole /></span><div><h3>Single sign-on</h3><p>Plan secure sign-in with an organisation identity provider using OIDC or SAML.</p><button onClick={() => setSection('sso')}>Explore SSO <ArrowUpRight size={15} /></button></div></div></Card>
-                <Card><div className="integration-feature"><span><Code2 /></span><div><h3>Embed tools</h3><p>Display approved SIMS opportunities on an organisation's existing website.</p><button onClick={() => setSection('embed')}>View embed tools <ArrowUpRight size={15} /></button></div></div></Card>
+                <Card><div className="integration-feature"><span><KeyRound /></span><div><h3>API management</h3><p>Issue organisation-scoped credentials and control access to approved SIMS resources.</p><button type="button" onClick={() => setSection('api')}>Explore API access <ArrowUpRight size={15} /></button></div></div></Card>
+                <Card><div className="integration-feature"><span><Webhook /></span><div><h3>Webhooks</h3><p>Notify external systems when applications, placements or report statuses change.</p><button type="button" onClick={() => setSection('webhooks')}>Configure webhooks <ArrowUpRight size={15} /></button></div></div></Card>
+                <Card><div className="integration-feature"><span><LockKeyhole /></span><div><h3>Single sign-on</h3><p>Plan secure sign-in with an organisation identity provider using OIDC or SAML.</p><button type="button" onClick={() => setSection('sso')}>Explore SSO <ArrowUpRight size={15} /></button></div></div></Card>
+                <Card><div className="integration-feature"><span><Code2 /></span><div><h3>Embed tools</h3><p>Display approved SIMS opportunities on an organisation's existing website.</p><button type="button" onClick={() => setSection('embed')}>View embed tools <ArrowUpRight size={15} /></button></div></div></Card>
               </div>
               <Card>
                 <CardHeader title="Recommended setup sequence" description="A practical rollout path for each university or company." />
