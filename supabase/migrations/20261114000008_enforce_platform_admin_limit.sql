@@ -64,5 +64,5 @@ end;
 $$;
 
 create trigger profiles_assign_platform_admin_slot
-before insert or update of role on public.profiles
+before insert or update on public.profiles
 for each row execute function public.assign_platform_admin_slot();
