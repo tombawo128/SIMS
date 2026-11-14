@@ -34,6 +34,7 @@ import { useCompanies, useUniversities } from '@/hooks/useLookups';
 import { usePostings } from '@/hooks/usePostings';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -283,7 +284,13 @@ export function Dashboard() {
                 </Link>
               }
             />
-            {visibleLogs.length === 0 ? (
+            {pendingLogs.isLoading ? (
+              <p className='dashboard-text-xs-2' role="status">Loading submitted reports…</p>
+            ) : pendingLogs.isError ? (
+              <Alert tone="danger" title="Could not load submitted reports">
+                <Button size="sm" variant="secondary" onClick={() => void pendingLogs.refetch()}>Try again</Button>
+              </Alert>
+            ) : visibleLogs.length === 0 ? (
               <EmptyState title="No logs awaiting review" description="New submissions will appear here." />
             ) : (
               <div className='dashboard-divide-y-1'>
@@ -366,7 +373,13 @@ export function Dashboard() {
                     </Link>
                   }
                 />
-                {studentPostings.length === 0 ? (
+                {recommended.isLoading ? (
+                  <p className='dashboard-text-xs-2' role="status">Loading opportunities…</p>
+                ) : recommended.isError ? (
+                  <Alert tone="danger" title="Could not load opportunities">
+                    <Button size="sm" variant="secondary" onClick={() => void recommended.refetch()}>Try again</Button>
+                  </Alert>
+                ) : studentPostings.length === 0 ? (
                   <EmptyState
                     title="No opportunities yet"
                     description="New postings from partner companies will show up here."
@@ -487,7 +500,13 @@ export function Dashboard() {
                     </Link>
                   }
                 />
-                {recentApplications.length === 0 ? (
+                {applications.isLoading ? (
+                  <p className='dashboard-text-xs-2' role="status">Loading applications…</p>
+                ) : applications.isError ? (
+                  <Alert tone="danger" title="Could not load applications">
+                    <Button size="sm" variant="secondary" onClick={() => void applications.refetch()}>Try again</Button>
+                  </Alert>
+                ) : recentApplications.length === 0 ? (
                   <EmptyState title="No applications yet" />
                 ) : (
                   <div className='dashboard-divide-y-1'>
@@ -561,7 +580,13 @@ export function Dashboard() {
           {role !== 'platform_admin' ? (
             <Card>
               <CardHeader title="Notifications" description="Recent updates for you." />
-              {(notifications.data ?? []).length === 0 ? (
+              {notifications.isLoading ? (
+                <p className='dashboard-text-xs-2' role="status">Loading notifications…</p>
+              ) : notifications.isError ? (
+                <Alert tone="danger" title="Could not load notifications">
+                  <Button size="sm" variant="secondary" onClick={() => void notifications.refetch()}>Try again</Button>
+                </Alert>
+              ) : (notifications.data ?? []).length === 0 ? (
                 <EmptyState title="Nothing new" description="You are up to date." />
               ) : (
                 <div className='dashboard-divide-y-1'>
