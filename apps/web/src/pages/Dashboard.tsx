@@ -68,6 +68,19 @@ export function Dashboard() {
 
   if (!profile) return null;
 
+  const statsQuery = role === 'coordinator'
+    ? universityStats
+    : role === 'faculty_supervisor'
+      ? facultyStats
+      : role === 'platform_admin'
+        ? platformStats
+        : companyStats;
+  const statsHint = statsQuery.isLoading
+    ? 'Loading metrics…'
+    : statsQuery.isError
+      ? 'Metrics could not be loaded'
+      : undefined;
+
   const firstName = profile.full_name.split(' ')[0] || 'there';
   const roleDescription: Record<string, string> = {
     student: 'Track your applications, placement, weekly logs, and evaluations.',
@@ -319,7 +332,7 @@ export function Dashboard() {
 
       <div className='dashboard-grid-1'>
         {cards.map((card) => (
-          <StatCard key={card.label} label={card.label} value={card.value} hint={card.hint} icon={card.icon} />
+          <StatCard key={card.label} label={card.label} value={card.value} hint={card.hint ?? statsHint} icon={card.icon} />
         ))}
       </div>
 
