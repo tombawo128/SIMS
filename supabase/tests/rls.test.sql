@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(33);
+select plan(35);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -287,6 +287,18 @@ select is(
   (public.platform_stats() ->> 'universities')::integer,
   2,
   'platform admin can read aggregate tenant counts'
+);
+
+select is(
+  (select platform_admin_slot from public.profiles where id = '99999999-9999-4999-8999-999999999001'),
+  1::smallint,
+  'existing platform administrator receives a protected administrator slot'
+);
+
+select is(
+  (select count(*) from public.profiles where platform_admin_slot is not null),
+  1::bigint,
+  'only the existing administrator occupies an administrator slot'
 );
 
 -- ---------------------------------------------------------------------------
