@@ -17,6 +17,22 @@ as $$
   );
 $$;
 
+create or replace function public.test_application_update_row_count()
+returns bigint
+language plpgsql
+security invoker
+as $test$
+declare
+  v_rows bigint;
+begin
+  update public.applications
+  set status = 'rejected'
+  where id = '55555555-5555-4555-8555-555555550001';
+  get diagnostics v_rows = row_count;
+  return v_rows;
+end;
+$test$;
+
 set local role authenticated;
 
 -- ---------------------------------------------------------------------------
@@ -168,22 +184,6 @@ select throws_ok(
 -- Students cannot mutate workflow state directly
 -- ---------------------------------------------------------------------------
 select public.test_as('99999999-9999-4999-8999-999999999021');
-
-create or replace function public.test_application_update_row_count()
-returns bigint
-language plpgsql
-security invoker
-as $test$
-declare
-  v_rows bigint;
-begin
-  update public.applications
-  set status = 'rejected'
-  where id = '55555555-5555-4555-8555-555555550001';
-  get diagnostics v_rows = row_count;
-  return v_rows;
-end;
-$test$;
 
 select is(
   public.test_application_update_row_count(),
