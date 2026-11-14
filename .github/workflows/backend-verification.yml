@@ -41,6 +41,7 @@ jobs:
   edge-functions:
     name: Type-check Edge Functions
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
