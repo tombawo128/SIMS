@@ -22,6 +22,14 @@ create unique index profiles_platform_admin_slot_unique
   on public.profiles (platform_admin_slot)
   where platform_admin_slot is not null;
 
+alter table public.profiles
+  add constraint profiles_platform_admin_slot_role_check
+  check (
+    (role = 'platform_admin'::public.user_role and platform_admin_slot is not null)
+    or
+    (role <> 'platform_admin'::public.user_role and platform_admin_slot is null)
+  );
+
 create or replace function public.assign_platform_admin_slot()
 returns trigger
 language plpgsql
