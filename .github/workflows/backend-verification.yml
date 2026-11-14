@@ -22,7 +22,7 @@ jobs:
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.72.7
 
       - name: Start local Supabase
         run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy,analytics
@@ -50,5 +50,5 @@ jobs:
           set -e
           for file in supabase/functions/*/index.ts; do
             echo "Checking $file"
-            deno check --no-lock "$file"
+            deno check --node-modules-dir=auto --no-lock "$file"
           done
