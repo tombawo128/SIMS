@@ -147,9 +147,11 @@ export function PlacementDetail() {
     return (
       <EmptyState
         title="Placement unavailable"
-        description="This placement does not exist or is outside your workspace."
+        description={placementQuery.isError ? 'The placement could not be retrieved. Try again or return to your placements.' : 'This placement does not exist or is outside your workspace.'}
         action={
-          <Link to="/placements">
+          placementQuery.isError ? (
+            <Button variant="secondary" onClick={() => void placementQuery.refetch()} loading={placementQuery.isFetching}>Retry</Button>
+          ) : <Link to="/placements">
             <Button variant="secondary">Back to placements</Button>
           </Link>
         }
@@ -178,6 +180,10 @@ export function PlacementDetail() {
   const doReviewLog = async () => {
     if (!reviewingLog) return;
     setActionError('');
+    if (reviewDecision === 'needs_revision' && !reviewComment.trim()) {
+      setActionError('Add a comment explaining what needs to be revised.');
+      return;
+    }
     try {
       await reviewLog.mutateAsync({
         logId: reviewingLog.id,
@@ -237,6 +243,10 @@ export function PlacementDetail() {
     setActionError('');
     if (!checkInForm.notes.trim()) {
       setActionError('Add notes for this check-in.');
+      return;
+    }
+    if (!checkInForm.occurredAt || Number.isNaN(new Date(checkInForm.occurredAt).getTime())) {
+      setActionError('Choose a valid date and time for this check-in.');
       return;
     }
     try {
@@ -910,6 +920,7 @@ export function PlacementDetail() {
               <Input
                 id="checkin-date"
                 type="datetime-local"
+                required
                 value={checkInForm.occurredAt}
                 onChange={(event) => setCheckInForm((current) => ({ ...current, occurredAt: event.target.value }))}
               />
@@ -937,7 +948,7 @@ export function PlacementDetail() {
             <Button variant="secondary" onClick={() => setAssignOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={doAssignFaculty} loading={assignFaculty.isPending}>
+            <Button onClick={doAssignFaculty} loading={assignFaculty.isPending} disabled={assignFaculty.isPending || facultyList.isLoading || facultyList.isError || facultyOptions.length === 0 || !facultyId}>
               Assign supervisor
             </Button>
           </>
@@ -945,6 +956,13 @@ export function PlacementDetail() {
       >
         <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
+          {facultyList.isLoading ? <Alert tone="info">Loading faculty supervisors…</Alert> : null}
+          {facultyList.isError ? (
+            <Alert tone="danger">Could not load faculty supervisors. <Button size="sm" variant="secondary" onClick={() => void facultyList.refetch()} loading={facultyList.isFetching}>Retry</Button></Alert>
+          ) : null}
+          {!facultyList.isLoading && !facultyList.isError && facultyOptions.length === 0 ? (
+            <Alert tone="warning">No faculty supervisor is available for this student’s department. Check the department assignment or ask a faculty member to update their profile.</Alert>
+          ) : null}
           <Field label="Faculty supervisor" htmlFor="assign-faculty" required>
             <Select id="assign-faculty" value={facultyId} onChange={(event) => setFacultyId(event.target.value)}>
               <option value="">Select a faculty supervisor</option>
