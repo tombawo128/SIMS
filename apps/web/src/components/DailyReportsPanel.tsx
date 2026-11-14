@@ -143,7 +143,7 @@ export function DailyReportsPanel({
           {errorText ? <Alert tone="danger">{errorText}</Alert> : null}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12, padding: 16 }}>
             <Field label="Report date" htmlFor="daily-report-date">
-              <Input id="daily-report-date" type="date" min={startDate} max={endDate} value={reportDate} onChange={(event) => setReportDate(event.target.value)} />
+              <Input id="daily-report-date" type="date" min={startDate} max={endDate} value={reportDate} disabled={Boolean(editingId)} onChange={(event) => setReportDate(event.target.value)} />
             </Field>
             <Field label="Hours worked" htmlFor="daily-report-hours">
               <Input id="daily-report-hours" type="number" min="0" max="24" step="0.5" value={hours} onChange={(event) => setHours(event.target.value)} />
@@ -159,7 +159,7 @@ export function DailyReportsPanel({
             </Field>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek}><Plus size={16} /> Save daily report</Button>
-              {editingId ? <Button variant="secondary" onClick={() => { setEditingId(null); setTasks(''); setOutcomes(''); }}>Cancel edit</Button> : null}
+              {editingId ? <Button variant="secondary" onClick={() => { setEditingId(null); setHours('8'); setTasks(''); setOutcomes(''); setErrorText(''); }}>Cancel edit</Button> : null}
             </div>
             {!canEditWeek ? <Alert tone="info">This week has already been submitted. You cannot change its daily entries.</Alert> : null}
           </div>
@@ -178,7 +178,7 @@ export function DailyReportsPanel({
               title={`Week ${week} · ${totalHours} hours`}
               description={`${entries.length} daily entr${entries.length === 1 ? 'y' : 'ies'} · ${status.replace('_', ' ')}`}
               actions={isStudent && !locked ? (
-                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending}>
+                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending}>
                   <Send size={15} /> Submit week
                 </Button>
               ) : <StatusBadge status={status} label={status.replace('_', ' ')} />}
