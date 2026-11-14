@@ -79,6 +79,10 @@ Deno.serve(async (req) => {
   });
 
   if (createError || !created.user) {
+    // Remove the one-time provisioning ticket so a failed attempt cannot
+    // leave stale authorization data behind.
+    const { error: cleanupError } = await admin.from('provision_tickets').delete().eq('email', email);
+    if (cleanupError) console.error('Provision ticket cleanup failed', cleanupError);
     console.error('Auth user creation failed', createError);
     return json({
       error: createError?.message?.toLowerCase().includes('already')
