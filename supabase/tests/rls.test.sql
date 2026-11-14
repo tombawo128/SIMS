@@ -271,15 +271,15 @@ select is(
 );
 
 select is(
-  has_function_privilege('anon', 'public.admin_signup_available()', 'execute'),
+  public.admin_signup_available(),
   false,
-  'anonymous users cannot inspect administrator signup availability'
+  'public administrator bootstrap is permanently disabled'
 );
 
 select is(
-  has_function_privilege('authenticated', 'public.admin_signup_available()', 'execute'),
-  false,
-  'ordinary authenticated users cannot inspect administrator signup availability'
+  has_function_privilege('anon', 'public.admin_signup_available()', 'execute'),
+  true,
+  'legacy signup clients can still call the disabled feature check'
 );
 
 select is(
