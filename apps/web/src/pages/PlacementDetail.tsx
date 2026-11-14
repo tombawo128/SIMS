@@ -407,11 +407,6 @@ export function PlacementDetail() {
         actions={
           <>
             <StatusBadge status={placement.status} label={PLACEMENT_STATUS_LABELS[placement.status]} />
-            {isStudent && placement.status === 'active' ? (
-              <Button onClick={() => openLogModal()}>
-                <Plus className='placement-detail-h-4-1' /> Add weekly log
-              </Button>
-            ) : null}
             {isCoordinator ? (
               <Button variant="secondary" onClick={() => { setFacultyId(facultyOptions[0]?.id ?? ''); setActionError(''); setAssignOpen(true); }}>
                 <UserCheck className='placement-detail-h-4-1' /> {placement.faculty_supervisor_id ? 'Change faculty supervisor' : 'Assign faculty'}
