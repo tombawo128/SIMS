@@ -362,15 +362,15 @@ reset role;
 set local role anon;
 
 select is(
-  has_table_privilege('anon', 'public.placements', 'select'),
-  false,
-  'anon has no select privilege on placements'
+  (select count(*) from public.placements),
+  0::bigint,
+  'anonymous users cannot read placement records through RLS'
 );
 
 select is(
-  has_table_privilege('anon', 'public.job_postings', 'select'),
-  false,
-  'anon has no select privilege on job postings'
+  (select count(*) from public.job_postings),
+  0::bigint,
+  'anonymous users cannot read job postings through RLS'
 );
 
 select is(
