@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(46);
+select plan(52);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -318,6 +318,45 @@ select is(
   has_function_privilege('authenticated', 'public.guard_profile_update()', 'execute'),
   false,
   'trigger-only profile guard cannot be called as a Data API RPC'
+);
+
+select is(
+  has_table_privilege('anon', 'public.provision_tickets', 'select'),
+  false,
+  'anonymous users cannot read privileged provisioning tickets'
+);
+
+select is(
+  has_table_privilege('authenticated', 'public.provision_tickets', 'select'),
+  false,
+  'authenticated users cannot read privileged provisioning tickets'
+);
+
+select is(
+  has_table_privilege('service_role', 'public.provision_tickets', 'select'),
+  true,
+  'trusted service role can read provisioning tickets'
+);
+
+select is(
+  has_function_privilege('anon', 'public.handle_new_user()', 'execute'),
+  false,
+  'anonymous users cannot invoke the auth-user trigger function'
+);
+
+select is(
+  has_function_privilege('authenticated', 'public.handle_new_user()', 'execute'),
+  false,
+  'authenticated users cannot invoke the auth-user trigger function'
+);
+
+select is(
+  (select count(*) from pg_policies
+   where schemaname = 'storage'
+     and tablename = 'objects'
+     and policyname in ('post_images_authenticated_upload', 'post_images_owner_select', 'post_images_owner_delete')),
+  3::bigint,
+  'post image storage policies are present for owner-scoped access'
 );
 
 -- ---------------------------------------------------------------------------
