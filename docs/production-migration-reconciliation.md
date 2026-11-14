@@ -38,6 +38,8 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 20261114220726 restrict_platform_admin_slot_trigger_rpc
 20261114220926 optimize_rls_policies_and_fk_indexes
 20261114220954 optimize_tenant_directory_policies_and_fk_indexes
+20261114220926 optimize_rls_policies_and_fk_indexes
+20261114220954 optimize_tenant_directory_policies_and_fk_indexes
 ```
 
 ## Production fixes applied
