@@ -54,21 +54,19 @@ export function People() {
   const team = useCompanyTeam(profile?.role === 'company_admin' ? profile.company_id : undefined);
   const placements = usePlacements();
 
-  const facultyStudents = useMemo(() => {
-    const map = new Map<string, { id: string; full_name: string; email: string; placementId: string; title: string; company: string }>();
-    for (const placement of placements.data ?? []) {
-      if (placement.faculty_supervisor_id !== profile?.id) continue;
-      map.set(placement.student_id, {
-        id: placement.student_id,
+  const facultyStudents = useMemo(
+    () => (placements.data ?? [])
+      .filter((placement) => placement.faculty_supervisor_id === profile?.id)
+      .map((placement) => ({
+        id: placement.id,
         full_name: placement.student?.full_name ?? 'Student',
         email: placement.student?.email ?? '',
         placementId: placement.id,
         title: placement.posting?.title ?? 'Placement',
         company: placement.company?.name ?? '',
-      });
-    }
-    return [...map.values()];
-  }, [placements.data, profile?.id]);
+      })),
+    [placements.data, profile?.id],
+  );
 
   if (!profile) return null;
 
