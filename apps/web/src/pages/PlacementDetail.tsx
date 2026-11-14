@@ -312,10 +312,10 @@ export function PlacementDetail() {
         type: 'report',
       });
       toast({ title: 'Document uploaded', tone: 'success' });
-      if (reportInput.current) reportInput.current.value = '';
     } catch (caught) {
       toast({ title: 'Could not upload document', description: errorMessage(caught), tone: 'error' });
     } finally {
+      if (reportInput.current) reportInput.current.value = '';
       setUploading(false);
     }
   };
