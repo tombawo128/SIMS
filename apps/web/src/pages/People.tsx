@@ -188,6 +188,10 @@ export function People() {
       {isCoordinator && tab === 'students' ? (
         people.isLoading ? (
           <Loading />
+        ) : people.isError ? (
+          <Alert tone="danger" title="Could not load university members">
+            {errorMessage(people.error)} <Button size="sm" variant="secondary" onClick={() => void people.refetch()}>Try again</Button>
+          </Alert>
         ) : (
           <Card className='people-overflow-hidden-1'>
             {students.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
@@ -255,6 +259,10 @@ export function People() {
       {isCoordinator && tab === 'faculty' ? (
         people.isLoading ? (
           <Loading />
+        ) : people.isError ? (
+          <Alert tone="danger" title="Could not load faculty supervisors">
+            {errorMessage(people.error)} <Button size="sm" variant="secondary" onClick={() => void people.refetch()}>Try again</Button>
+          </Alert>
         ) : (
           <Card className='people-overflow-hidden-1'>
             {facultyMembers.filter((faculty) => filter(faculty.full_name, faculty.email)).length === 0 ? (
@@ -317,6 +325,10 @@ export function People() {
           <Card className='people-overflow-hidden-1'>
             {team.isLoading ? (
               <Loading />
+            ) : team.isError ? (
+              <Alert tone="danger" title="Could not load company team">
+                {errorMessage(team.error)} <Button size="sm" variant="secondary" onClick={() => void team.refetch()}>Try again</Button>
+              </Alert>
             ) : (team.data ?? []).filter((member) => filter(member.full_name, member.email)).length === 0 ? (
               <EmptyState
                 icon={<Users className='people-h-5-1' />}
@@ -377,6 +389,10 @@ export function People() {
       {isFaculty ? (
         placements.isLoading ? (
           <Loading />
+        ) : placements.isError ? (
+          <Alert tone="danger" title="Could not load assigned placements">
+            {errorMessage(placements.error)} <Button size="sm" variant="secondary" onClick={() => void placements.refetch()}>Try again</Button>
+          </Alert>
         ) : facultyStudents.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
           <EmptyState
             icon={<Users className='people-h-5-1' />}
