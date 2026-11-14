@@ -167,7 +167,7 @@ export function DailyReportsPanel({
         </Card>
       ) : null}
 
-      {reportsQuery.isLoading ? <Card>Loading daily reports…</Card> : reportsQuery.isError ? <Alert tone="danger">Could not load daily reports. Refresh and try again.</Alert> : reports.length === 0 ? (
+      {reportsQuery.isLoading ? <Card>Loading daily reports…</Card> : reportsQuery.isError ? <Alert tone="danger">Could not load daily reports. <Button size="sm" variant="secondary" onClick={() => void reportsQuery.refetch()} loading={reportsQuery.isFetching}>Retry</Button></Alert> : reports.length === 0 ? (
         <EmptyState icon={<ClipboardList size={20} />} title="No daily reports yet" description="Daily entries will appear here as the student records their internship activities." />
       ) : grouped.map(([week, entries]) => {
         const status = weeklyLogs.find((log) => log.week_number === week)?.status ?? 'draft';
