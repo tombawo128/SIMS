@@ -9,7 +9,7 @@ on:
       - main
 
 concurrency:
-  group: backend-verification-${{ github.ref }}
+  group: backend-verification-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
