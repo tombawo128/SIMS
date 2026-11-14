@@ -45,7 +45,8 @@ export function DailyReportsPanel({
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const [reportDate, setReportDate] = useState(today < startDate ? startDate : today > endDate ? endDate : today);
   const [hours, setHours] = useState('8');
   const [tasks, setTasks] = useState('');
