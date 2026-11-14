@@ -110,9 +110,9 @@ create or replace function public.admin_signup_available()
 returns boolean
 language sql
 immutable
-as $
+as $$
   select false;
-$;
+$$;
 
 grant execute on function public.admin_signup_available() to anon, authenticated;
 
@@ -150,7 +150,7 @@ revoke all on function public.handle_new_user() from authenticated;
 
 -- Some existing installations created this event-trigger function outside
 -- the tracked migration chain. Revoke RPC access only when it exists.
-do $
+do $$
 begin
   if to_regprocedure('public.rls_auto_enable()') is not null then
     execute 'revoke all on function public.rls_auto_enable() from public';
@@ -158,4 +158,4 @@ begin
     execute 'revoke all on function public.rls_auto_enable() from authenticated';
   end if;
 end;
-$;
+$$;
