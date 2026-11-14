@@ -249,9 +249,24 @@ export function useDeleteDocument() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: { documentId: string; placementId: string; storagePath: string }) => {
-      await supabase.storage.from('reports').remove([input.storagePath]);
-      const { error } = await supabase.from('documents').delete().eq('id', input.documentId);
-      if (error) throw error;
+      // Keep the document record if storage deletion fails. Removing metadata first
+      // would leave an orphaned private file that users can no longer locate.
+      const { error: storageError } = await supabase.storage
+        .from('reports')
+        .remove([input.storagePath]);
+      if (storageError) {
+        throw new Error(`The file could not be removed from storage: ${storageError.message}`);
+      }
+
+      const { error: metadataError } = await supabase
+        .from('documents')
+        .delete()
+        .eq('id', input.documentId);
+      if (metadataError) {
+        throw new Error(
+          `The file was removed, but its document record could not be deleted: ${metadataError.message}`,
+        );
+      }
     },
     onSuccess: (_data, variables) => invalidatePlacementData(queryClient, variables.placementId),
   });
