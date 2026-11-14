@@ -221,3 +221,15 @@ body {
 *::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-slate-400);
 }
+
+
+/* Route-level lazy loading fallback */
+.app-route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: var(--color-slate-500);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
