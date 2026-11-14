@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MAX_PLATFORM_ADMINS } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import { useUniversities } from '@/hooks/useLookups';
@@ -13,7 +13,6 @@ type Mode = 'student' | 'admin';
 export function Signup() {
   const { signUpStudent, signUpAdmin } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const universities = useUniversities();
   const availability = useAdminSignupAvailable();
