@@ -55,12 +55,19 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 These changes are branch-only until reviewed and released. The storage policy deliberately does not grant company supervisors or arbitrary authenticated users deletion access to student report files.
 
+## Emergency Edge Function changes already deployed
+
+- `signup-admin` is now production version 3 with JWT verification enabled; POST requests return HTTP 410 and public administrator registration is disabled.
+- `manage-users` is now production version 5; it verifies the caller's Supabase Auth token and rejects suspended or archived profiles before privileged account-management actions.
+
+These two function deployments do not apply database migrations or alter production rows.
+
 ## Release blockers still requiring operational verification
 
 - Validate the new migration by a clean local database rebuild and the full pgTAP suite.
 - Validate real storage upload/download/delete using separate student accounts and a non-owner account in a non-production environment.
 - Reconcile the production migration ledger and schema snapshot.
-- Deploy the hardened `signup-admin` Edge Function source (currently only changed in the branch) and verify the live function no longer permits privileged self-provisioning.
+- Deploy the hardened `invite-user` and `integration-admin` Edge Function sources after resolving the deployment packaging issue; both currently lack the active-account check present in the branch versions.
 - Resolve the Vercel deployment quota before preview deployment and browser smoke testing.
 
 ## Safety
