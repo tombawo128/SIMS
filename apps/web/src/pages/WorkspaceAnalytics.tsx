@@ -7,7 +7,7 @@ import { usePlacements } from '@/hooks/usePlacements';
 import { useApplications } from '@/hooks/useApplications';
 import { useCompanyStats, useUniversityStats } from '@/hooks/useDashboardStats';
 import { supabase } from '@/lib/supabase';
-import { Alert, Card, CardHeader, EmptyState, PageHeader, Spinner, StatCard } from '@/components/ui';
+import { Alert, Button, Card, CardHeader, EmptyState, PageHeader, Spinner, StatCard } from '@/components/ui';
 
 type WeeklyReport = { id: string; placement_id: string; week_number: number; status: string; submitted_at: string | null };
 type DailyReport = { id: string; placement_id: string; report_date: string; week_number: number; status: string };
@@ -169,7 +169,22 @@ export function WorkspaceAnalytics() {
 
   if (!profile || (!isUniversity && !isCompany)) return <EmptyState title="Analytics unavailable" description="This workspace is available to university coordinators and company administrators." />;
   if (loading) return <div style={{ padding: 48, display: 'flex', justifyContent: 'center' }}><Spinner /></div>;
-  if (hasError) return <Alert tone="danger">Analytics could not be loaded. Check your access and refresh the page.</Alert>;
+  if (hasError) return (
+    <Alert tone="danger" title="Analytics could not be loaded">
+      Check your workspace access and retry the report queries.
+      <div style={{ marginTop: 10 }}>
+        <Button size="sm" variant="secondary" onClick={() => {
+          void placementsQuery.refetch();
+          void applicationsQuery.refetch();
+          void weeklyQuery.refetch();
+          void dailyQuery.refetch();
+          void evaluationsQuery.refetch();
+          if (isUniversity) void universityStats.refetch();
+          if (isCompany) void companyStats.refetch();
+        }}>Retry analytics</Button>
+      </div>
+    </Alert>
+  );
 
   return (
     <div style={{ display: 'grid', gap: 20 }}>
@@ -181,8 +196,8 @@ export function WorkspaceAnalytics() {
       <Card>
         <CardHeader title="Report filters" description="Filter placement-based reports by creation date, student department, and programme." />
         <div style={{ padding: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12 }}>
-          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>From date<input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
-          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>To date<input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
+          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>From date<input type="date" value={startDate} max={endDate || undefined} onChange={(e) => setStartDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
+          <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>To date<input type="date" value={endDate} min={startDate || undefined} onChange={(e) => setEndDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
           <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>Department<select value={department} onChange={(e) => setDepartment(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }}><option value="all">All departments</option>{departments.map((d) => <option key={d} value={d}>{d}</option>)}</select></label>
           <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>Programme<select value={program} onChange={(e) => setProgram(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }}><option value="all">All programmes</option>{programs.map((p) => <option key={p} value={p}>{p}</option>)}</select></label>
           <div style={{ display: 'flex', alignItems: 'end' }}><button type="button" onClick={() => { setStartDate(''); setEndDate(''); setDepartment('all'); setProgram('all'); }} style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}>Clear filters</button></div>
