@@ -16,10 +16,15 @@ export interface PersonRow extends Profile {
 export function useUniversities() {
   return useQuery({
     queryKey: ['universities'],
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('universities')
         .select('id,name,slug,domain,logo_url,status,created_at')
+        .eq('status', 'active')
+        .is('deleted_at', null)
         .order('name');
       if (error) throw error;
       return (data ?? []) as University[];
@@ -34,6 +39,7 @@ export function useCompanies() {
       const { data, error } = await supabase
         .from('companies')
         .select('id,name,slug,industry,website,logo_url,status,created_at')
+        .is('deleted_at', null)
         .order('name');
       if (error) throw error;
       return (data ?? []) as Company[];
@@ -51,6 +57,7 @@ export function useFacultyList(universityId: string | null | undefined) {
         .select('id,full_name,email,role,university_id,company_id')
         .eq('university_id', universityId)
         .eq('role', 'faculty_supervisor')
+        .is('deleted_at', null)
         .order('full_name');
       if (error) throw error;
       return (data ?? []) as PersonRow[];
@@ -68,6 +75,7 @@ export function useCompanyTeam(companyId: string | null | undefined) {
         .select('id,full_name,email,role,company_id,university_id')
         .eq('company_id', companyId)
         .in('role', ['site_supervisor', 'company_admin'])
+        .is('deleted_at', null)
         .order('full_name');
       if (error) throw error;
       return (data ?? []) as PersonRow[];
@@ -84,6 +92,7 @@ export function useUniversityPeople(universityId: string | null | undefined) {
         .from('profiles')
         .select('*, student_profile:student_profiles(*)')
         .eq('university_id', universityId)
+        .is('deleted_at', null)
         .order('full_name');
       if (error) throw error;
       return (data ?? []) as PersonRow[];

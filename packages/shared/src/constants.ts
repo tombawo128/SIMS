@@ -191,6 +191,11 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     DASHBOARD,
     { label: 'Users', to: '/users', icon: 'users' },
     { label: 'Universities & Companies', to: '/tenants', icon: 'school' },
+    { label: 'Broadcasts', to: '/admin/broadcasts', icon: 'file-text' },
+    { label: 'Activity Logs', to: '/admin/activity-logs', icon: 'placements' },
+    { label: 'System Alerts', to: '/admin/system-alerts', icon: 'briefcase' },
+    { label: 'Admin Management', to: '/admin/management', icon: 'team' },
+    { label: 'Analytics', to: '/admin/analytics', icon: 'dashboard' },
     PROFILE,
   ],
 };

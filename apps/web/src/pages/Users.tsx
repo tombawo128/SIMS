@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Archive,
   Ban,
   CheckCircle2,
   ChevronRight,
@@ -207,7 +208,7 @@ export function Users() {
     const target = deleteTarget;
     try {
       await deleteUser.mutateAsync(target.id);
-      toast({ title: `${target.full_name} deleted`, description: 'The account and its data were removed.', tone: 'success' });
+      toast({ title: `${target.full_name} archived`, description: 'The account was moved to the Recycle Bin and sign-in was blocked.', tone: 'success' });
       setDeleteTarget(null);
       setSelected((current) => {
         const next = new Set(current);
@@ -216,7 +217,7 @@ export function Users() {
       });
       if (detailId === target.id) setDetailId(null);
     } catch (caught) {
-      toast({ title: 'Could not delete account', description: errorMessage(caught), tone: 'error' });
+      toast({ title: 'Could not archive account', description: errorMessage(caught), tone: 'error' });
     }
   };
 
@@ -518,9 +519,9 @@ export function Users() {
                             variant="ghost"
                             className='users-delete-btn'
                             onClick={() => setDeleteTarget(user)}
-                            aria-label={`Delete ${user.full_name}`}
+                            aria-label={`Archive ${user.full_name}`}
                           >
-                            <Trash2 className='users-icon-sm' />
+                            <Archive className='users-icon-sm' /> Archive
                           </Button>
                         ) : (
                           <span className='users-self-note'>
@@ -633,13 +634,13 @@ export function Users() {
               {isModeratable(detailUser) ? (
                 <div className='users-drawer__danger'>
                   <div>
-                    <h3 className='users-drawer__danger-title'>Delete account</h3>
+                    <h3 className='users-drawer__danger-title'>Archive account</h3>
                     <p className='users-drawer__danger-text'>
-                      Permanently remove this account and its data. This cannot be undone.
+                      Move this account to the Recycle Bin. Its records are preserved and it can be restored.
                     </p>
                   </div>
                   <Button variant="danger" onClick={() => setDeleteTarget(detailUser)}>
-                    <Trash2 className='users-icon-sm' /> Delete
+                    <Archive className='users-icon-sm' /> Archive account
                   </Button>
                 </div>
               ) : null}
@@ -651,7 +652,7 @@ export function Users() {
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
-        title="Delete this account?"
+        title="Archive this account?"
         description={deleteTarget ? `${deleteTarget.full_name} · ${deleteTarget.email}` : undefined}
         size="sm"
         footer={
@@ -660,17 +661,13 @@ export function Users() {
               Cancel
             </Button>
             <Button variant="danger" onClick={confirmDelete} loading={deleteUser.isPending}>
-              <Trash2 className='users-icon-sm' /> Delete account
+              <Trash2 className='users-icon-sm' /> Archive account
             </Button>
           </>
         }
       >
-        <Alert tone="danger" title="This is permanent">
-          The account, profile, and associated applications, placements, and logs are permanently removed.
-          {deleteTarget?.role === 'site_supervisor'
-            ? ' Placements this person supervises are deleted too.'
-            : ''}{' '}
-          This action cannot be undone.
+        <Alert tone="warning" title="This account will be archived">
+          The account will be moved to the Recycle Bin and blocked from signing in. The profile, applications, placements, and activity history will be preserved. A platform administrator can restore it later.
         </Alert>
       </Modal>
 

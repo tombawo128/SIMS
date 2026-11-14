@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   Bell,
   Briefcase,
@@ -12,6 +12,7 @@ import {
   Menu,
   UserRound,
   Users,
+  Archive,
   UsersRound,
   X,
 } from 'lucide-react';
@@ -83,6 +84,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           );
         })}
+        {profile.role === 'platform_admin' ? (
+          <NavLink
+            to="/recycle-bin"
+            onClick={onNavigate}
+            className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}
+          >
+            <Archive className='nav-link__icon' />
+            Recycle Bin
+          </NavLink>
+        ) : null}
       </nav>
 
       <div className='sidebar__footer'>
@@ -209,15 +220,9 @@ function NotificationBell() {
 
 export function Layout() {
   const { profile } = useAuth();
-  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!profile) return null;
-
-  const navItem = NAV_BY_ROLE[profile.role].find(
-    (item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`),
-  );
-  const title = navItem?.label ?? (location.pathname.startsWith('/notifications') ? 'Notifications' : 'Workspace');
 
   return (
     <div className='app-shell'>
@@ -262,7 +267,6 @@ export function Layout() {
               <p className='app-header__tenant'>
                 {profile.university?.name ?? profile.company?.name ?? 'Platform'}
               </p>
-              <h1 className='app-header__title'>{title}</h1>
             </div>
 
             <NotificationBell />

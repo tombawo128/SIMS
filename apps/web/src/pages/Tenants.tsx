@@ -190,8 +190,8 @@ export function Tenants() {
     try {
       await deleteTenant.mutateAsync({ id: deleteTarget.tenant.id, kind: deleteTarget.kind });
       toast({
-        title: `${deleteTarget.tenant.name} deleted`,
-        description: 'The tenant and all of its members and records were permanently removed.',
+        title: `${deleteTarget.tenant.name} archived`,
+        description: 'The tenant was moved to the Recycle Bin. Its related records are preserved.',
         tone: 'success',
       });
       setDeleteTarget(null);
@@ -509,31 +509,25 @@ export function Tenants() {
       <Modal
         open={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
+        title={`Archive ${deleteTarget?.kind === 'university' ? 'university' : 'company'}?`}
+        description={deleteTarget ? `Move ${deleteTarget.tenant.name} to the Recycle Bin.` : undefined}
         size="sm"
-        title={`Delete ${deleteTarget?.kind === 'university' ? 'university' : 'company'}`}
-        description={deleteTarget ? `Permanently remove ${deleteTarget.tenant.name}.` : undefined}
         footer={
           <>
             <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
               Cancel
             </Button>
             <Button variant="danger" onClick={confirmDelete} loading={deleteTenant.isPending}>
-              <Trash2 className='tenants-h-35-1' /> Delete permanently
+              <Trash2 className='tenants-h-35-1' /> Archive tenant
             </Button>
           </>
         }
       >
         <div className='tenants-space-y-4-1'>
           {deleteError ? <Alert tone="danger">{deleteError}</Alert> : null}
-          <Alert tone="danger" title="This cannot be undone">
-            Deleting <strong>{deleteTarget?.tenant.name}</strong> permanently removes the tenant and
-            everything scoped to it:
-            <ul className="tenants-delete-list">
-              <li>Every member account ({deleteTarget?.kind === 'university' ? 'students, faculty supervisors, coordinators' : 'company admins and site supervisors'})</li>
-              <li>All {deleteTarget?.kind === 'university' ? 'applications and placements' : 'job postings, applications, and placements'}</li>
-              <li>Related weekly logs, evaluations, check-ins, and documents</li>
-            </ul>
-            Consider <strong>suspending</strong> the tenant instead if you may need this data again.
+          <Alert tone="warning" title="The tenant will be archived">
+            <strong>{deleteTarget?.tenant.name}</strong> will be hidden from active tenant lists and moved to the Recycle Bin.
+            Its member accounts, applications, placements, and history will be preserved. You can restore the tenant later.
           </Alert>
         </div>
       </Modal>
