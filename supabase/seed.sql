@@ -161,6 +161,12 @@ insert into auth.users (
     now(), now()
   );
 
+-- Demo identities represent already-approved users so authorization tests
+-- exercise each role rather than the default pending-account state.
+update public.profiles
+set account_status = 'active'
+where id::text like '99999999-9999-4999-8999-99999999%';
+
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 select
   gen_random_uuid(),
