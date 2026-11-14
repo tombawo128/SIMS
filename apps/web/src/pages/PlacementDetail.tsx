@@ -30,6 +30,7 @@ import type {
   Evaluation,
   EvaluationRole,
   EvaluationType,
+  WeeklyLog,
 } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -173,8 +174,6 @@ export function PlacementDetail() {
   const evaluatorRole: EvaluationRole = canEvaluateSite ? 'site_supervisor' : 'faculty_supervisor';
 
   const approvedLogs = sortedLogs.filter((log) => log.status === 'approved').length;
-  const nextWeek = sortedLogs.length ? Math.max(...sortedLogs.map((log) => log.week_number)) + 1 : 1;
-
   const doReviewLog = async () => {
     if (!reviewingLog) return;
     setActionError('');
