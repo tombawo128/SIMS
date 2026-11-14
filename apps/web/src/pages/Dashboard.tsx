@@ -97,26 +97,44 @@ export function Dashboard() {
       ? [
           {
             label: 'Applications',
-            value: applications.data?.length ?? 0,
-            hint: `${activeApplications.length} in progress`,
+            value: applications.isLoading || applications.isError ? '—' : applications.data?.length ?? 0,
+            hint: applications.isLoading
+              ? 'Loading applications…'
+              : applications.isError
+                ? 'Applications could not be loaded'
+                : `${activeApplications.length} in progress`,
             icon: <FileCheck2 className='dashboard-h-5-1' />,
           },
           {
             label: 'Active placement',
-            value: activePlacement ? 1 : 0,
-            hint: activePlacement?.company?.name ?? 'No active placement yet',
+            value: placements.isLoading || placements.isError ? '—' : activePlacement ? 1 : 0,
+            hint: placements.isLoading
+              ? 'Loading placement…'
+              : placements.isError
+                ? 'Placement data could not be loaded'
+                : activePlacement?.company?.name ?? 'No active placement yet',
             icon: <ClipboardList className='dashboard-h-5-1' />,
           },
           {
             label: 'Unread updates',
-            value: unreadNotifications,
-            hint: 'Notifications',
+            value: notifications.isLoading || notifications.isError ? '—' : unreadNotifications,
+            hint: notifications.isLoading
+              ? 'Loading notifications…'
+              : notifications.isError
+                ? 'Notifications could not be loaded'
+                : 'Notifications',
             icon: <Users className='dashboard-h-5-1' />,
           },
           {
             label: 'Completed',
-            value: (placements.data ?? []).filter((placement) => placement.status === 'completed').length,
-            hint: 'Placements',
+            value: placements.isLoading || placements.isError
+              ? '—'
+              : (placements.data ?? []).filter((placement) => placement.status === 'completed').length,
+            hint: placements.isLoading
+              ? 'Loading placements…'
+              : placements.isError
+                ? 'Placement data could not be loaded'
+                : 'Placements',
             icon: <GraduationCap className='dashboard-h-5-1' />,
           },
         ]
