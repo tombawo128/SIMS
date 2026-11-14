@@ -8,8 +8,6 @@ import {
   GraduationCap,
   MessageSquare,
   Paperclip,
-  Plus,
-  Send,
   Star,
   Trash2,
   Upload,
@@ -32,7 +30,6 @@ import type {
   Evaluation,
   EvaluationRole,
   EvaluationType,
-  WeeklyLog,
 } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -44,8 +41,6 @@ import {
   useRecordGrade,
   useReviewWeeklyLog,
   useSubmitEvaluation,
-  useSubmitWeeklyLog,
-  useUpsertWeeklyLog,
 } from '@/hooks/usePlacements';
 import { useFacultyList } from '@/hooks/useLookups';
 import { uploadReport, openDocument } from '@/lib/storage';
@@ -91,8 +86,6 @@ export function PlacementDetail() {
   const { toast } = useToast();
   const placementQuery = usePlacement(id);
 
-  const upsertLog = useUpsertWeeklyLog();
-  const submitLog = useSubmitWeeklyLog();
   const reviewLog = useReviewWeeklyLog();
   const submitEvaluation = useSubmitEvaluation();
   const addCheckIn = useAddCheckIn();
@@ -106,11 +99,6 @@ export function PlacementDetail() {
 
   const [tab, setTab] = useState<TabKey>('overview');
   const [actionError, setActionError] = useState('');
-
-  const [logOpen, setLogOpen] = useState(false);
-  const [editingLog, setEditingLog] = useState<WeeklyLog | null>(null);
-  const [logForm, setLogForm] = useState({ weekNumber: '1', hours: '0', tasks: '', outcomes: '' });
-  const [logSaving, setLogSaving] = useState(false);
 
   const [reviewingLog, setReviewingLog] = useState<WeeklyLog | null>(null);
   const [reviewDecision, setReviewDecision] = useState<'approved' | 'needs_revision'>('approved');
@@ -186,67 +174,6 @@ export function PlacementDetail() {
 
   const approvedLogs = sortedLogs.filter((log) => log.status === 'approved').length;
   const nextWeek = sortedLogs.length ? Math.max(...sortedLogs.map((log) => log.week_number)) + 1 : 1;
-
-  const openLogModal = (log?: WeeklyLog) => {
-    setActionError('');
-    setEditingLog(log ?? null);
-    setLogForm({
-      weekNumber: String(log?.week_number ?? nextWeek),
-      hours: log ? String(log.hours) : '0',
-      tasks: log?.tasks ?? '',
-      outcomes: log?.learning_outcomes ?? '',
-    });
-    setLogOpen(true);
-  };
-
-  const saveLog = async (andSubmit: boolean) => {
-    setActionError('');
-    const weekNumber = Number(logForm.weekNumber);
-    const hours = Number(logForm.hours);
-    if (!Number.isInteger(weekNumber) || weekNumber < 1) {
-      setActionError('Enter a valid week number.');
-      return;
-    }
-    if (!Number.isFinite(hours) || hours < 0) {
-      setActionError('Enter the hours worked.');
-      return;
-    }
-    if (andSubmit && (!hours || !logForm.tasks.trim())) {
-      setActionError('Hours and tasks are required before submitting.');
-      return;
-    }
-
-    setLogSaving(true);
-    try {
-      const logId = await upsertLog.mutateAsync({
-        placementId: placement.id,
-        weekNumber,
-        hours,
-        tasks: logForm.tasks.trim(),
-        learningOutcomes: logForm.outcomes.trim(),
-      });
-      if (andSubmit) {
-        await submitLog.mutateAsync({ logId, placementId: placement.id });
-        toast({ title: `Week ${weekNumber} submitted`, tone: 'success' });
-      } else {
-        toast({ title: `Week ${weekNumber} saved as draft`, tone: 'info' });
-      }
-      setLogOpen(false);
-    } catch (caught) {
-      setActionError(errorMessage(caught));
-    } finally {
-      setLogSaving(false);
-    }
-  };
-
-  const submitExistingLog = async (log: WeeklyLog) => {
-    try {
-      await submitLog.mutateAsync({ logId: log.id, placementId: placement.id });
-      toast({ title: `Week ${log.week_number} submitted`, tone: 'success' });
-    } catch (caught) {
-      toast({ title: 'Could not submit log', description: errorMessage(caught), tone: 'error' });
-    }
-  };
 
   const doReviewLog = async () => {
     if (!reviewingLog) return;
@@ -565,29 +492,16 @@ export function PlacementDetail() {
             <p className='placement-detail-text-sm-1'>
               {sortedLogs.length} log{sortedLogs.length === 1 ? '' : 's'} · {approvedLogs} approved
             </p>
-            {isStudent && placement.status === 'active' && false ? (
-              <Button size="sm" onClick={() => openLogModal()}>
-                <Plus className='placement-detail-h-4-1' /> Add weekly log
-              </Button>
-            ) : null}
           </div>
 
           {sortedLogs.length === 0 ? (
             <EmptyState
               icon={<ClipboardList className='placement-detail-h-5-1' />}
               title="No weekly logs yet"
-              description={isStudent ? 'Add your first weekly log to start the supervision trail.' : 'The student has not submitted any logs yet.'}
-              action={
-                isStudent && placement.status === 'active' && false ? (
-                  <Button size="sm" onClick={() => openLogModal()}>
-                    Add weekly summary
-                  </Button>
-                ) : undefined
-              }
+              description={isStudent ? 'Daily reports are grouped and submitted here as weekly approvals.' : 'The student has not submitted any weekly reports yet.'}
             />
           ) : (
             sortedLogs.map((log) => {
-              const editable = isStudent && false && ['draft', 'needs_revision'].includes(log.status) && placement?.status === 'active';
               return (
                 <Card key={log.id}>
                   <div className='placement-detail-flex-4'>
@@ -602,16 +516,6 @@ export function PlacementDetail() {
                       </p>
                     </div>
                     <div className='placement-detail-flex-6'>
-                      {editable ? (
-                        <>
-                          <Button size="sm" variant="secondary" onClick={() => openLogModal(log)}>
-                            Edit
-                          </Button>
-                          <Button size="sm" onClick={() => submitExistingLog(log)} loading={submitLog.isPending}>
-                            <Send className='placement-detail-h-35-1' /> Submit
-                          </Button>
-                        </>
-                      ) : null}
                       {canReviewLogs && log.status === 'submitted' ? (
                         <Button
                           size="sm"
@@ -863,71 +767,6 @@ export function PlacementDetail() {
           </Card>
         </div>
       ) : null}
-
-      <Modal
-        open={logOpen}
-        onClose={() => setLogOpen(false)}
-        title={editingLog ? `Edit week ${editingLog.week_number}` : 'Weekly log'}
-        description="Record hours, work completed, and what you learned."
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setLogOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="secondary" onClick={() => saveLog(false)} loading={logSaving}>
-              Save draft
-            </Button>
-            <Button onClick={() => saveLog(true)} loading={logSaving}>
-              Save & submit
-            </Button>
-          </>
-        }
-      >
-        <div className='placement-detail-space-y-4-1'>
-          {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
-          <div className='placement-detail-grid-5'>
-            <Field label="Week number" htmlFor="log-week" required>
-              <Input
-                id="log-week"
-                type="number"
-                min={1}
-                value={logForm.weekNumber}
-                onChange={(event) => setLogForm((current) => ({ ...current, weekNumber: event.target.value }))}
-                disabled={Boolean(editingLog)}
-              />
-            </Field>
-            <Field label="Hours worked" htmlFor="log-hours" required>
-              <Input
-                id="log-hours"
-                type="number"
-                min={0}
-                max={168}
-                step="0.5"
-                value={logForm.hours}
-                onChange={(event) => setLogForm((current) => ({ ...current, hours: event.target.value }))}
-              />
-            </Field>
-          </div>
-          <Field label="Tasks completed" htmlFor="log-tasks" required>
-            <Textarea
-              id="log-tasks"
-              rows={4}
-              value={logForm.tasks}
-              onChange={(event) => setLogForm((current) => ({ ...current, tasks: event.target.value }))}
-              placeholder="Built the customer dashboard filter component…"
-            />
-          </Field>
-          <Field label="Learning outcomes" htmlFor="log-outcomes">
-            <Textarea
-              id="log-outcomes"
-              rows={3}
-              value={logForm.outcomes}
-              onChange={(event) => setLogForm((current) => ({ ...current, outcomes: event.target.value }))}
-              placeholder="Learned how to structure React components for reuse…"
-            />
-          </Field>
-        </div>
-      </Modal>
 
       <Modal
         open={Boolean(reviewingLog)}
