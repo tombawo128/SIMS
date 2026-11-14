@@ -33,6 +33,7 @@ Deno.serve(async (req: Request) => {
   const { data: caller, error: callerError } = await admin.from('profiles')
     .select('id, role, account_status, deleted_at').eq('id', authData.user.id).maybeSingle();
   if (callerError || !caller) return json({ error: 'SIMS profile not found' }, 403);
+  if (caller.account_status !== 'active' || caller.deleted_at) return json({ error: 'Your account is not active' }, 403);
   if (caller.role !== 'platform_admin') return json({ error: 'Platform administrator access required' }, 403);
 
   let body: { action?: Action; name?: string; organization_type?: 'university' | 'company'; organization_id?: string; integration_id?: string; scopes?: string[]; expires_at?: string | null; key_id?: string; status?: 'active' | 'suspended' };
