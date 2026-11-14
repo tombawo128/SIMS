@@ -226,6 +226,7 @@ select throws_ok(
 );
 
 reset role;
+select set_config('request.jwt.claims', '{}', true);
 update public.profiles
 set account_status = 'suspended'
 where id = '99999999-9999-4999-8999-999999999021';
@@ -245,6 +246,7 @@ select is(
 );
 
 reset role;
+select set_config('request.jwt.claims', '{}', true);
 update public.profiles
 set account_status = 'active'
 where id = '99999999-9999-4999-8999-999999999021';
