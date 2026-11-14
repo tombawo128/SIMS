@@ -2755,3 +2755,35 @@
 .landing-mt-6-2 {
   font-weight: var(--font-weight-semibold);
 }
+
+/* SIMS landing page expansion */
+.sims-landing-section { padding: 88px 24px; background: #fff; }
+.sims-landing-container { width: min(1120px,100%); margin: 0 auto; }
+.sims-landing-heading { max-width: 700px; margin: 0 auto 42px; text-align: center; }
+.sims-landing-eyebrow { display: inline-block; color: #4f46e5; font-size: .76rem; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 14px; }
+.sims-landing-heading h2 { margin: 0; color: #172033; font-size: clamp(2rem,4vw,3rem); line-height: 1.12; letter-spacing: -.045em; font-weight: 750; }
+.sims-landing-heading > p { margin: 16px auto 0; max-width: 620px; color: #647084; font-size: 1rem; line-height: 1.8; }
+.sims-capability-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+.sims-capability-card { min-height: 220px; padding: 24px; border: 1px solid #e6eaf1; border-radius: 15px; background: #fff; transition: transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.sims-capability-card:hover { transform: translateY(-3px); border-color: #cbd3f7; box-shadow: 0 14px 30px -24px rgba(44,62,120,.35); }
+.sims-capability-icon { display: grid; place-items: center; width: 43px; height: 43px; margin-bottom: 19px; border-radius: 12px; background: #eef1ff; color: #4f46e5; }
+.sims-capability-card h3 { margin: 0 0 9px; color: #202a3d; font-size: 1rem; font-weight: 700; letter-spacing: -.02em; }
+.sims-capability-card p { margin: 0; color: #697589; font-size: .86rem; line-height: 1.75; }
+.sims-landing-security { background: #f7f8fc; border-top: 1px solid #edf0f5; border-bottom: 1px solid #edf0f5; }
+.sims-security-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; align-items: center; }
+.sims-security-heading { text-align: left; margin: 0; }
+.sims-security-heading > p { margin-left: 0; }
+.sims-security-list { display: grid; gap: 12px; }
+.sims-security-item { display: flex; gap: 15px; padding: 18px; border: 1px solid #e5e9f1; border-radius: 13px; background: #fff; }
+.sims-security-item > span { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 10px; color: #4f46e5; background: #eef1ff; }
+.sims-security-item h3 { margin: 0 0 4px; color: #202a3d; font-size: .94rem; font-weight: 700; }
+.sims-security-item p { margin: 0; color: #697589; font-size: .84rem; line-height: 1.7; }
+.sims-faq-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; max-width: 980px; margin: 0 auto; }
+.sims-faq-item { align-self: start; border: 1px solid #e5e9f1; border-radius: 13px; background: #fff; padding: 19px 20px; }
+.sims-faq-item summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #202a3d; font-size: .92rem; font-weight: 700; cursor: pointer; list-style: none; }
+.sims-faq-item summary::-webkit-details-marker { display: none; }
+.sims-faq-item summary svg { flex: 0 0 auto; color: #6574b9; }
+.sims-faq-item[open] summary { color: #4338ca; }
+.sims-faq-item p { margin: 13px 0 0; color: #697589; font-size: .87rem; line-height: 1.8; }
+@media (max-width: 1000px) { .sims-capability-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .sims-security-layout { gap: 38px; } }
+@media (max-width: 680px) { .sims-landing-section { padding: 64px 18px; } .sims-capability-grid,.sims-faq-grid,.sims-security-layout { grid-template-columns: 1fr; } .sims-landing-heading { margin-bottom: 30px; } .sims-security-heading { text-align: center; } .sims-security-heading > p { margin-left: auto; } .sims-capability-card { min-height: 0; } }
