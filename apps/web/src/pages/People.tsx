@@ -36,6 +36,13 @@ import {
 
 type TabKey = 'students' | 'faculty' | 'team';
 
+function localDateStamp() {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export function People() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -130,7 +137,7 @@ export function People() {
         (student.student_profile?.skills ?? []).join('; '),
       ]),
     );
-    downloadCsv(`students-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    downloadCsv(`students-${localDateStamp()}.csv`, csv);
   };
 
   return (
