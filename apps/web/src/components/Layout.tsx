@@ -176,7 +176,15 @@ function NotificationBell() {
             </div>
 
             <div className='bell__list'>
-              {items.length === 0 ? (
+              {notifications.isLoading ? (
+                <p className='bell__item-body' role="status">Loading notifications…</p>
+              ) : notifications.isError ? (
+                <div className='bell__item-content' role="alert">
+                  <p className='bell__item-title'>Notifications unavailable</p>
+                  <p className='bell__item-body'>We could not load your updates.</p>
+                  <button type="button" className='link-action' onClick={() => void notifications.refetch()}>Try again</button>
+                </div>
+              ) : items.length === 0 ? (
                 <EmptyState title="You're all caught up" description="New activity will appear here." />
               ) : (
                 items.slice(0, 8).map((item) => (
