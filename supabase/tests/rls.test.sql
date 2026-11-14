@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(35);
+select plan(40);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -268,6 +268,36 @@ select is(
   has_function_privilege('service_role', 'public.notify_user(uuid,text,text,text)', 'execute'),
   true,
   'trusted service role can execute notify_user'
+);
+
+select is(
+  has_function_privilege('anon', 'public.admin_signup_available()', 'execute'),
+  false,
+  'anonymous users cannot inspect administrator signup availability'
+);
+
+select is(
+  has_function_privilege('authenticated', 'public.admin_signup_available()', 'execute'),
+  false,
+  'ordinary authenticated users cannot inspect administrator signup availability'
+);
+
+select is(
+  has_function_privilege('anon', 'public.list_platform_admins()', 'execute'),
+  false,
+  'anonymous users cannot list platform administrators'
+);
+
+select is(
+  has_function_privilege('anon', 'public.set_user_status(uuid,public.account_status)', 'execute'),
+  false,
+  'anonymous users cannot execute administrative account-status changes'
+);
+
+select is(
+  has_function_privilege('authenticated', 'public.guard_profile_update()', 'execute'),
+  false,
+  'trigger-only profile guard cannot be called as a Data API RPC'
 );
 
 -- ---------------------------------------------------------------------------
