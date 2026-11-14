@@ -18,13 +18,11 @@ export function Signup() {
   const universities = useUniversities();
   const availability = useAdminSignupAvailable();
 
-  // Undefined means the availability check has not completed or failed.
-  // Only an explicit false means the administrator limit has been reached.
-  const adminAvailable = availability.data !== false;
+  // Administrator bootstrap is disabled server-side. Fail closed while the
+  // availability request is loading or if it cannot be verified.
+  const adminAvailable = availability.data === true && !availability.isLoading && !availability.isError;
 
-  const [mode, setMode] = useState<Mode>(() =>
-    searchParams.get('mode') === 'admin' ? 'admin' : 'student',
-  );
+  const [mode, setMode] = useState<Mode>('student');
 
   const [form, setForm] = useState({
     fullName: '',
@@ -192,17 +190,19 @@ export function Signup() {
           Student
         </button>
 
-        <button
-          type="button"
-          onClick={() => switchMode('admin')}
-          aria-pressed={isAdmin}
-          className={cn(
-            'signup-mode__btn',
-            isAdmin && 'signup-mode__btn--active',
-          )}
-        >
-          Administrator
-        </button>
+        {adminAvailable ? (
+          <button
+            type="button"
+            onClick={() => switchMode('admin')}
+            aria-pressed={isAdmin}
+            className={cn(
+              'signup-mode__btn',
+              isAdmin && 'signup-mode__btn--active',
+            )}
+          >
+            Administrator
+          </button>
+        ) : null}
       </div>
 
       <form onSubmit={handleSubmit} className="signup-space-y-4-1">
