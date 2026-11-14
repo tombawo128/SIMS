@@ -103,3 +103,45 @@ revoke all on function public.notify_user(uuid, text, text, text) from public;
 revoke all on function public.notify_user(uuid, text, text, text) from anon;
 revoke all on function public.notify_user(uuid, text, text, text) from authenticated;
 grant execute on function public.notify_user(uuid, text, text, text) to service_role;
+
+-- Keep administrative RPCs available to authenticated callers only.
+revoke all on function public.admin_signup_available() from public;
+revoke all on function public.admin_signup_available() from anon;
+revoke all on function public.admin_signup_available() from authenticated;
+grant execute on function public.admin_signup_available() to service_role;
+
+revoke all on function public.set_user_status(uuid, public.account_status) from public;
+revoke all on function public.set_user_status(uuid, public.account_status) from anon;
+
+revoke all on function public.list_platform_admins() from public;
+revoke all on function public.list_platform_admins() from anon;
+
+revoke all on function public.company_stats() from public;
+revoke all on function public.company_stats() from anon;
+
+revoke all on function public.faculty_stats() from public;
+revoke all on function public.faculty_stats() from anon;
+
+revoke all on function public.platform_stats() from public;
+revoke all on function public.platform_stats() from anon;
+
+-- Trigger and event-trigger functions are not callable as Data API RPCs.
+revoke all on function public.audit_row_change() from public;
+revoke all on function public.audit_row_change() from anon;
+revoke all on function public.audit_row_change() from authenticated;
+
+revoke all on function public.guard_application() from public;
+revoke all on function public.guard_application() from anon;
+revoke all on function public.guard_application() from authenticated;
+
+revoke all on function public.guard_profile_update() from public;
+revoke all on function public.guard_profile_update() from anon;
+revoke all on function public.guard_profile_update() from authenticated;
+
+revoke all on function public.handle_new_user() from public;
+revoke all on function public.handle_new_user() from anon;
+revoke all on function public.handle_new_user() from authenticated;
+
+revoke all on function public.rls_auto_enable() from public;
+revoke all on function public.rls_auto_enable() from anon;
+revoke all on function public.rls_auto_enable() from authenticated;
