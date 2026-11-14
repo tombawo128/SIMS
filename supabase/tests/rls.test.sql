@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(25);
+select plan(33);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -190,12 +190,82 @@ select is(
 );
 
 select throws_ok(
-  $$ update public.profiles
+  $ update public.profiles
        set role = 'coordinator'
-       where id = '99999999-9999-4999-8999-999999999021' $$,
+       where id = '99999999-9999-4999-8999-999999999021' $,
   'P0001',
-  'You cannot change your role or tenant',
+  'You cannot change protected account or tenant fields',
   'students cannot escalate their role'
+);
+
+select throws_ok(
+  $ update public.profiles
+       set account_status = 'suspended'
+       where id = '99999999-9999-4999-8999-999999999021' $,
+  'P0001',
+  'You cannot change protected account or tenant fields',
+  'users cannot suspend or reactivate their own account'
+);
+
+select throws_ok(
+  $ update public.profiles
+       set deleted_at = now()
+       where id = '99999999-9999-4999-8999-999999999021' $,
+  'P0001',
+  'You cannot change protected account or tenant fields',
+  'users cannot archive their own account'
+);
+
+select throws_ok(
+  $ update public.profiles
+       set deleted_by = auth.uid()
+       where id = '99999999-9999-4999-8999-999999999021' $,
+  'P0001',
+  'You cannot change protected account or tenant fields',
+  'users cannot forge archive attribution'
+);
+
+reset role;
+update public.profiles
+set account_status = 'suspended'
+where id = '99999999-9999-4999-8999-999999999021';
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999021');
+
+select is(
+  public.auth_role()::text,
+  null::text,
+  'suspended users have no effective application role'
+);
+
+select is(
+  public.auth_university_id(),
+  null::uuid,
+  'suspended users have no effective university tenant'
+);
+
+reset role;
+update public.profiles
+set account_status = 'active'
+where id = '99999999-9999-4999-8999-999999999021';
+set local role authenticated;
+
+select is(
+  has_function_privilege('anon', 'public.notify_user(uuid,text,text,text)', 'execute'),
+  false,
+  'anonymous users cannot execute notify_user'
+);
+
+select is(
+  has_function_privilege('authenticated', 'public.notify_user(uuid,text,text,text)', 'execute'),
+  false,
+  'authenticated users cannot execute notify_user directly'
+);
+
+select is(
+  has_function_privilege('service_role', 'public.notify_user(uuid,text,text,text)', 'execute'),
+  true,
+  'trusted service role can execute notify_user'
 );
 
 -- ---------------------------------------------------------------------------
