@@ -115,7 +115,7 @@ returns void
 language plpgsql
 security definer
 set search_path = public
-as $
+as $$
 declare
   v_details jsonb;
 begin
@@ -156,7 +156,7 @@ begin
   set restored_at = now(), restored_by = auth.uid()
   where entity_type = p_kind and entity_id = p_id and restored_at is null;
 end;
-$;
+$$;
 
 revoke all on function public.delete_tenant(text, uuid) from public, anon;
 revoke all on function public.archive_user(uuid) from public, anon;
