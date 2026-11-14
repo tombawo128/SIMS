@@ -8,6 +8,7 @@ import {
   GraduationCap,
   MessageSquare,
   Paperclip,
+  Plus,
   Star,
   Trash2,
   Upload,
