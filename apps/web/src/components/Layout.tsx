@@ -25,7 +25,7 @@ import {
   useMarkNotificationRead,
   useNotifications,
 } from '@/hooks/useNotifications';
-import { Avatar, EmptyState } from '@/components/ui';
+import { Avatar, EmptyState, useToast } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 const iconMap: Record<NavIcon, LucideIcon> = {
@@ -138,6 +138,7 @@ function NotificationBell() {
   const notifications = useNotifications(profile?.id);
   const markRead = useMarkNotificationRead(profile?.id);
   const markAll = useMarkAllNotificationsRead(profile?.id);
+  const { toast } = useToast();
 
   const items = notifications.data ?? [];
   const unread = items.filter((item) => !item.read_at).length;
@@ -149,6 +150,8 @@ function NotificationBell() {
         onClick={() => setOpen((current) => !current)}
         className='bell__button'
         aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
+        aria-expanded={open}
+        aria-controls="notification-dropdown"
       >
         <Bell className='icon' />
         {unread ? (
@@ -161,13 +164,14 @@ function NotificationBell() {
       {open ? (
         <>
           <div className='bell__overlay' onClick={() => setOpen(false)} aria-hidden />
-          <div className='bell__dropdown'>
+          <div className='bell__dropdown' id="notification-dropdown">
             <div className='bell__dropdown-header'>
               <p className='heading-sm'>Notifications</p>
               {unread ? (
                 <button
                   type="button"
-                  onClick={() => markAll.mutate()}
+                  onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })}
+                  disabled={markAll.isPending}
                   className='link-action'
                 >
                   Mark all read
@@ -192,7 +196,9 @@ function NotificationBell() {
                     key={item.id}
                     type="button"
                     onClick={() => {
-                      if (!item.read_at) markRead.mutate(item.id);
+                      if (!item.read_at) {
+                        markRead.mutate(item.id, { onError: (error) => toast({ title: 'Could not mark notification as read', description: error.message, tone: 'error' }) });
+                      }
                       setOpen(false);
                       navigate(item.link ?? '/notifications');
                     }}
