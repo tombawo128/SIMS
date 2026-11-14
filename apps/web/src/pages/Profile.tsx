@@ -124,10 +124,10 @@ export function ProfilePage() {
         cv_path: path,
       });
       toast({ title: 'CV uploaded', tone: 'success' });
-      if (fileInput.current) fileInput.current.value = '';
     } catch (caught) {
       setStudentError(errorMessage(caught));
     } finally {
+      if (fileInput.current) fileInput.current.value = '';
       setUploading(false);
     }
   };
