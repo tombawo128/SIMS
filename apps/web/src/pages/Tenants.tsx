@@ -64,7 +64,7 @@ function slugify(value: string) {
 
 export function Tenants() {
   const { toast } = useToast();
-  const universities = useUniversities();
+  const universities = useUniversities(true);
   const companies = useCompanies();
   const platformStats = usePlatformStats(true);
   const platformAdmins = usePlatformAdmins();
@@ -287,6 +287,13 @@ export function Tenants() {
         <div className='tenants-flex-1'>
           <Spinner className='tenants-h-6-1' />
         </div>
+      ) : (tab === 'university' ? universities.isError : companies.isError) ? (
+        <Alert tone="danger" title={`Could not load ${tab === 'university' ? 'universities' : 'companies'}`}>
+          {errorMessage(tab === 'university' ? universities.error : companies.error)}{' '}
+          <Button size="sm" variant="secondary" onClick={() => void (tab === 'university' ? universities.refetch() : companies.refetch())}>
+            Retry
+          </Button>
+        </Alert>
       ) : list.length === 0 ? (
         <EmptyState
           title={tab === 'university' ? 'No universities yet' : 'No companies yet'}
