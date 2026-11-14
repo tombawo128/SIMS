@@ -190,36 +190,36 @@ select is(
 );
 
 select throws_ok(
-  $ update public.profiles
+  $$ update public.profiles
        set role = 'coordinator'
-       where id = '99999999-9999-4999-8999-999999999021' $,
+       where id = '99999999-9999-4999-8999-999999999021' $$,
   'P0001',
   'You cannot change protected account or tenant fields',
   'students cannot escalate their role'
 );
 
 select throws_ok(
-  $ update public.profiles
+  $$ update public.profiles
        set account_status = 'suspended'
-       where id = '99999999-9999-4999-8999-999999999021' $,
+       where id = '99999999-9999-4999-8999-999999999021' $$,
   'P0001',
   'You cannot change protected account or tenant fields',
   'users cannot suspend or reactivate their own account'
 );
 
 select throws_ok(
-  $ update public.profiles
+  $$ update public.profiles
        set deleted_at = now()
-       where id = '99999999-9999-4999-8999-999999999021' $,
+       where id = '99999999-9999-4999-8999-999999999021' $$,
   'P0001',
   'You cannot change protected account or tenant fields',
   'users cannot archive their own account'
 );
 
 select throws_ok(
-  $ update public.profiles
+  $$ update public.profiles
        set deleted_by = auth.uid()
-       where id = '99999999-9999-4999-8999-999999999021' $,
+       where id = '99999999-9999-4999-8999-999999999021' $$,
   'P0001',
   'You cannot change protected account or tenant fields',
   'users cannot forge archive attribution'
