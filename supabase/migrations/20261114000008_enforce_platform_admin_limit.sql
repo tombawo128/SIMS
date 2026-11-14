@@ -30,11 +30,12 @@ set search_path = ''
 as $$
 begin
   if new.role = 'platform_admin'::public.user_role then
-    if tg_op = 'UPDATE'
-      and old.role = 'platform_admin'::public.user_role
-      and old.platform_admin_slot is not null then
-      new.platform_admin_slot := old.platform_admin_slot;
-      return new;
+    if tg_op = 'UPDATE' then
+      if old.role = 'platform_admin'::public.user_role
+        and old.platform_admin_slot is not null then
+        new.platform_admin_slot := old.platform_admin_slot;
+        return new;
+      end if;
     end if;
 
     perform pg_catalog.pg_advisory_xact_lock(723451, 1);
