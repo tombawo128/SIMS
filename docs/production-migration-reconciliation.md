@@ -8,7 +8,7 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 ## Observed production state (2026-11-14)
 
-- Supabase reports 14 application migration-history entries.
+- Supabase reports 15 application migration-history entries after the isolated `disable_public_admin_signup` migration was applied.
 - The `backend-hardening` branch contains 23 SQL migration files after the storage/RPC hardening migration was added.
 - Production currently exposes 21 public application tables. All 21 have RLS enabled.
 - The production schema already contains the application areas represented by the repository baseline and later migrations: tenant directories, profiles, applications, placements, reports, integrations, deleted entities, broadcasts and system alerts.
@@ -32,6 +32,7 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 20261113230740 enforce_daily_to_weekly_submission
 20261113234110 add_integration_connections_and_api_credentials
 20261114084822 create_post_images_storage_bucket
+20261114220336 disable_public_admin_signup
 ```
 
 ## Required reconciliation procedure
@@ -58,6 +59,7 @@ These changes are branch-only until reviewed and released. The storage policy de
 ## Emergency Edge Function changes already deployed
 
 - `signup-admin` is now production version 3 with JWT verification enabled; POST requests return HTTP 410 and public administrator registration is disabled.
+- Production RPC `admin_signup_available()` now returns `false`; the migration is recorded as `20261114220336_disable_public_admin_signup` and mirrored in this branch.
 - `manage-users` is now production version 5; it verifies the caller's Supabase Auth token and rejects suspended or archived profiles before privileged account-management actions.
 
 These two function deployments do not apply database migrations or alter production rows.
@@ -72,4 +74,4 @@ These two function deployments do not apply database migrations or alter product
 
 ## Safety
 
-No production migration was applied, no migration history was rewritten, no production rows were modified, no paid Supabase branch was created, and no deployment was triggered by this document.
+Only the isolated `disable_public_admin_signup` migration was applied; it changed a feature-availability function and did not modify application rows. No migration history was rewritten, no production rows were modified, no paid Supabase branch was created, and no Vercel deployment was triggered.
