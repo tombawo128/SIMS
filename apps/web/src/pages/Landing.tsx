@@ -192,7 +192,7 @@ export function Landing() {
                 <span className='landing-h-25-1' />
                 <span className='landing-h-25-2' />
                 <span className='landing-h-25-3' />
-                <span className='landing-ml-3-1'>sims-dashboard</span>
+                <span className='landing-ml-3-1'>sims-dashboard · illustrative sample data</span>
               </div>
 
               <div className='landing-p-5-1'>
