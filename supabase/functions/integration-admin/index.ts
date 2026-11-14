@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
   const { data: authData, error: authError } = await admin.auth.getUser(token);
   if (authError || !authData.user) return json({ error: 'Invalid or expired session' }, 401);
   const { data: caller, error: callerError } = await admin.from('profiles')
-    .select('id, role').eq('id', authData.user.id).maybeSingle();
+    .select('id, role, account_status, deleted_at').eq('id', authData.user.id).maybeSingle();
   if (callerError || !caller) return json({ error: 'SIMS profile not found' }, 403);
   if (caller.role !== 'platform_admin') return json({ error: 'Platform administrator access required' }, 403);
 
