@@ -104,11 +104,17 @@ revoke all on function public.notify_user(uuid, text, text, text) from anon;
 revoke all on function public.notify_user(uuid, text, text, text) from authenticated;
 grant execute on function public.notify_user(uuid, text, text, text) to service_role;
 
--- Keep administrative RPCs available to authenticated callers only.
-revoke all on function public.admin_signup_available() from public;
-revoke all on function public.admin_signup_available() from anon;
-revoke all on function public.admin_signup_available() from authenticated;
-grant execute on function public.admin_signup_available() to service_role;
+-- Preserve the existing public feature-detection RPC for older clients,
+-- but permanently disable public administrator bootstrap.
+create or replace function public.admin_signup_available()
+returns boolean
+language sql
+immutable
+as $
+  select false;
+$;
+
+grant execute on function public.admin_signup_available() to anon, authenticated;
 
 revoke all on function public.set_user_status(uuid, public.account_status) from public;
 revoke all on function public.set_user_status(uuid, public.account_status) from anon;
