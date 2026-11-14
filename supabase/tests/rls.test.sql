@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(43);
+select plan(44);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -377,6 +377,17 @@ select is(
   has_table_privilege('anon', 'public.universities', 'select'),
   true,
   'anon can read the active university directory for sign-up'
+);
+
+select is(
+  (select count(*) from pg_policies
+   where schemaname = 'storage'
+     and tablename = 'objects'
+     and policyname = 'reports_owner_delete'
+     and cmd = 'DELETE'
+     and roles = array['authenticated']::name[]),
+  1::bigint,
+  'report storage deletion is limited to the authenticated owner policy'
 );
 
 reset role;
