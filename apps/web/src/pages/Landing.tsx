@@ -17,7 +17,6 @@ import {
   Workflow,
   BarChart3,
   CalendarCheck,
-  LockKeyhole,
   CircleHelp,
   Zap,
 } from 'lucide-react';
