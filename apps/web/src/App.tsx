@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { Layout } from '@/components/Layout';
 import { ProtectedRoute, PublicOnlyRoute, RoleRoute } from '@/components/guards';
 import { Landing } from '@/pages/Landing';
@@ -22,7 +23,7 @@ import { RecycleBin } from '@/pages/RecycleBin';
 import { ProfilePage } from '@/pages/Profile';
 import { Notifications } from '@/pages/Notifications';
 import { NotFound } from '@/pages/NotFound';
-import { ActivityLogs, AdminManagement, Analytics, Broadcasts, SystemAlerts } from '@/pages/AdminConsole';
+import { ActivityLogs, AdminManagement, Analytics as AdminAnalytics, Broadcasts, SystemAlerts } from '@/pages/AdminConsole';
 import { IntegrationCentre } from '@/pages/IntegrationCentre';
 
 const WORKFLOW_ROLES = [
@@ -36,6 +37,7 @@ const WORKFLOW_ROLES = [
 export function App() {
   return (
     <>
+      <Analytics />
       <Routes>
         <Route path="/" element={<Landing />} />
 
@@ -83,7 +85,7 @@ export function App() {
               <Route path="/admin/activity-logs" element={<ActivityLogs />} />
               <Route path="/admin/system-alerts" element={<SystemAlerts />} />
               <Route path="/admin/management" element={<AdminManagement />} />
-              <Route path="/admin/analytics" element={<Analytics />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/integrations" element={<IntegrationCentre />} />
             </Route>
 
