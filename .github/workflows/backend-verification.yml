@@ -1,0 +1,54 @@
+name: Backend verification
+
+on:
+  push:
+    branches:
+      - backend-hardening
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    name: Rebuild database and run SQL tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy,analytics
+
+      - name: Apply the complete migration history
+        run: supabase db reset --local
+
+      - name: Run database tests
+        run: supabase test db
+
+  edge-functions:
+    name: Type-check Edge Functions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check Edge Functions
+        run: |
+          set -e
+          for file in supabase/functions/*/index.ts; do
+            echo "Checking $file"
+            deno check --no-lock "$file"
+          done
