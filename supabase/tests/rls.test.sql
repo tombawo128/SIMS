@@ -273,50 +273,50 @@ select is(
 );
 
 select throws_ok(
-  $ select public.save_daily_report(
+  $test$ select public.save_daily_report(
        '66666666-6666-4666-8666-666666660001',
        current_date,
        1,
        'blocked test',
        ''
-     ) $,
+     ) $test$,
   'P0001',
   'Only active students can save daily reports',
   'suspended students cannot save daily reports'
 );
 
 select throws_ok(
-  $ select public.upsert_weekly_log(
+  $test$ select public.upsert_weekly_log(
        '66666666-6666-4666-8666-666666660001',
        1,
        1,
        'blocked test',
        ''
-     ) $,
+     ) $test$,
   'P0001',
   'Only active students can edit weekly reports',
   'suspended students cannot edit weekly reports'
 );
 
 select throws_ok(
-  $ select public.submit_weekly_report(
+  $test$ select public.submit_weekly_report(
        '66666666-6666-4666-8666-666666660001',
        1
-     ) $,
+     ) $test$,
   'P0001',
   'Only active students can submit weekly reports',
   'suspended students cannot submit weekly reports'
 );
 
 select throws_ok(
-  $ select public.submit_weekly_log('77777777-7777-4777-8777-777777770001') $,
+  $test$ select public.submit_weekly_log('77777777-7777-4777-8777-777777770001') $test$,
   'P0001',
   'Only active students can submit weekly reports',
   'suspended students cannot submit legacy weekly logs'
 );
 
 select throws_ok(
-  $ select public.withdraw_application('55555555-5555-4555-8555-555555550001') $,
+  $test$ select public.withdraw_application('55555555-5555-4555-8555-555555550001') $test$,
   'P0001',
   'Only active students can withdraw applications',
   'suspended students cannot withdraw applications'
@@ -334,25 +334,25 @@ set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
 select throws_ok(
-  $ select public.add_check_in(
+  $test$ select public.add_check_in(
        '66666666-6666-4666-8666-666666660001',
        'visit',
        'blocked test',
        now()
-     ) $,
+     ) $test$,
   'P0001',
   'Only an active faculty supervisor can log a check-in',
   'suspended faculty cannot log placement check-ins'
 );
 
 select throws_ok(
-  $ select public.submit_evaluation(
+  $test$ select public.submit_evaluation(
        '66666666-6666-4666-8666-666666660001',
        'final',
        '{}'::jsonb,
        'blocked test',
        80
-     ) $,
+     ) $test$,
   'P0001',
   'Not authorized to evaluate this placement',
   'suspended faculty cannot submit evaluations'
