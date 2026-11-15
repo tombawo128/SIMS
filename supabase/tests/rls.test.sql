@@ -9,7 +9,7 @@ create or replace function public.test_as(p_uid uuid)
 returns void
 language plpgsql
 security invoker
-as $
+as $$
 begin
   -- Supabase auth.uid() versions may read the legacy subject GUC before
   -- falling back to the full claims JSON. Keep both values in sync when
@@ -21,7 +21,7 @@ begin
     true
   );
 end;
-$;
+$$;
 
 create or replace function public.test_application_update_row_count()
 returns bigint
