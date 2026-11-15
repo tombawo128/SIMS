@@ -7,7 +7,7 @@
 Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 - Production now records **22 migrations**.
-- The `backend-hardening` branch contains **29 migration files**.
+- The `backend-hardening` branch contains **30 migration files**.
 - Seven reviewed migrations were applied to production and mirrored in the branch with their exact production versions.
 - The remaining eight-file difference is the seven initial repository baseline migrations plus `20261113000001_archive_entities.sql`. Their expected objects appear in the live schema, but the exact object-by-object equivalence and migration-ledger repair plan still need sign-off.
 - Several older migration names are represented by different version identifiers in production and GitHub. Do not assume same-name files are safe to mark applied without comparing their SQL effects.
@@ -36,8 +36,6 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 20261114220457 harden_storage_and_rpc_grants
 20261114220630 enforce_platform_admin_limit
 20261114220726 restrict_platform_admin_slot_trigger_rpc
-20261114220926 optimize_rls_policies_and_fk_indexes
-20261114220954 optimize_tenant_directory_policies_and_fk_indexes
 20261114220926 optimize_rls_policies_and_fk_indexes
 20261114220954 optimize_tenant_directory_policies_and_fk_indexes
 20261115152114 enforce_active_account_for_sensitive_workflows
@@ -98,10 +96,12 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 ## Verification and deployment blockers
 
 - The branch now contains matching migration files for the eight reviewed production hardening migrations, plus the previously missing provisioning-ticket and post-image migration sources.
-- The latest local database rebuild and pgTAP suite must pass after these final migration additions.
+- **Passed on `backend-hardening` commit `87d812e77f6bb78a2b6596d354e0903826e42360`:** local Supabase startup, full rebuild of all 30 migrations, and all 61 pgTAP assertions.
+- **Passed on the same commit:** Deno type-check for every Edge Function and the frontend verification workflow.
+- The CI database port collision was resolved by overriding only the workflow's local database and shadow-database ports; developer defaults and production settings were not changed.
 - Test real storage upload/download/delete with separate student and non-owner accounts in a non-production environment. Production currently has no report objects to safely use for a live delete test.
-- Complete live smoke tests for the four updated Edge Functions, especially invitation creation, admin-only integration management, and the disabled signup endpoint.
-- Vercel has rate-limited deployment attempts for 24 hours. A preview deployment and browser smoke test remain outstanding.
+- Complete authenticated live smoke tests for invitation creation, admin-only integration management, account lifecycle actions, and the disabled signup endpoint. Do not use the Vercel preview for write tests because it shares production Supabase credentials.
+- Vercel's previous deployment rate limit has cleared and a SIMS Preview deployment is Ready. A full browser workflow smoke test is still outstanding.
 - PR #4 remains open and unmerged. No production frontend deployment has been performed.
 
 ## Safety record
