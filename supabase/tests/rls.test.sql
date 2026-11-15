@@ -328,8 +328,13 @@ select set_config('request.jwt.claims', '{}', true);
 update public.profiles
 set account_status = 'active'
 where id = '99999999-9999-4999-8999-999999999021';
-set local role authenticated;
 
+reset role;
+select set_config('request.jwt.claim.sub', '', true);
+select set_config('request.jwt.claims', '{}', true);
+update public.profiles
+set account_status = 'suspended'
+where id = '99999999-9999-4999-8999-999999999011';
 set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
@@ -351,7 +356,7 @@ select throws_ok(
        'final',
        '{}'::jsonb,
        'blocked test',
-       80
+       8.5
      ) $test$,
   'P0001',
   'Not authorized to evaluate this placement',
