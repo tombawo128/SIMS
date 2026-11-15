@@ -326,7 +326,7 @@ begin
   for update;
 
   if not found then raise exception 'Placement not found'; end if;
-  if public.auth_role() <> 'student' or v_placement.status <> 'active' then
+  if public.auth_role() is distinct from 'student' or v_placement.status <> 'active' then
     raise exception 'Only active students can submit weekly reports';
   end if;
   if p_week_number is null or p_week_number < 1 then
@@ -429,8 +429,8 @@ begin
   for update;
 
   if not found then raise exception 'Placement not found'; end if;
-  if public.auth_role() <> 'faculty_supervisor'
-     or v_placement.faculty_supervisor_id <> auth.uid() then
+  if public.auth_role() is distinct from 'faculty_supervisor'
+     or v_placement.faculty_supervisor_id is distinct from auth.uid() then
     raise exception 'Only the assigned university faculty supervisor can record the official final grade';
   end if;
   if p_grade is null or p_grade < 0 or p_grade > 100 then
