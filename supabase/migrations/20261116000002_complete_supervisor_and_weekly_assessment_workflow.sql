@@ -196,6 +196,10 @@ begin
     raise exception 'Only the assigned university faculty supervisor can rate this weekly report';
   end if;
 
+  if v_placement.status <> 'active' then
+    raise exception 'Weekly ratings are locked after placement completion';
+  end if;
+
   if v_log.status <> 'approved' then
     raise exception 'Approve the weekly report before entering its performance rating';
   end if;
@@ -576,6 +580,9 @@ begin
 
   if not found or v_placement.university_id is distinct from public.auth_university_id() then
     raise exception 'Placement not found';
+  end if;
+  if v_placement.status <> 'active' then
+    raise exception 'Faculty supervisors can only be assigned to active placements';
   end if;
 
   select nullif(trim(department), '')

@@ -493,7 +493,7 @@ export function PlacementDetail() {
                 <CardHeader
                   title="Faculty supervision"
                   actions={
-                    <Button size="sm" variant="secondary" onClick={() => setAssignOpen(true)}>
+                    <Button size="sm" variant="secondary" disabled={placement.status !== 'active'} onClick={() => setAssignOpen(true)}>
                       {placement.faculty_supervisor_id ? 'Change' : 'Assign'}
                     </Button>
                   }
@@ -590,7 +590,7 @@ export function PlacementDetail() {
                       </p>
                     </div>
                     <div className='placement-detail-flex-6'>
-                      {canReviewLogs && log.status === 'approved' ? (
+                      {canReviewLogs && log.status === 'approved' && placement.status === 'active' ? (
                         <Button size="sm" variant="secondary" onClick={() => {
                           setActionError('');
                           setRatingLog(log);
