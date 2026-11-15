@@ -94,9 +94,9 @@ select is(
 select public.test_as('99999999-9999-4999-8999-999999999041');
 
 select lives_ok(
-  $ insert into public.job_postings (company_id, title, description, location)
+  $$ insert into public.job_postings (company_id, title, description, location)
      values (public.auth_company_id(), 'RLS company draft test', 'Draft created by company admin', 'Kigali')
-     returning id $,
+     returning id $$,
   'company admin can create a posting and receive its id'
 );
 
