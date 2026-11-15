@@ -577,7 +577,7 @@ set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
 select lives_ok(
-  $$ $1
+  $$ select public.rate_weekly_log(
        '77777777-7777-4777-8777-777777770001',
        '{"professionalism":4,"technical_skill":5,"communication":4,"initiative":4}'::jsonb,
        'Delivered assigned work reliably and communicated progress clearly.'
@@ -592,7 +592,7 @@ select is(
 );
 
 select throws_ok(
-  $$ $1
+  $$ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
        85,
        'Final review'
@@ -605,7 +605,7 @@ select throws_ok(
 select public.test_as('99999999-9999-4999-8999-999999999021');
 
 select throws_ok(
-  $$ $1
+  $$ select public.rate_weekly_log(
        '77777777-7777-4777-8777-777777770001',
        '{"professionalism":4,"technical_skill":4,"communication":4,"initiative":4}'::jsonb,
        'Student must not rate own work.'
@@ -623,7 +623,7 @@ set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999023');
 
 select lives_ok(
-  $$ $1'66666666-6666-4666-8666-666666660002') $,
+  $$ select public.request_faculty_supervisor('66666666-6666-4666-8666-666666660002') $$,
   'student can request a university faculty supervisor for an unassigned placement'
 );
 
