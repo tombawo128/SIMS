@@ -61,21 +61,21 @@ export function Broadcasts() {
       setForm({ title: '', body: '', audience: 'all', link: '' });
       setErrorText('');
       void queryClient.invalidateQueries({ queryKey: ['admin-broadcasts'] });
-      toast({ title: 'Broadcast sent', description: result.recipients_count + ' active users received the message.', tone: 'success' });
+      toast({ title: 'Announcement published', description: result.recipients_count + ' active users received the message.', tone: 'success' });
     },
     onError: (error: Error) => setErrorText(error.message),
   });
 
   return (
     <div className='admin-console'>
-      <PageHeader title='Broadcasts' description='Send platform-wide announcements and review previous messages.' />
+      <PageHeader title='System-wide Announcements' description='Publish official announcements to all active users or a selected role.' />
       <div className='admin-console__split'>
         <Card>
-          <CardHeader title='Compose a broadcast' description='Messages appear in recipients’ SIMS notifications.' />
+          <CardHeader title='Compose an announcement' description='Announcements are delivered through recipients’ SIMS notification centre.' />
           <div className='admin-console__form'>
-            {errorText ? <Alert tone='danger' title='Broadcast was not sent'>{errorText}</Alert> : null}
+            {errorText ? <Alert tone='danger' title='Announcement was not published'>{errorText}</Alert> : null}
             <Field label='Message title' required>
-              <Input maxLength={160} value={form.title} onChange={e => setForm(v => ({ ...v, title: e.target.value }))} placeholder='Important platform update' />
+              <Input maxLength={160} value={form.title} onChange={e => setForm(v => ({ ...v, title: e.target.value }))} placeholder='Important university or platform update' />
             </Field>
             <Field label='Message' required hint='Up to 5,000 characters.'>
               <Textarea rows={6} maxLength={5000} value={form.body} onChange={e => setForm(v => ({ ...v, body: e.target.value }))} placeholder='Write the announcement for users…' />
@@ -92,23 +92,23 @@ export function Broadcasts() {
             <div className='admin-console__form-footer'>
               <span className='admin-console__muted'>{form.body.length}/5000 characters</span>
               <Button onClick={() => publish.mutate()} loading={publish.isPending} disabled={!form.title.trim() || !form.body.trim()}>
-                <Send size={16} /> Send broadcast
+                <Send size={16} /> Publish announcement
               </Button>
             </div>
           </div>
         </Card>
         <Card>
-          <CardHeader title='Sending rules' />
+          <CardHeader title='Announcement delivery' />
           <div className='admin-console__note-list'>
             <p><Badge tone='emerald'>Active accounts</Badge> Only active accounts in the selected audience receive the message.</p>
             <p><Badge tone='blue'>In-app delivery</Badge> The message is delivered through the existing SIMS notification centre.</p>
-            <p><Badge tone='slate'>Audit trail</Badge> Each broadcast is recorded with its recipient count and sender.</p>
+            <p><Badge tone='slate'>Audit trail</Badge> Each announcement is recorded with its recipient count and sender.</p>
           </div>
         </Card>
       </div>
       <Card>
-        <CardHeader title='Broadcast history' description='Most recent 50 broadcasts.' actions={<Button size='sm' variant='secondary' onClick={() => void history.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
-        {history.isLoading ? <div className='admin-console__loading'><Spinner /></div> : history.isError ? <Alert tone='danger'>Could not load broadcast history: {(history.error as Error).message}</Alert> : !history.data?.length ? <EmptyState title='No broadcasts yet' description='Messages you send will appear here.' /> : (
+        <CardHeader title='Announcement history' description='Most recent 50 announcements.' actions={<Button size='sm' variant='secondary' onClick={() => void history.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
+        {history.isLoading ? <div className='admin-console__loading'><Spinner /></div> : history.isError ? <Alert tone='danger'>Could not load broadcast history: {(history.error as Error).message}</Alert> : !history.data?.length ? <EmptyState title='No announcements yet' description='Announcements you publish will appear here.' /> : (
           <Table>
             <thead><tr><Th>Message</Th><Th>Audience</Th><Th>Recipients</Th><Th>Sent</Th></tr></thead>
             <tbody>{history.data.map(item => <tr key={item.id}><Td><strong>{item.title}</strong><p className='admin-console__cell-sub'>{item.body}</p></Td><Td>{item.audience_role ? roles.find(r => r.value === item.audience_role)?.label ?? item.audience_role : 'All active users'}</Td><Td>{count(item.recipients_count)}</Td><Td>{dateTime(item.created_at)}</Td></tr>)}</tbody>
@@ -174,7 +174,7 @@ export function SystemAlerts() {
       setForm({ title: '', message: '', severity: 'info', source: 'admin' });
       setErrorText('');
       void queryClient.invalidateQueries({ queryKey: ['platform-system-alerts'] });
-      toast({ title: 'System alert created', tone: 'success' });
+      toast({ title: 'Internal system alert created', tone: 'success' });
     },
     onError: (error: Error) => setErrorText(error.message),
   });
@@ -185,23 +185,23 @@ export function SystemAlerts() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['platform-system-alerts'] });
-      toast({ title: 'Alert marked as resolved', tone: 'success' });
+      toast({ title: 'Internal alert marked as resolved', tone: 'success' });
     },
-    onError: (error: Error) => toast({ title: 'Could not resolve alert', description: error.message, tone: 'error' }),
+    onError: (error: Error) => toast({ title: 'Could not resolve internal alert', description: error.message, tone: 'error' }),
   });
   const openCount = (alerts.data ?? []).filter(alert => !alert.resolved_at).length;
   const tone = (severity: string) => severity === 'critical' ? 'rose' : severity === 'warning' ? 'amber' : 'blue';
 
   return (
     <div className='admin-console'>
-      <PageHeader title='System Alerts' description='Create operational notices and track issues that need administrator attention.' />
+      <PageHeader title='Internal System Alerts' description='Track internal operational, security, and technical issues for platform administrators only.' />
       <div className='admin-console__split'>
         <Card>
-          <CardHeader title='Create an alert' description='Alerts are visible to platform administrators.' />
+          <CardHeader title='Create an internal alert' description='Internal alerts are restricted to platform administrators and are not sent to general users.' />
           <div className='admin-console__form'>
             {errorText ? <Alert tone='danger'>{errorText}</Alert> : null}
             <Field label='Alert title' required><Input maxLength={180} value={form.title} onChange={e => setForm(v => ({ ...v, title: e.target.value }))} placeholder='Scheduled maintenance' /></Field>
-            <Field label='Details' required><Textarea rows={5} maxLength={5000} value={form.message} onChange={e => setForm(v => ({ ...v, message: e.target.value }))} placeholder='Describe the issue or system notice…' /></Field>
+            <Field label='Details' required><Textarea rows={5} maxLength={5000} value={form.message} onChange={e => setForm(v => ({ ...v, message: e.target.value }))} placeholder='Describe the internal operational or technical issue…' /></Field>
             <div className='admin-console__form-grid'>
               <Field label='Severity'><Select value={form.severity} onChange={e => setForm(v => ({ ...v, severity: e.target.value }))}><option value='info'>Informational</option><option value='warning'>Warning</option><option value='critical'>Critical</option></Select></Field>
               <Field label='Source'><Input value={form.source} onChange={e => setForm(v => ({ ...v, source: e.target.value }))} /></Field>
@@ -210,7 +210,7 @@ export function SystemAlerts() {
           </div>
         </Card>
         <Card>
-          <CardHeader title='Alert status' />
+          <CardHeader title='Internal alert status' />
           <div className='admin-console__alert-summary'>
             <div><strong>{openCount}</strong><span>Open</span></div>
             <div><strong>{(alerts.data ?? []).length - openCount}</strong><span>Resolved</span></div>
@@ -219,8 +219,8 @@ export function SystemAlerts() {
         </Card>
       </div>
       <Card>
-        <CardHeader title='Alert register' description='Latest 100 system alerts.' actions={<Button size='sm' variant='secondary' onClick={() => void alerts.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
-        {alerts.isLoading ? <div className='admin-console__loading'><Spinner /></div> : alerts.isError ? <Alert tone='danger'>{(alerts.error as Error).message}</Alert> : !alerts.data?.length ? <EmptyState icon={<AlertTriangle />} title='No system alerts' description='New alerts will appear here.' /> : (
+        <CardHeader title='Internal alert register' description='Latest 100 internal system alerts.' actions={<Button size='sm' variant='secondary' onClick={() => void alerts.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
+        {alerts.isLoading ? <div className='admin-console__loading'><Spinner /></div> : alerts.isError ? <Alert tone='danger'>{(alerts.error as Error).message}</Alert> : !alerts.data?.length ? <EmptyState icon={<AlertTriangle />} title='No internal alerts' description='New internal system alerts will appear here.' /> : (
           <div className='admin-console__alert-list'>{alerts.data.map(alert => <article className='admin-console__alert-item' key={alert.id}>
             <div className='admin-console__alert-main'><div className='admin-console__alert-heading'><strong>{alert.title}</strong><Badge tone={tone(alert.severity) as 'rose' | 'amber' | 'blue'}>{alert.severity}</Badge><Badge tone={alert.resolved_at ? 'emerald' : 'amber'}>{alert.resolved_at ? 'Resolved' : 'Open'}</Badge></div><p>{alert.message}</p><span className='admin-console__cell-sub'>{alert.source} · {dateTime(alert.created_at)}{alert.resolved_at ? ' · Resolved ' + dateTime(alert.resolved_at) : ''}</span></div>
             {!alert.resolved_at ? <Button size='sm' variant='secondary' onClick={() => resolveAlert.mutate(alert.id)} loading={resolveAlert.isPending}>Resolve</Button> : null}
