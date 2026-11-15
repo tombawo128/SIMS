@@ -34,18 +34,18 @@ function attribute(tag, name) {
 
 function collectAssets(html, pageUrl) {
   const assets = new Map();
-  const tags = html.match(/<(?:script|link)\\b[^>]*>/gi) || [];
+  const tags = html.match(/<(?:script|link)\b[^>]*>/gi) || [];
   for (const tag of tags) {
-    const isScript = /^<script\\b/i.test(tag);
+    const isScript = /^<script\b/i.test(tag);
     const src = attribute(tag, isScript ? 'src' : 'href');
     if (!src || /^(?:data|blob):/i.test(src)) continue;
 
-    const rel = attribute(tag, 'rel').toLowerCase().split(/\\s+/);
+    const rel = attribute(tag, 'rel').toLowerCase().split(/\s+/);
     const absoluteUrl = new URL(src, pageUrl);
     const pathname = absoluteUrl.pathname.toLowerCase();
     let kind = null;
-    if (isScript || rel.includes('modulepreload') || /\\.(?:m?js)$/.test(pathname)) kind = 'JavaScript';
-    if (rel.includes('stylesheet') || /\\.css$/.test(pathname)) kind = 'CSS';
+    if (isScript || rel.includes('modulepreload') || /\.(?:m?js)$/.test(pathname)) kind = 'JavaScript';
+    if (rel.includes('stylesheet') || /\.css$/.test(pathname)) kind = 'CSS';
     if (kind) assets.set(absoluteUrl.href, { url: absoluteUrl.href, kind });
   }
   return [...assets.values()];
@@ -63,8 +63,8 @@ async function main() {
   if (!contentType.toLowerCase().includes('text/html')) throw new Error(`Unexpected page content-type: ${contentType || '(missing)'}`);
 
   const html = await pageResponse.text();
-  if (!/\\bid=["']root["']/.test(html)) throw new Error('HTTP 200 response does not contain the SIMS application root element');
-  if (!/<title[^>]*>[^<]*SIMS[^<]*<\\/title>/i.test(html)) throw new Error('HTTP 200 response does not contain the expected SIMS page title');
+  if (!/\bid=["']root["']/.test(html)) throw new Error('HTTP 200 response does not contain the SIMS application root element');
+  if (!/<title[^>]*>[^<]*SIMS[^<]*<\/title>/i.test(html)) throw new Error('HTTP 200 response does not contain the expected SIMS page title');
 
   const assets = collectAssets(html, pageResponse.url || parsedBase.href);
   const jsAssets = assets.filter((asset) => asset.kind === 'JavaScript');
