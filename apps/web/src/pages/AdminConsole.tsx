@@ -295,7 +295,7 @@ export function Analytics() {
             <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Megaphone size={18} /></span><div><span>Job postings</span><strong>{count(stats.job_postings)}</strong><small>Opportunities published</small></div></article>
             <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Activity size={18} /></span><div><span>Applications</span><strong>{count(stats.applications)}</strong><small>Student applications submitted</small></div></article>
             <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><ShieldCheck size={18} /></span><div><span>Placements</span><strong>{count(stats.placements)}</strong><small>Internship placements recorded</small></div></article>
-            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Send size={18} /></span><div><span>Broadcasts sent</span><strong>{count(stats.broadcasts)}</strong><small>Platform announcements</small></div></article>
+            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Send size={18} /></span><div><span>Announcements sent</span><strong>{count(stats.broadcasts)}</strong><small>Platform announcements</small></div></article>
           </section>
 
           <section className='analytics-page__detail-grid'>
