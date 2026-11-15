@@ -7,15 +7,21 @@ select plan(52);
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
 returns void
-language sql
+language plpgsql
 security invoker
-as $$
-  select set_config(
+as $
+begin
+  -- Supabase auth.uid() versions may read the legacy subject GUC before
+  -- falling back to the full claims JSON. Keep both values in sync when
+  -- switching identities inside this transaction.
+  perform set_config('request.jwt.claim.sub', p_uid::text, true);
+  perform set_config(
     'request.jwt.claims',
     json_build_object('sub', p_uid, 'role', 'authenticated')::text,
     true
   );
-$$;
+end;
+$;
 
 create or replace function public.test_application_update_row_count()
 returns bigint
