@@ -176,18 +176,23 @@ export function DailyReportsPanel({
         const status = weeklyLogs.find((log) => log.week_number === week)?.status ?? 'draft';
         const totalHours = entries.reduce((sum, entry) => sum + Number(entry.hours), 0);
         const locked = ['submitted', 'approved'].includes(status);
+        const weekEndDate = new Date(`${startDate}T00:00:00Z`);
+        weekEndDate.setUTCDate(weekEndDate.getUTCDate() + week * 7 - 1);
+        const weekEnd = weekEndDate.toISOString().slice(0, 10) > endDate ? endDate : weekEndDate.toISOString().slice(0, 10);
+        const canSubmitWeek = weekEnd <= today;
         return (
           <Card key={week}>
             <CardHeader
               title={`Week ${week} · ${totalHours} hours`}
               description={`${entries.length} daily entr${entries.length === 1 ? 'y' : 'ies'} · ${status.replace('_', ' ')}`}
               actions={isStudent && !locked ? (
-                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending}>
+                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending || !canSubmitWeek}>
                   <Send size={15} /> Submit week
                 </Button>
               ) : <StatusBadge status={status} label={status.replace('_', ' ')} />}
             />
             {errorText ? <div style={{ padding: 12 }}><Alert tone="danger">{errorText}</Alert></div> : null}
+            {isStudent && !locked && !canSubmitWeek ? <div style={{ padding: '0 16px 12px' }}><Alert tone="info">You can submit this report after the week ends on {formatDate(weekEnd)}.</Alert></div> : null}
             <div style={{ display: 'grid', gap: 0 }}>
               {entries.map((entry) => (
                 <div key={entry.id} style={{ padding: 16, borderTop: '1px solid #e2e8f0', display: 'grid', gap: 8 }}>

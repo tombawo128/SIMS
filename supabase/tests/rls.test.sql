@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(63);
+select plan(71);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -563,6 +563,96 @@ select is(
      and roles = array['authenticated']::name[]),
   1::bigint,
   'report storage deletion is limited to the authenticated owner policy'
+);
+
+
+-- ---------------------------------------------------------------------------
+-- Weekly ratings, student supervisor requests, and final-grade safeguards
+-- ---------------------------------------------------------------------------
+reset role;
+update public.placements
+set end_date = current_date + 30
+where id = '66666666-6666-4666-8666-666666660001';
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select lives_ok(
+  $ select public.rate_weekly_log(
+       '77777777-7777-4777-8777-777777770001',
+       '{"professionalism":4,"technical_skill":5,"communication":4,"initiative":4}'::jsonb,
+       'Delivered assigned work reliably and communicated progress clearly.'
+     ) $,
+  'assigned faculty supervisor can rate an approved weekly report'
+);
+
+select is(
+  (select rating_overall from public.weekly_logs where id = '77777777-7777-4777-8777-777777770001'),
+  4.25::numeric,
+  'weekly rating average is calculated from the four rubric criteria'
+);
+
+select throws_ok(
+  $ select public.record_grade(
+       '66666666-6666-4666-8666-666666660001',
+       85,
+       'Final review'
+     ) $,
+  'P0001',
+  'The placement must reach its end date before final grading',
+  'faculty cannot record a final grade before the placement end date'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999021');
+
+select throws_ok(
+  $ select public.rate_weekly_log(
+       '77777777-7777-4777-8777-777777770001',
+       '{"professionalism":4,"technical_skill":4,"communication":4,"initiative":4}'::jsonb,
+       'Student must not rate own work.'
+     ) $,
+  'P0001',
+  'Only the assigned university faculty supervisor can rate this weekly report',
+  'students cannot rate their own weekly reports'
+);
+
+reset role;
+update public.placements
+set faculty_supervisor_id = null
+where id = '66666666-6666-4666-8666-666666660002';
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999023');
+
+select lives_ok(
+  $ select public.request_faculty_supervisor('66666666-6666-4666-8666-666666660002') $,
+  'student can request a university faculty supervisor for an unassigned placement'
+);
+
+select is(
+  (select status from public.faculty_supervisor_requests
+   where placement_id = '66666666-6666-4666-8666-666666660002'),
+  'pending',
+  'student supervisor request is stored as pending'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999003');
+
+select is(
+  (select count(*) from public.faculty_supervisor_requests
+   where placement_id = '66666666-6666-4666-8666-666666660002'),
+  1::bigint,
+  'the matching university coordinator can see the student supervisor request'
+);
+
+select public.assign_faculty_supervisor(
+  '66666666-6666-4666-8666-666666660002',
+  '99999999-9999-4999-8999-999999999013'
+);
+
+select is(
+  (select status from public.faculty_supervisor_requests
+   where placement_id = '66666666-6666-4666-8666-666666660002'),
+  'assigned',
+  'coordinator assignment updates the student request to assigned'
 );
 
 reset role;

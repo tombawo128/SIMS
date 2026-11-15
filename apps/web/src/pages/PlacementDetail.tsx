@@ -511,6 +511,7 @@ export function PlacementDetail() {
               <Card>
                 <CardHeader title="Next steps" />
                 <div className='placement-detail-space-y-2-1'>
+                  {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
                   {placement.status === 'active' ? (
                     <>
                       {!placement.faculty_supervisor_id ? (
