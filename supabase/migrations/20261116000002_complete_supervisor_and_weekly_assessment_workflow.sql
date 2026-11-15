@@ -68,6 +68,12 @@ begin
   if v_placement.faculty_supervisor_id is not null then
     raise exception 'A faculty supervisor is already assigned to this placement';
   end if;
+  if not exists (
+    select 1 from public.profiles
+    where id = auth.uid() and nullif(trim(department), '') is not null
+  ) then
+    raise exception 'Add your department to your profile before requesting a university supervisor';
+  end if;
 
   select id into v_request_id
   from public.faculty_supervisor_requests
@@ -121,7 +127,7 @@ begin
         assigned_at = now(),
         updated_at = now()
     where placement_id = new.id
-      and status in ('pending', 'assigned');
+      and status = 'pending';
   end if;
   return new;
 end;
@@ -184,7 +190,7 @@ begin
   end if;
 
   if jsonb_typeof(p_rubric) <> 'object'
-     or jsonb_object_length(p_rubric) <> 4
+     or (select count(*) from jsonb_object_keys(p_rubric)) <> 4
      or not (p_rubric ?& array['professionalism', 'technical_skill', 'communication', 'initiative'])
      or coalesce(p_rubric->>'professionalism', '') !~ '^[1-5]$'
      or coalesce(p_rubric->>'technical_skill', '') !~ '^[1-5]$'
@@ -479,3 +485,104 @@ grant execute on function public.record_grade(uuid,numeric,text) to authenticate
 -- The old direct weekly-log editor bypasses the daily-report aggregation workflow.
 revoke execute on function public.upsert_weekly_log(uuid,integer,numeric,text,text) from public, anon, authenticated;
 grant execute on function public.upsert_weekly_log(uuid,integer,numeric,text,text) to service_role;
+
+
+-- Capture the student's declared department from sign-up metadata. Department is
+-- profile information, not an authorization claim; it is used only for matching.
+create or replace function public.sync_student_department_from_signup()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  update public.profiles
+  set department = nullif(trim(new.raw_user_meta_data ->> 'department'), '')
+  where id = new.id and role = 'student';
+  return new;
+end;
+$function$;
+
+revoke execute on function public.sync_student_department_from_signup() from public, anon, authenticated;
+
+drop trigger if exists zz_sync_student_department_after_signup on auth.users;
+create trigger zz_sync_student_department_after_signup
+  after insert on auth.users
+  for each row
+  execute function public.sync_student_department_from_signup();
+
+-- Tighten the coordinator assignment RPC: both the student and faculty member
+-- must have a matching department, and the faculty account must be active.
+create or replace function public.assign_faculty_supervisor(
+  p_placement_id uuid,
+  p_faculty_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_placement public.placements%rowtype;
+  v_faculty public.profiles%rowtype;
+  v_student_department text;
+begin
+  if public.auth_role() <> 'coordinator' then
+    raise exception 'Only internship coordinators can assign faculty supervisors';
+  end if;
+
+  select * into v_placement
+  from public.placements
+  where id = p_placement_id
+  for update;
+
+  if not found or v_placement.university_id <> public.auth_university_id() then
+    raise exception 'Placement not found';
+  end if;
+
+  select nullif(trim(department), '')
+  into v_student_department
+  from public.profiles
+  where id = v_placement.student_id;
+
+  if v_student_department is null then
+    raise exception 'The student must add their department to their profile before supervisor assignment';
+  end if;
+
+  select * into v_faculty
+  from public.profiles
+  where id = p_faculty_id
+    and role = 'faculty_supervisor'
+    and university_id = public.auth_university_id()
+    and account_status = 'active'
+    and deleted_at is null;
+
+  if not found then
+    raise exception 'Select an active faculty supervisor from your university';
+  end if;
+
+  if lower(trim(coalesce(v_faculty.department, ''))) <> lower(trim(v_student_department)) then
+    raise exception 'The selected faculty supervisor must belong to the student department';
+  end if;
+
+  update public.placements
+  set faculty_supervisor_id = p_faculty_id
+  where id = p_placement_id;
+
+  perform public.notify_user(
+    p_faculty_id,
+    'New placement assigned',
+    'You are now supervising a student placement.',
+    '/placements/' || p_placement_id
+  );
+  perform public.notify_user(
+    v_placement.student_id,
+    'Faculty supervisor assigned',
+    'A faculty supervisor has been assigned to your placement.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+revoke execute on function public.assign_faculty_supervisor(uuid,uuid) from public, anon;
+grant execute on function public.assign_faculty_supervisor(uuid,uuid) to authenticated, service_role;

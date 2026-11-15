@@ -616,6 +616,8 @@ select throws_ok(
 );
 
 reset role;
+update public.profiles set department = 'Data Science' where id = '99999999-9999-4999-8999-999999999023';
+update public.profiles set department = 'Data Science' where id = '99999999-9999-4999-8999-999999999013';
 update public.placements
 set faculty_supervisor_id = null
 where id = '66666666-6666-4666-8666-666666660002';

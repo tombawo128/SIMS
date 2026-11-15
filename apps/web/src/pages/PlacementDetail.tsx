@@ -172,9 +172,10 @@ export function PlacementDetail() {
   const isCompanyAdmin = profile?.role === 'company_admin' && profile.company_id === placement.company_id;
   const isCoordinator = profile?.role === 'coordinator' && profile.university_id === placement.university_id;
 
-  const facultyOptions = (facultyList.data ?? []).filter((faculty) =>
-    !placement.student?.department || faculty.department?.trim().toLowerCase() === placement.student.department.trim().toLowerCase(),
-  );
+  const studentDepartment = placement.student?.department?.trim() ?? '';
+  const facultyOptions = studentDepartment
+    ? (facultyList.data ?? []).filter((faculty) => faculty.department?.trim().toLowerCase() === studentDepartment.toLowerCase())
+    : [];
 
   const canReviewLogs = isFaculty;
   const canEvaluateSite = isSiteSupervisor || isCompanyAdmin;
@@ -517,7 +518,9 @@ export function PlacementDetail() {
                       {!placement.faculty_supervisor_id ? (
                         <div className='placement-detail-space-y-2-1'>
                           <Alert tone="warning">Your university has not assigned a faculty supervisor yet. You need one before submitting weekly reports.</Alert>
-                          {facultyRequest?.status === 'pending' ? (
+                          {!placement.student?.department ? (
+                            <p>Complete your department in <Link to="/profile" className='placement-detail-link-1'>Profile</Link> first, so your university can match you with the correct faculty supervisor.</p>
+                          ) : facultyRequest?.status === 'pending' ? (
                             <Badge tone="amber">Supervisor request pending</Badge>
                           ) : (
                             <Button size="sm" onClick={doRequestFaculty} loading={requestFaculty.isPending} disabled={requestFaculty.isPending}>
@@ -1044,8 +1047,9 @@ export function PlacementDetail() {
           {facultyList.isError ? (
             <Alert tone="danger">Could not load faculty supervisors. <Button size="sm" variant="secondary" onClick={() => void facultyList.refetch()} loading={facultyList.isFetching}>Retry</Button></Alert>
           ) : null}
-          {!facultyList.isLoading && !facultyList.isError && facultyOptions.length === 0 ? (
-            <Alert tone="warning">No faculty supervisor is available for this student’s department. Check the department assignment or ask a faculty member to update their profile.</Alert>
+          {!placement.student?.department ? <Alert tone="warning">The student’s department is missing. Ask the student to update it in their Profile before assigning a supervisor.</Alert> : null}
+          {placement.student?.department && !facultyList.isLoading && !facultyList.isError && facultyOptions.length === 0 ? (
+            <Alert tone="warning">No active faculty supervisor is available for this department. Ask a faculty member from the same department to complete their profile.</Alert>
           ) : null}
           <Field label="Faculty supervisor" htmlFor="assign-faculty" required>
             <Select id="assign-faculty" value={facultyId} onChange={(event) => setFacultyId(event.target.value)}>
