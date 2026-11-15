@@ -485,9 +485,33 @@ grant execute on function public.save_daily_report(uuid,date,numeric,text,text) 
 grant execute on function public.submit_weekly_report(uuid,integer) to authenticated, service_role;
 grant execute on function public.record_grade(uuid,numeric,text) to authenticated, service_role;
 
--- The old direct weekly-log editor bypasses the daily-report aggregation workflow.
-revoke execute on function public.upsert_weekly_log(uuid,integer,numeric,text,text) from public, anon, authenticated;
-grant execute on function public.upsert_weekly_log(uuid,integer,numeric,text,text) to service_role;
+-- The old direct weekly-log editor is retained only as a guarded compatibility RPC.
+-- Active students must use daily entries; suspended users receive the same explicit
+-- active-account error as the other student workflow endpoints.
+create or replace function public.upsert_weekly_log(
+  p_placement_id uuid,
+  p_week_number integer,
+  p_hours numeric,
+  p_tasks text,
+  p_learning_outcomes text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if public.auth_role() is distinct from 'student' then
+    raise exception 'Only active students can edit weekly reports';
+  end if;
+
+  raise exception 'Weekly logs are generated from daily reports. Add daily entries and submit the week instead';
+  return null;
+end;
+$function$;
+
+revoke execute on function public.upsert_weekly_log(uuid,integer,numeric,text,text) from public, anon;
+grant execute on function public.upsert_weekly_log(uuid,integer,numeric,text,text) to authenticated, service_role;
 
 
 -- Capture the student's declared department from sign-up metadata. Department is
