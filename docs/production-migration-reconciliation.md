@@ -6,7 +6,7 @@
 
 Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
-- Production now records **21 migrations**.
+- Production now records **22 migrations**.
 - The `backend-hardening` branch contains **29 migration files**.
 - Seven reviewed migrations were applied to production and mirrored in the branch with their exact production versions.
 - The remaining eight-file difference is the seven initial repository baseline migrations plus `20261113000001_archive_entities.sql`. Their expected objects appear in the live schema, but the exact object-by-object equivalence and migration-ledger repair plan still need sign-off.
@@ -40,9 +40,18 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 20261114220954 optimize_tenant_directory_policies_and_fk_indexes
 20261114220926 optimize_rls_policies_and_fk_indexes
 20261114220954 optimize_tenant_directory_policies_and_fk_indexes
+20261115152114 enforce_active_account_for_sensitive_workflows
 ```
 
 ## Production fixes applied
+
+### Active-account workflow enforcement (2026-11-15)
+- Applied `20261115152114_enforce_active_account_for_sensitive_workflows` to production.
+- Updated sensitive student and supervisor RPCs to require an active role resolved from the caller's profile, not only a still-valid `auth.uid()`.
+- Updated CV and placement access helpers to deny suspended or archived callers.
+- Updated the application guard to reject writes by inactive or archived users.
+- Mirrored the exact production migration version in `supabase/migrations/` on `backend-hardening`; the earlier un-applied `20261115140055` filename was removed to prevent ledger drift.
+
 
 ### Authorization and account lifecycle
 - Public administrator registration is disabled; `admin_signup_available()` returns `false`.
@@ -88,7 +97,7 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 ## Verification and deployment blockers
 
-- The branch now contains matching migration files for the seven newly applied production hardening migrations, plus the previously missing provisioning-ticket and post-image migration sources.
+- The branch now contains matching migration files for the eight reviewed production hardening migrations, plus the previously missing provisioning-ticket and post-image migration sources.
 - The latest local database rebuild and pgTAP suite must pass after these final migration additions.
 - Test real storage upload/download/delete with separate student and non-owner accounts in a non-production environment. Production currently has no report objects to safely use for a live delete test.
 - Complete live smoke tests for the four updated Edge Functions, especially invitation creation, admin-only integration management, and the disabled signup endpoint.
@@ -97,4 +106,4 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 ## Safety record
 
-Seven reviewed additive/hardening migrations were applied to production and recorded. They changed authorization functions, grants, storage policies, indexes, RLS predicates, tenant-directory policies, utility function search paths, and the platform-admin slot invariant. One existing platform-admin profile received slot 1. No application records were deleted or rewritten. The historical migration ledger was not repaired or rewritten. No paid Supabase branch was created.
+Eight reviewed additive/hardening migrations were applied to production and recorded. They changed authorization functions, grants, storage policies, indexes, RLS predicates, tenant-directory policies, utility function search paths, and the platform-admin slot invariant. One existing platform-admin profile received slot 1. No application records were deleted or rewritten. The historical migration ledger was not repaired or rewritten. No paid Supabase branch was created.
