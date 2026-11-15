@@ -33,8 +33,8 @@ jobs:
         run: |
           # GitHub-hosted runners may already have a PostgreSQL service on 54322.
           # Override only this workflow's local database ports; keep developer defaults unchanged.
-          sed -i '/^\\[db\\]/,/^\\[/{s/^port = 54322$/port = 55432/; s/^shadow_port = 54320$/shadow_port = 55430;/;}' supabase/config.toml
-          grep -A 8 '^\\[db\\]' supabase/config.toml
+          sed -i '/^\[db\]/,/^\[db\.pooler\]/ { s/^port = 54322$/port = 55432/; s/^shadow_port = 54320$/shadow_port = 55430/; }' supabase/config.toml
+          grep -A 8 '^\[db\]' supabase/config.toml
 
       - name: Start local Supabase
         run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy
