@@ -8,9 +8,9 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 - Production now records **22 migrations**.
 - The `backend-hardening` branch contains **30 migration files**.
-- Twelve branch migration filenames match production migration versions exactly. Ten logical counterparts have different version identifiers between the production ledger and `backend-hardening`; these need careful filename/history alignment before any future `db push`.
+- All 22 migration versions recorded in production now have matching filenames on `backend-hardening`. Ten previously mismatched branch files were renamed to the production ledger versions in commit `ec88189ac0e9a7236c92b9c9b86b61c8c7bf906e`; their SQL contents were not changed.
 - The eight branch-only migration files are the seven initial repository baseline migrations plus `20261113000001_archive_entities.sql`. A read-only production catalogue comparison on 2026-11-16 confirmed their expected core objects are present. Two original tenant-wide RLS policies have been superseded by narrower policies; see the audit section below.
-- Do not run `supabase db push` or repair migration history until the version mappings, source effects, and backup are signed off.
+- Do not run `supabase db push` or repair migration history until the eight branch-only migration effects are fully signed off and a verified backup is available.
 - Production currently exposes 21 public application tables, all with RLS enabled.
 - At the time of the original audit, production had four profile rows, five notifications, five audit log rows, and three deleted-entity rows. These are audit observations, not migration targets.
 
@@ -99,37 +99,35 @@ The following checks were read-only against production. They establish that the 
 - The six company/student workflow RPCs covered by `restrict_company_workflow_rpc_execution` are not executable by `anon`; they remain executable by `authenticated` and `service_role` as intended.
 - Production still records 22 migrations while the branch has 30 files. The ten logical counterparts with different version identifiers are:
 
-| Production ledger version/name | Branch migration file |
-|---|---|
-| `20261113205548_restore_admin_user_directory_rpc` | `20261113000002_restore_admin_user_directory_rpc.sql` |
-| `20261113211056_restore_student_account_approval_rpc` | `20261113000003_restore_student_account_approval_rpc.sql` |
-| `20261113214348_add_admin_broadcasts_alerts_analytics` | `20261113230000_add_admin_broadcasts_alerts_analytics.sql` |
-| `20261113215010_add_system_alert_admin_actions` | `20261113233900_add_system_alert_admin_actions.sql` |
-| `20261113224710_restrict_company_workflow_rpc_execution` | `20261114000001_restrict_company_workflow_rpc_execution.sql` |
-| `20261113225148_add_withdrawn_application_status` | `20261114000002_add_withdrawn_application_status.sql` |
-| `20261113225157_record_student_application_withdrawals_distinctly` | `20261114000003_record_student_application_withdrawals.sql` |
-| `20261113230121_daily_reports_and_faculty_approval` | `20261114000004_daily_reports_and_faculty_approval.sql` |
-| `20261113230512_assign_faculty_by_department` | `20261114000005_assign_faculty_by_department.sql` |
-| `20261113230740_enforce_daily_to_weekly_submission` | `20261114000006_enforce_daily_to_weekly_submission.sql` |
+| Production ledger version/name | Previous branch filename | Current branch filename |
+|---|---|---|
+| `20261113205548_restore_admin_user_directory_rpc` | `20261113000002_restore_admin_user_directory_rpc.sql` | `20261113205548_restore_admin_user_directory_rpc.sql` |
+| `20261113211056_restore_student_account_approval_rpc` | `20261113000003_restore_student_account_approval_rpc.sql` | `20261113211056_restore_student_account_approval_rpc.sql` |
+| `20261113214348_add_admin_broadcasts_alerts_analytics` | `20261113230000_add_admin_broadcasts_alerts_analytics.sql` | `20261113214348_add_admin_broadcasts_alerts_analytics.sql` |
+| `20261113215010_add_system_alert_admin_actions` | `20261113233900_add_system_alert_admin_actions.sql` | `20261113215010_add_system_alert_admin_actions.sql` |
+| `20261113224710_restrict_company_workflow_rpc_execution` | `20261114000001_restrict_company_workflow_rpc_execution.sql` | `20261113224710_restrict_company_workflow_rpc_execution.sql` |
+| `20261113225148_add_withdrawn_application_status` | `20261114000002_add_withdrawn_application_status.sql` | `20261113225148_add_withdrawn_application_status.sql` |
+| `20261113225157_record_student_application_withdrawals_distinctly` | `20261114000003_record_student_application_withdrawals.sql` | `20261113225157_record_student_application_withdrawals_distinctly.sql` |
+| `20261113230121_daily_reports_and_faculty_approval` | `20261114000004_daily_reports_and_faculty_approval.sql` | `20261113230121_daily_reports_and_faculty_approval.sql` |
+| `20261113230512_assign_faculty_by_department` | `20261114000005_assign_faculty_by_department.sql` | `20261113230512_assign_faculty_by_department.sql` |
+| `20261113230740_enforce_daily_to_weekly_submission` | `20261114000006_enforce_daily_to_weekly_submission.sql` | `20261113230740_enforce_daily_to_weekly_submission.sql` |
 
-The production function bodies inspected for these workflows contain the expected current behavior, including later active-account guards. The branch files must still be reviewed and aligned to production version identifiers before treating the repository migration history as release-ready.
+The production function bodies and relevant grants inspected for these workflows contain the expected current behavior, including later active-account guards. The ten filenames are now aligned; the branch-only baseline/archive files still require final source-effect review before migration repair.
 
 ## Remaining migration reconciliation
 
 1. Take a verified Supabase backup/snapshot and retain the backup identifier. The connected Supabase management actions do not expose a backup/snapshot creation or verification operation, so this step has not been completed from ChatGPT.
-2. Finish source-to-production comparison for the ten version-mismatched logical migrations, including function bodies, grants, policy expressions, constraints, and any data effects.
-3. Align the ten branch migration filenames with the already-recorded production versions only after their SQL effects are confirmed; do not create duplicate migration-ledger entries for the same logical change.
-4. Confirm the seven baseline files and `archive_entities` are fully represented, including grants and function definitions, not just object names.
-5. After backup and review, prepare a `supabase migration repair --status applied` plan for only the eight branch-only migration versions whose effects are proven to exist. Never repair the ledger merely to silence a mismatch.
-6. Apply only genuinely pending migrations, one at a time, and run database tests plus application smoke tests after each group.
+2. Complete the final source-effect review for the eight branch-only files (seven baseline files plus `archive_entities`), including grants, function definitions, policy expressions, and data effects.
+3. After backup and review, prepare a `supabase migration repair --status applied` plan for only the eight branch-only migration versions whose effects are proven to exist. Never repair the ledger merely to silence a mismatch.
+4. Apply only genuinely pending migrations, one at a time, and run database tests plus application smoke tests after each group.
 
 ## Verification and deployment blockers
 
-- The branch now contains matching migration files for the eight reviewed production hardening migrations, plus the previously missing provisioning-ticket and post-image migration sources.
+- All 22 production migration versions now have matching migration filenames on `backend-hardening`; the eight additional branch-only baseline/archive files are separately documented. Ten filenames were aligned without changing SQL contents in commit `ec88189ac0e9a7236c92b9c9b86b61c8c7bf906e`.
 - **Passed on `backend-hardening` commit `87d812e77f6bb78a2b6596d354e0903826e42360`:** local Supabase startup, full rebuild of all 30 migrations, and all 61 pgTAP assertions.
 - **Passed on the same commit:** Deno type-check for every Edge Function and the frontend verification workflow.
 - The CI database port collision was resolved by overriding only the workflow's local database and shadow-database ports; developer defaults and production settings were not changed.
-- Read-only production catalogue reconciliation completed for the eight branch-only historical migrations; migration version alignment and repair remain pending a verified backup and full source review.
+- Read-only production catalogue reconciliation completed for the eight branch-only historical migrations. Version filename alignment is complete; migration repair remains blocked on a verified backup and final source-effect sign-off.
 - Test real storage upload/download/delete with separate student and non-owner accounts in a non-production environment. Production currently has no report objects to safely use for a live delete test.
 - Complete authenticated live smoke tests for invitation creation, admin-only integration management, account lifecycle actions, and the disabled signup endpoint. Do not use the Vercel preview for write tests because it shares production Supabase credentials.
 - Vercel's previous deployment rate limit has cleared and a SIMS Preview deployment is Ready. A full browser workflow smoke test is still outstanding.
