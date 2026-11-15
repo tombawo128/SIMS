@@ -51,7 +51,7 @@ declare
   v_request_id uuid;
   v_coordinator record;
 begin
-  if public.auth_role() <> 'student' then
+  if public.auth_role() is distinct from 'student' then
     raise exception 'Only the student on this placement can request a university supervisor';
   end if;
 
@@ -180,8 +180,8 @@ begin
   from public.placements
   where id = v_log.placement_id;
 
-  if public.auth_role() <> 'faculty_supervisor'
-     or v_placement.faculty_supervisor_id <> auth.uid() then
+  if public.auth_role() is distinct from 'faculty_supervisor'
+     or v_placement.faculty_supervisor_id is distinct from auth.uid() then
     raise exception 'Only the assigned university faculty supervisor can rate this weekly report';
   end if;
 
@@ -189,8 +189,11 @@ begin
     raise exception 'Approve the weekly report before entering its performance rating';
   end if;
 
-  if jsonb_typeof(p_rubric) <> 'object'
-     or (select count(*) from jsonb_object_keys(p_rubric)) <> 4
+  if jsonb_typeof(p_rubric) is distinct from 'object' then
+    raise exception 'Weekly rubric must contain exactly four scoring criteria';
+  end if;
+
+  if (select count(*) from jsonb_object_keys(p_rubric)) <> 4
      or not (p_rubric ?& array['professionalism', 'technical_skill', 'communication', 'initiative'])
      or coalesce(p_rubric->>'professionalism', '') !~ '^[1-5]$'
      or coalesce(p_rubric->>'technical_skill', '') !~ '^[1-5]$'
@@ -256,7 +259,7 @@ begin
   for update;
 
   if not found then raise exception 'Placement not found'; end if;
-  if public.auth_role() <> 'student' or v_placement.status <> 'active' then
+  if public.auth_role() is distinct from 'student' or v_placement.status <> 'active' then
     raise exception 'Only active students can save daily reports';
   end if;
   if p_report_date is null
@@ -527,7 +530,7 @@ declare
   v_faculty public.profiles%rowtype;
   v_student_department text;
 begin
-  if public.auth_role() <> 'coordinator' then
+  if public.auth_role() is distinct from 'coordinator' then
     raise exception 'Only internship coordinators can assign faculty supervisors';
   end if;
 
@@ -536,7 +539,7 @@ begin
   where id = p_placement_id
   for update;
 
-  if not found or v_placement.university_id <> public.auth_university_id() then
+  if not found or v_placement.university_id is distinct from public.auth_university_id() then
     raise exception 'Placement not found';
   end if;
 
@@ -586,3 +589,62 @@ $function$;
 
 revoke execute on function public.assign_faculty_supervisor(uuid,uuid) from public, anon;
 grant execute on function public.assign_faculty_supervisor(uuid,uuid) to authenticated, service_role;
+
+
+-- The weekly review RPC also uses null-safe role checks so suspended accounts
+-- cannot pass authorization when auth_role() returns NULL.
+create or replace function public.review_weekly_log(
+  p_log_id uuid,
+  p_decision public.log_status,
+  p_comment text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_log public.weekly_logs%rowtype;
+  v_placement public.placements%rowtype;
+begin
+  select * into v_log from public.weekly_logs where id = p_log_id for update;
+  if not found then raise exception 'Weekly report not found'; end if;
+
+  select * into v_placement from public.placements where id = v_log.placement_id;
+  if public.auth_role() is distinct from 'faculty_supervisor'
+     or v_placement.faculty_supervisor_id is distinct from auth.uid() then
+    raise exception 'Only the assigned university faculty supervisor can approve this weekly report';
+  end if;
+  if p_decision is null or p_decision not in ('approved', 'needs_revision') then
+    raise exception 'Decision must be approved or needs_revision';
+  end if;
+  if v_log.status <> 'submitted' then
+    raise exception 'Only submitted weekly reports can be reviewed';
+  end if;
+
+  update public.weekly_logs
+  set status = p_decision,
+      supervisor_comment = nullif(trim(p_comment), ''),
+      reviewed_by = auth.uid(),
+      reviewed_at = now()
+  where id = p_log_id;
+
+  update public.daily_reports
+  set status = p_decision,
+      supervisor_comment = nullif(trim(p_comment), ''),
+      reviewed_by = auth.uid(),
+      reviewed_at = now(),
+      updated_at = now()
+  where placement_id = v_placement.id and week_number = v_log.week_number;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Weekly report reviewed',
+    'Your week ' || v_log.week_number || ' report was marked ' || replace(p_decision::text, '_', ' ') || '.',
+    '/placements/' || v_placement.id
+  );
+end;
+$function$;
+
+revoke execute on function public.review_weekly_log(uuid,public.log_status,text) from public, anon;
+grant execute on function public.review_weekly_log(uuid,public.log_status,text) to authenticated, service_role;

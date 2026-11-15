@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(71);
+select plan(72);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -601,6 +601,34 @@ select throws_ok(
   'The placement must reach its end date before final grading',
   'faculty cannot record a final grade before the placement end date'
 );
+reset role;
+select set_config('request.jwt.claim.sub', '', true);
+select set_config('request.jwt.claims', '{}', true);
+update public.profiles
+set account_status = 'suspended'
+where id = '99999999-9999-4999-8999-999999999011';
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select throws_ok(
+  $$ select public.rate_weekly_log(
+       '77777777-7777-4777-8777-777777770001',
+       '{"professionalism":4,"technical_skill":4,"communication":4,"initiative":4}'::jsonb,
+       'Suspended faculty cannot rate.'
+     ) $$,
+  'P0001',
+  'Only the assigned university faculty supervisor can rate this weekly report',
+  'suspended faculty cannot rate weekly reports'
+);
+
+reset role;
+select set_config('request.jwt.claim.sub', '', true);
+select set_config('request.jwt.claims', '{}', true);
+update public.profiles
+set account_status = 'active'
+where id = '99999999-9999-4999-8999-999999999011';
+set local role authenticated;
+
 
 select public.test_as('99999999-9999-4999-8999-999999999021');
 
