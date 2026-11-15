@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(61);
+select plan(63);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -92,6 +92,19 @@ select is(
 -- Company isolation (Acme admin)
 -- ---------------------------------------------------------------------------
 select public.test_as('99999999-9999-4999-8999-999999999041');
+
+select lives_ok(
+  $ insert into public.job_postings (company_id, title, description, location)
+     values (public.auth_company_id(), 'RLS company draft test', 'Draft created by company admin', 'Kigali')
+     returning id $,
+  'company admin can create a posting and receive its id'
+);
+
+select is(
+  (select count(*) from public.job_postings where title = 'RLS company draft test'),
+  1::bigint,
+  'company admin can read its own draft posting immediately after insert'
+);
 
 select is(
   (select count(*) from public.applications),
