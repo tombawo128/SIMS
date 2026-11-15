@@ -29,8 +29,8 @@ create policy faculty_supervisor_requests_select
   on public.faculty_supervisor_requests
   for select to authenticated
   using (
-    student_id = (select auth.uid())
-    or assigned_faculty_id = (select auth.uid())
+    (public.auth_role() = 'student' and student_id = (select auth.uid()))
+    or (public.auth_role() = 'faculty_supervisor' and assigned_faculty_id = (select auth.uid()))
     or (
       public.auth_role() = 'coordinator'
       and university_id = (select public.auth_university_id())
@@ -83,6 +83,17 @@ begin
 
   if v_request_id is not null then
     return v_request_id;
+  end if;
+
+  if not exists (
+    select 1
+    from public.profiles
+    where role = 'coordinator'
+      and university_id = v_placement.university_id
+      and account_status = 'active'
+      and deleted_at is null
+  ) then
+    raise exception 'Your university has no active coordinator available to receive this request';
   end if;
 
   insert into public.faculty_supervisor_requests (placement_id, student_id, university_id)
