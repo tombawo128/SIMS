@@ -184,7 +184,8 @@ export function PlacementDetail() {
   const canGrade = isFaculty;
   const expectedWeeks = Math.ceil((new Date(`${placement.end_date}T00:00:00Z`).getTime() - new Date(`${placement.start_date}T00:00:00Z`).getTime() + 86400000) / (7 * 86400000));
   const ratedApprovedWeeks = sortedLogs.filter((log) => log.status === 'approved' && log.rating_overall !== null && log.rating_overall !== undefined).length;
-  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && sortedLogs.length === expectedWeeks && ratedApprovedWeeks === expectedWeeks;
+  const allWeeksComplete = sortedLogs.length === expectedWeeks && sortedLogs.every((log, index) => log.week_number === index + 1);
+  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && allWeeksComplete && ratedApprovedWeeks === expectedWeeks;
   const facultyRequest = (placement.faculty_supervisor_requests ?? []).find((request) => request.status === 'pending') ?? (placement.faculty_supervisor_requests ?? []).slice(-1)[0];
   const evaluatorRole: EvaluationRole = canEvaluateSite ? 'site_supervisor' : 'faculty_supervisor';
 
@@ -472,7 +473,8 @@ export function PlacementDetail() {
             <Card>
               <CardHeader title="Progress" />
               <div className='placement-detail-space-y-3-1'>
-                <ProgressRow label="Logs approved" value={approvedLogs} total={sortedLogs.length} />
+                <ProgressRow label="Logs approved" value={approvedLogs} total={expectedWeeks} />
+                {isFaculty && placement.final_grade === null && !gradeReady ? <Alert tone="warning">Final grading is locked. All {expectedWeeks} expected weeks must be approved and rated, and the placement end date must have passed.</Alert> : null}
                 <ProgressRow
                   label="Evaluations in"
                   value={placement.evaluations?.length ?? 0}
