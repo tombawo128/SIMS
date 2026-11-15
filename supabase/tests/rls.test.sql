@@ -240,6 +240,7 @@ select throws_ok(
 );
 
 reset role;
+select set_config('request.jwt.claim.sub', '', true);
 select set_config('request.jwt.claims', '{}', true);
 update public.profiles
 set account_status = 'suspended'
@@ -260,6 +261,7 @@ select is(
 );
 
 reset role;
+select set_config('request.jwt.claim.sub', '', true);
 select set_config('request.jwt.claims', '{}', true);
 update public.profiles
 set account_status = 'active'
