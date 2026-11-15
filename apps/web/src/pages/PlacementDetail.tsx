@@ -41,6 +41,8 @@ import {
   useDeleteDocument,
   usePlacement,
   useRecordGrade,
+  useRateWeeklyLog,
+  useRequestFacultySupervisor,
   useReviewWeeklyLog,
   useSubmitEvaluation,
 } from '@/hooks/usePlacements';
@@ -93,6 +95,8 @@ export function PlacementDetail() {
   const addCheckIn = useAddCheckIn();
   const assignFaculty = useAssignFaculty();
   const recordGrade = useRecordGrade();
+  const rateWeeklyLog = useRateWeeklyLog();
+  const requestFaculty = useRequestFacultySupervisor();
   const addDocument = useAddDocument();
   const deleteDocument = useDeleteDocument();
   const facultyList = useFacultyList(
@@ -105,6 +109,9 @@ export function PlacementDetail() {
   const [reviewingLog, setReviewingLog] = useState<WeeklyLog | null>(null);
   const [reviewDecision, setReviewDecision] = useState<'approved' | 'needs_revision'>('approved');
   const [reviewComment, setReviewComment] = useState('');
+  const [ratingLog, setRatingLog] = useState<WeeklyLog | null>(null);
+  const [weeklyRubric, setWeeklyRubric] = useState<Record<string, number>>(DEFAULT_RUBRIC);
+  const [weeklyRatingComment, setWeeklyRatingComment] = useState('');
 
   const [evaluationOpen, setEvaluationOpen] = useState(false);
   const [evaluationType, setEvaluationType] = useState<EvaluationType>('final');
@@ -174,6 +181,10 @@ export function PlacementDetail() {
   const canEvaluateFaculty = isFaculty;
   const canSubmitEvaluation = canEvaluateSite || canEvaluateFaculty;
   const canGrade = isFaculty;
+  const expectedWeeks = Math.ceil((new Date(`${placement.end_date}T00:00:00Z`).getTime() - new Date(`${placement.start_date}T00:00:00Z`).getTime() + 86400000) / (7 * 86400000));
+  const ratedApprovedWeeks = sortedLogs.filter((log) => log.status === 'approved' && log.rating_overall !== null && log.rating_overall !== undefined).length;
+  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && sortedLogs.length === expectedWeeks && ratedApprovedWeeks === expectedWeeks;
+  const facultyRequest = (placement.faculty_supervisor_requests ?? []).find((request) => request.status === 'pending') ?? (placement.faculty_supervisor_requests ?? []).slice(-1)[0];
   const evaluatorRole: EvaluationRole = canEvaluateSite ? 'site_supervisor' : 'faculty_supervisor';
 
   const approvedLogs = sortedLogs.filter((log) => log.status === 'approved').length;
@@ -279,6 +290,39 @@ export function PlacementDetail() {
     }
   };
 
+  const doRateWeeklyLog = async () => {
+    if (!ratingLog) return;
+    setActionError('');
+    if (!weeklyRatingComment.trim()) {
+      setActionError('Add a short evidence-based comment for this weekly rating.');
+      return;
+    }
+    try {
+      await rateWeeklyLog.mutateAsync({
+        logId: ratingLog.id,
+        placementId: placement.id,
+        rubric: weeklyRubric,
+        comment: weeklyRatingComment.trim(),
+      });
+      setRatingLog(null);
+      setWeeklyRatingComment('');
+      setWeeklyRubric(DEFAULT_RUBRIC);
+      toast({ title: `Week ${ratingLog.week_number} rating saved`, tone: 'success' });
+    } catch (error) {
+      setActionError(errorMessage(error));
+    }
+  };
+
+  const doRequestFaculty = async () => {
+    setActionError('');
+    try {
+      await requestFaculty.mutateAsync(placement.id);
+      toast({ title: 'Supervisor request sent to your university', tone: 'success' });
+    } catch (error) {
+      setActionError(errorMessage(error));
+    }
+  };
+
   const doRecordGrade = async () => {
     setActionError('');
     const grade = Number(gradeValue);
@@ -352,6 +396,7 @@ export function PlacementDetail() {
             {canGrade ? (
               <Button
                 variant="secondary"
+                disabled={placement.final_grade === null && !gradeReady}
                 onClick={() => {
                   setGradeValue(placement.final_grade !== null ? String(placement.final_grade) : '');
                   setGradeNotes(placement.grade_notes ?? '');
@@ -451,6 +496,7 @@ export function PlacementDetail() {
                   }
                 />
                 <div className='placement-detail-px-5-1'>
+                  {facultyRequest?.status === 'pending' ? <Alert tone="info">Student requested a university supervisor on {formatDate(facultyRequest.requested_at)}.</Alert> : null}
                   <p className='placement-detail-font-medium-1'>
                     {placement.faculty_supervisor?.full_name ?? 'No faculty supervisor assigned'}
                   </p>
@@ -467,6 +513,18 @@ export function PlacementDetail() {
                 <div className='placement-detail-space-y-2-1'>
                   {placement.status === 'active' ? (
                     <>
+                      {!placement.faculty_supervisor_id ? (
+                        <div className='placement-detail-space-y-2-1'>
+                          <Alert tone="warning">Your university has not assigned a faculty supervisor yet. You need one before submitting weekly reports.</Alert>
+                          {facultyRequest?.status === 'pending' ? (
+                            <Badge tone="amber">Supervisor request pending</Badge>
+                          ) : (
+                            <Button size="sm" onClick={doRequestFaculty} loading={requestFaculty.isPending} disabled={requestFaculty.isPending}>
+                              <UserCheck className='placement-detail-h-4-1' /> Request university supervisor
+                            </Button>
+                          )}
+                        </div>
+                      ) : null}
                       <p className='placement-detail-flex-2'>
                         <ClipboardList className='placement-detail-mt-05-2' />
                         Record daily reports and submit them together at the end of each week. Your assigned university faculty supervisor approves each week.
@@ -526,6 +584,16 @@ export function PlacementDetail() {
                       </p>
                     </div>
                     <div className='placement-detail-flex-6'>
+                      {canReviewLogs && log.status === 'approved' ? (
+                        <Button size="sm" variant="secondary" onClick={() => {
+                          setActionError('');
+                          setRatingLog(log);
+                          setWeeklyRubric((log.rating_scores as Record<string, number> | null) ?? DEFAULT_RUBRIC);
+                          setWeeklyRatingComment(log.rating_comment ?? '');
+                        }}>
+                          <Star className='placement-detail-h-4-1' /> {log.rating_overall != null ? 'Update rating' : 'Rate week'}
+                        </Button>
+                      ) : null}
                       {canReviewLogs && log.status === 'submitted' ? (
                         <Button
                           size="sm"
@@ -551,6 +619,21 @@ export function PlacementDetail() {
                       <p className='placement-detail-mt-1-1'>{log.learning_outcomes || '—'}</p>
                     </div>
                   </div>
+                  {log.rating_overall != null ? (
+                    <div className='placement-detail-border-t-2'>
+                      <div className='placement-detail-flex-5'>
+                        <strong>Faculty weekly rating</strong>
+                        <Badge tone="emerald">{Number(log.rating_overall).toFixed(2)} / 5</Badge>
+                      </div>
+                      <div className='placement-detail-grid-3'>
+                        {RUBRIC_CRITERIA.map((criterion) => (
+                          <Detail key={criterion.key} label={criterion.label} value={String(log.rating_scores?.[criterion.key] ?? '—') + ' / 5'} />
+                        ))}
+                      </div>
+                      {log.rating_comment ? <p className='placement-detail-mt-1-1'>{log.rating_comment}</p> : null}
+                      {log.rated_at ? <p className='placement-detail-text-xs-1'>Rated {formatDateTime(log.rated_at)}</p> : null}
+                    </div>
+                  ) : null}
                   {log.supervisor_comment ? (
                     <div className='placement-detail-border-t-2'>
                       <p className='placement-detail-text-xs-2'>Supervisor comment</p>
@@ -977,11 +1060,43 @@ export function PlacementDetail() {
         </div>
       </Modal>
 
+
+      <Modal
+        open={Boolean(ratingLog)}
+        onClose={() => setRatingLog(null)}
+        title={ratingLog ? `Rate week ${ratingLog.week_number}` : 'Rate weekly performance'}
+        description="This score is separate from weekly approval. Rate the student's performance based on the work recorded for this week."
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setRatingLog(null)}>Cancel</Button>
+            <Button onClick={doRateWeeklyLog} loading={rateWeeklyLog.isPending} disabled={rateWeeklyLog.isPending || !weeklyRatingComment.trim()}>Save weekly rating</Button>
+          </>
+        }
+      >
+        <div className='placement-detail-space-y-4-1'>
+          {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
+          {RUBRIC_CRITERIA.map((criterion) => (
+            <Field key={criterion.key} label={criterion.label} htmlFor={`weekly-rating-${criterion.key}`}>
+              <Select
+                id={`weekly-rating-${criterion.key}`}
+                value={String(weeklyRubric[criterion.key] ?? 3)}
+                onChange={(event) => setWeeklyRubric((current) => ({ ...current, [criterion.key]: Number(event.target.value) }))}
+              >
+                {[1, 2, 3, 4, 5].map((score) => <option key={score} value={score}>{score} / 5</option>)}
+              </Select>
+            </Field>
+          ))}
+          <Field label="Evidence and feedback" htmlFor="weekly-rating-comment" required>
+            <Textarea id="weekly-rating-comment" rows={4} value={weeklyRatingComment} onChange={(event) => setWeeklyRatingComment(event.target.value)} placeholder="Explain the performance observed this week and what the student should improve." />
+          </Field>
+        </div>
+      </Modal>
+
       <Modal
         open={gradeOpen}
         onClose={() => setGradeOpen(false)}
         title="Record final grade"
-        description="The student is notified. The official grade is visible to the university and company, but only you as the assigned faculty supervisor can change it."
+        description="The official grade remains a university decision. SIMS requires the placement end date to pass and every expected week to be approved and rated before the grade can be recorded."
         footer={
           <>
             <Button variant="secondary" onClick={() => setGradeOpen(false)}>
@@ -995,6 +1110,7 @@ export function PlacementDetail() {
       >
         <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
+          {!gradeReady && placement.final_grade === null ? <Alert tone="warning">Final grading is locked until the placement end date has passed and all {expectedWeeks} expected weekly reports are approved and rated. Currently approved: {approvedLogs}; rated: {ratedApprovedWeeks}.</Alert> : null}
           <Field label="Final grade (0–100)" htmlFor="grade-value" required>
             <Input
               id="grade-value"
