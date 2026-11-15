@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(52);
+select plan(61);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -260,12 +260,110 @@ select is(
   'suspended users have no effective university tenant'
 );
 
+select is(
+  public.can_view_placement('66666666-6666-4666-8666-666666660001'),
+  false,
+  'suspended students cannot read placement records'
+);
+
+select is(
+  public.can_read_cv('99999999-9999-4999-8999-999999999021/cv.pdf'),
+  false,
+  'suspended students cannot read their private CV files'
+);
+
+select throws_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       current_date,
+       1,
+       'blocked test',
+       ''
+     ) $,
+  'P0001',
+  'Only active students can save daily reports',
+  'suspended students cannot save daily reports'
+);
+
+select throws_ok(
+  $ select public.upsert_weekly_log(
+       '66666666-6666-4666-8666-666666660001',
+       1,
+       1,
+       'blocked test',
+       ''
+     ) $,
+  'P0001',
+  'Only active students can edit weekly reports',
+  'suspended students cannot edit weekly reports'
+);
+
+select throws_ok(
+  $ select public.submit_weekly_report(
+       '66666666-6666-4666-8666-666666660001',
+       1
+     ) $,
+  'P0001',
+  'Only active students can submit weekly reports',
+  'suspended students cannot submit weekly reports'
+);
+
+select throws_ok(
+  $ select public.submit_weekly_log('77777777-7777-4777-8777-777777770001') $,
+  'P0001',
+  'Only active students can submit weekly reports',
+  'suspended students cannot submit legacy weekly logs'
+);
+
+select throws_ok(
+  $ select public.withdraw_application('55555555-5555-4555-8555-555555550001') $,
+  'P0001',
+  'Only active students can withdraw applications',
+  'suspended students cannot withdraw applications'
+);
+
 reset role;
 select set_config('request.jwt.claim.sub', '', true);
 select set_config('request.jwt.claims', '{}', true);
 update public.profiles
 set account_status = 'active'
 where id = '99999999-9999-4999-8999-999999999021';
+set local role authenticated;
+
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select throws_ok(
+  $ select public.add_check_in(
+       '66666666-6666-4666-8666-666666660001',
+       'visit',
+       'blocked test',
+       now()
+     ) $,
+  'P0001',
+  'Only an active faculty supervisor can log a check-in',
+  'suspended faculty cannot log placement check-ins'
+);
+
+select throws_ok(
+  $ select public.submit_evaluation(
+       '66666666-6666-4666-8666-666666660001',
+       'final',
+       '{}'::jsonb,
+       'blocked test',
+       80
+     ) $,
+  'P0001',
+  'Not authorized to evaluate this placement',
+  'suspended faculty cannot submit evaluations'
+);
+
+reset role;
+select set_config('request.jwt.claim.sub', '', true);
+select set_config('request.jwt.claims', '{}', true);
+update public.profiles
+set account_status = 'active'
+where id = '99999999-9999-4999-8999-999999999011';
 set local role authenticated;
 
 select is(
