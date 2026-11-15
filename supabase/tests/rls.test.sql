@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(72);
+select plan(75);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -640,7 +640,54 @@ select throws_ok(
      ) $$,
   'P0001',
   'Only the assigned university faculty supervisor can rate this weekly report',
+
   'students cannot rate their own weekly reports'
+);
+
+select throws_ok(
+  $$ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       current_date + 1,
+       8,
+       'Future-dated work entry',
+       'Not yet completed'
+     ) $$,
+  'P0001',
+  'Report date must be within the placement period and cannot be in the future',
+  'students cannot create future-dated daily reports'
+);
+
+select throws_ok(
+  $$ select public.submit_weekly_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select ceil((end_date - start_date + 1)::numeric / 7)::integer
+        from public.placements
+        where id = '66666666-6666-4666-8666-666666660001')
+     ) $$,
+  'P0001',
+  'A weekly report can only be submitted after that placement week has ended',
+  'students cannot submit a weekly report before the week ends'
+);
+
+reset role;
+select set_config('request.jwt.claim.sub', '', true);
+select set_config('request.jwt.claims', '{}', true);
+update public.placements
+set start_date = current_date - 31,
+    end_date = current_date - 1
+where id = '66666666-6666-4666-8666-666666660001';
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select throws_ok(
+  $$ select public.record_grade(
+       '66666666-6666-4666-8666-666666660001',
+       85,
+       'Final review'
+     ) $$,
+  'P0001',
+  'Every expected internship week must be submitted, approved, and rated before final grading',
+  'faculty cannot finalize a placement with missing, unapproved, or unrated weeks'
 );
 
 reset role;
