@@ -8,9 +8,9 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 
 - Production now records **22 migrations**.
 - The `backend-hardening` branch contains **30 migration files**.
-- Seven reviewed migrations were applied to production and mirrored in the branch with their exact production versions.
-- The remaining eight-file difference is the seven initial repository baseline migrations plus `20261113000001_archive_entities.sql`. Their expected objects appear in the live schema, but the exact object-by-object equivalence and migration-ledger repair plan still need sign-off.
-- Several older migration names are represented by different version identifiers in production and GitHub. Do not assume same-name files are safe to mark applied without comparing their SQL effects.
+- Twelve branch migration filenames match production migration versions exactly. Ten logical counterparts have different version identifiers between the production ledger and `backend-hardening`; these need careful filename/history alignment before any future `db push`.
+- The eight branch-only migration files are the seven initial repository baseline migrations plus `20261113000001_archive_entities.sql`. A read-only production catalogue comparison on 2026-11-16 confirmed their expected core objects are present. Two original tenant-wide RLS policies have been superseded by narrower policies; see the audit section below.
+- Do not run `supabase db push` or repair migration history until the version mappings, source effects, and backup are signed off.
 - Production currently exposes 21 public application tables, all with RLS enabled.
 - At the time of the original audit, production had four profile rows, five notifications, five audit log rows, and three deleted-entity rows. These are audit observations, not migration targets.
 
@@ -83,15 +83,45 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 - The performance advisor no longer reports unindexed foreign keys, RLS auth-initplan warnings, or multiple permissive tenant-directory policies.
 - The advisor reports unused indexes because production traffic is still very low. Do not remove them based on this early usage sample.
 
+## Read-only schema reconciliation (2026-11-16)
+
+The following checks were read-only against production. They establish that the expected object families exist; they do not prove that every historical migration file is byte-for-byte identical to the SQL originally executed in production.
+
+- `20261109000001_schema.sql`: all 14 original core tables, all 12 original enum types, the original named indexes, and the original timestamp triggers are present. The original auth-user trigger is also present on `auth.users`.
+- `20261109000002_functions.sql`: every function identity declared by the baseline file is present. Later migrations have deliberately replaced several function bodies with hardened versions.
+- `20261109000003_rls.sql`: the core table policies are present. The original `universities_platform_all` and `companies_platform_all` policies are no longer present by those names; they were replaced by separate public active-read, authenticated active/admin-read, and platform-admin insert/update/delete policies. This is an intentional policy split, not a missing access-control layer.
+- `20261109000004_storage.sql`: all six baseline storage policy names are present. Current bucket configuration was also checked: `cvs` and `reports` are private; `company-logos` and `post-images` are public.
+- `20261109000005_realtime.sql`: `public.notifications` is included in `supabase_realtime`.
+- `20261109000006_platform_admins.sql`: `list_platform_admins()` is present.
+- `20261109000007_admin_console.sql`: `account_status`, the `profiles.account_status` column, and the admin directory/status-management RPCs are present.
+- `20261113000001_archive_entities.sql`: `deleted_entities`, the archive columns on profiles/universities/companies, the partial archive index, the platform-admin read policy, and the archive/restore RPCs are present. The live archive RPC definitions were inspected and match the intended archive workflow.
+- The `admin_broadcasts`, `system_alerts`, `daily_reports`, and `deleted_entities` tables all have RLS enabled. Their expected policies and indexes are present. The `withdrawn` application status is present.
+- The six company/student workflow RPCs covered by `restrict_company_workflow_rpc_execution` are not executable by `anon`; they remain executable by `authenticated` and `service_role` as intended.
+- Production still records 22 migrations while the branch has 30 files. The ten logical counterparts with different version identifiers are:
+
+| Production ledger version/name | Branch migration file |
+|---|---|
+| `20261113205548_restore_admin_user_directory_rpc` | `20261113000002_restore_admin_user_directory_rpc.sql` |
+| `20261113211056_restore_student_account_approval_rpc` | `20261113000003_restore_student_account_approval_rpc.sql` |
+| `20261113214348_add_admin_broadcasts_alerts_analytics` | `20261113230000_add_admin_broadcasts_alerts_analytics.sql` |
+| `20261113215010_add_system_alert_admin_actions` | `20261113233900_add_system_alert_admin_actions.sql` |
+| `20261113224710_restrict_company_workflow_rpc_execution` | `20261114000001_restrict_company_workflow_rpc_execution.sql` |
+| `20261113225148_add_withdrawn_application_status` | `20261114000002_add_withdrawn_application_status.sql` |
+| `20261113225157_record_student_application_withdrawals_distinctly` | `20261114000003_record_student_application_withdrawals.sql` |
+| `20261113230121_daily_reports_and_faculty_approval` | `20261114000004_daily_reports_and_faculty_approval.sql` |
+| `20261113230512_assign_faculty_by_department` | `20261114000005_assign_faculty_by_department.sql` |
+| `20261113230740_enforce_daily_to_weekly_submission` | `20261114000006_enforce_daily_to_weekly_submission.sql` |
+
+The production function bodies inspected for these workflows contain the expected current behavior, including later active-account guards. The branch files must still be reviewed and aligned to production version identifiers before treating the repository migration history as release-ready.
+
 ## Remaining migration reconciliation
 
-1. Take a verified Supabase backup/snapshot and retain the backup identifier.
-2. Export production schema definitions for tables, columns, constraints, indexes, enums, functions, triggers, RLS policies, grants, storage buckets and storage policies. Do not export secrets.
-3. Compare the export against the exact branch commit. Compare definitions and behavior, not just object names or row counts.
-4. Classify each of the seven baseline files and `archive_entities` as already represented, partially represented, pending, or obsolete/conflicting.
-5. Map each older same-name/different-version migration to its production equivalent by comparing SQL and resulting objects.
-6. Only after review, prepare a `supabase migration repair --status applied` plan for migrations whose effects are proven to exist. Never repair the ledger merely to silence a mismatch.
-7. Apply only genuinely pending migrations, one at a time, and run database tests plus application smoke tests after each group.
+1. Take a verified Supabase backup/snapshot and retain the backup identifier. The connected Supabase management actions do not expose a backup/snapshot creation or verification operation, so this step has not been completed from ChatGPT.
+2. Finish source-to-production comparison for the ten version-mismatched logical migrations, including function bodies, grants, policy expressions, constraints, and any data effects.
+3. Align the ten branch migration filenames with the already-recorded production versions only after their SQL effects are confirmed; do not create duplicate migration-ledger entries for the same logical change.
+4. Confirm the seven baseline files and `archive_entities` are fully represented, including grants and function definitions, not just object names.
+5. After backup and review, prepare a `supabase migration repair --status applied` plan for only the eight branch-only migration versions whose effects are proven to exist. Never repair the ledger merely to silence a mismatch.
+6. Apply only genuinely pending migrations, one at a time, and run database tests plus application smoke tests after each group.
 
 ## Verification and deployment blockers
 
@@ -99,6 +129,7 @@ Project: `bdndnacbasmfndzylwpb` (SIMS, eu-central-1).
 - **Passed on `backend-hardening` commit `87d812e77f6bb78a2b6596d354e0903826e42360`:** local Supabase startup, full rebuild of all 30 migrations, and all 61 pgTAP assertions.
 - **Passed on the same commit:** Deno type-check for every Edge Function and the frontend verification workflow.
 - The CI database port collision was resolved by overriding only the workflow's local database and shadow-database ports; developer defaults and production settings were not changed.
+- Read-only production catalogue reconciliation completed for the eight branch-only historical migrations; migration version alignment and repair remain pending a verified backup and full source review.
 - Test real storage upload/download/delete with separate student and non-owner accounts in a non-production environment. Production currently has no report objects to safely use for a live delete test.
 - Complete authenticated live smoke tests for invitation creation, admin-only integration management, account lifecycle actions, and the disabled signup endpoint. Do not use the Vercel preview for write tests because it shares production Supabase credentials.
 - Vercel's previous deployment rate limit has cleared and a SIMS Preview deployment is Ready. A full browser workflow smoke test is still outstanding.
