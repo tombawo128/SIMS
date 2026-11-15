@@ -23,7 +23,7 @@ export function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const availability = useAdminSignupAvailable();
-  const adminAvailable = availability.data === true;
+  const adminAvailable = availability.data === true && !availability.isLoading && !availability.isError;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

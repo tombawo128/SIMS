@@ -34,6 +34,7 @@ import { useCompanies, useUniversities } from '@/hooks/useLookups';
 import { usePostings } from '@/hooks/usePostings';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -67,6 +68,19 @@ export function Dashboard() {
 
   if (!profile) return null;
 
+  const statsQuery = role === 'coordinator'
+    ? universityStats
+    : role === 'faculty_supervisor'
+      ? facultyStats
+      : role === 'platform_admin'
+        ? platformStats
+        : companyStats;
+  const statsHint = statsQuery.isLoading
+    ? 'Loading metrics…'
+    : statsQuery.isError
+      ? 'Metrics could not be loaded'
+      : undefined;
+
   const firstName = profile.full_name.split(' ')[0] || 'there';
   const roleDescription: Record<string, string> = {
     student: 'Track your applications, placement, weekly logs, and evaluations.',
@@ -97,26 +111,44 @@ export function Dashboard() {
       ? [
           {
             label: 'Applications',
-            value: applications.data?.length ?? 0,
-            hint: `${activeApplications.length} in progress`,
+            value: applications.isLoading || applications.isError ? '—' : applications.data?.length ?? 0,
+            hint: applications.isLoading
+              ? 'Loading applications…'
+              : applications.isError
+                ? 'Applications could not be loaded'
+                : `${activeApplications.length} in progress`,
             icon: <FileCheck2 className='dashboard-h-5-1' />,
           },
           {
             label: 'Active placement',
-            value: activePlacement ? 1 : 0,
-            hint: activePlacement?.company?.name ?? 'No active placement yet',
+            value: placements.isLoading || placements.isError ? '—' : activePlacement ? 1 : 0,
+            hint: placements.isLoading
+              ? 'Loading placement…'
+              : placements.isError
+                ? 'Placement data could not be loaded'
+                : activePlacement?.company?.name ?? 'No active placement yet',
             icon: <ClipboardList className='dashboard-h-5-1' />,
           },
           {
             label: 'Unread updates',
-            value: unreadNotifications,
-            hint: 'Notifications',
+            value: notifications.isLoading || notifications.isError ? '—' : unreadNotifications,
+            hint: notifications.isLoading
+              ? 'Loading notifications…'
+              : notifications.isError
+                ? 'Notifications could not be loaded'
+                : 'Notifications',
             icon: <Users className='dashboard-h-5-1' />,
           },
           {
             label: 'Completed',
-            value: (placements.data ?? []).filter((placement) => placement.status === 'completed').length,
-            hint: 'Placements',
+            value: placements.isLoading || placements.isError
+              ? '—'
+              : (placements.data ?? []).filter((placement) => placement.status === 'completed').length,
+            hint: placements.isLoading
+              ? 'Loading placements…'
+              : placements.isError
+                ? 'Placement data could not be loaded'
+                : 'Placements',
             icon: <GraduationCap className='dashboard-h-5-1' />,
           },
         ]
@@ -265,7 +297,13 @@ export function Dashboard() {
                 </Link>
               }
             />
-            {visibleLogs.length === 0 ? (
+            {pendingLogs.isLoading ? (
+              <p className='dashboard-text-xs-2' role="status">Loading submitted reports…</p>
+            ) : pendingLogs.isError ? (
+              <Alert tone="danger" title="Could not load submitted reports">
+                <Button size="sm" variant="secondary" onClick={() => void pendingLogs.refetch()}>Try again</Button>
+              </Alert>
+            ) : visibleLogs.length === 0 ? (
               <EmptyState title="No logs awaiting review" description="New submissions will appear here." />
             ) : (
               <div className='dashboard-divide-y-1'>
@@ -294,7 +332,7 @@ export function Dashboard() {
 
       <div className='dashboard-grid-1'>
         {cards.map((card) => (
-          <StatCard key={card.label} label={card.label} value={card.value} hint={card.hint} icon={card.icon} />
+          <StatCard key={card.label} label={card.label} value={card.value} hint={card.hint ?? statsHint} icon={card.icon} />
         ))}
       </div>
 
@@ -348,7 +386,13 @@ export function Dashboard() {
                     </Link>
                   }
                 />
-                {studentPostings.length === 0 ? (
+                {recommended.isLoading ? (
+                  <p className='dashboard-text-xs-2' role="status">Loading opportunities…</p>
+                ) : recommended.isError ? (
+                  <Alert tone="danger" title="Could not load opportunities">
+                    <Button size="sm" variant="secondary" onClick={() => void recommended.refetch()}>Try again</Button>
+                  </Alert>
+                ) : studentPostings.length === 0 ? (
                   <EmptyState
                     title="No opportunities yet"
                     description="New postings from partner companies will show up here."
@@ -469,7 +513,13 @@ export function Dashboard() {
                     </Link>
                   }
                 />
-                {recentApplications.length === 0 ? (
+                {applications.isLoading ? (
+                  <p className='dashboard-text-xs-2' role="status">Loading applications…</p>
+                ) : applications.isError ? (
+                  <Alert tone="danger" title="Could not load applications">
+                    <Button size="sm" variant="secondary" onClick={() => void applications.refetch()}>Try again</Button>
+                  </Alert>
+                ) : recentApplications.length === 0 ? (
                   <EmptyState title="No applications yet" />
                 ) : (
                   <div className='dashboard-divide-y-1'>
@@ -543,7 +593,13 @@ export function Dashboard() {
           {role !== 'platform_admin' ? (
             <Card>
               <CardHeader title="Notifications" description="Recent updates for you." />
-              {(notifications.data ?? []).length === 0 ? (
+              {notifications.isLoading ? (
+                <p className='dashboard-text-xs-2' role="status">Loading notifications…</p>
+              ) : notifications.isError ? (
+                <Alert tone="danger" title="Could not load notifications">
+                  <Button size="sm" variant="secondary" onClick={() => void notifications.refetch()}>Try again</Button>
+                </Alert>
+              ) : (notifications.data ?? []).length === 0 ? (
                 <EmptyState title="Nothing new" description="You are up to date." />
               ) : (
                 <div className='dashboard-divide-y-1'>

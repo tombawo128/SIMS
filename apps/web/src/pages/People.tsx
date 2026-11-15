@@ -36,6 +36,13 @@ import {
 
 type TabKey = 'students' | 'faculty' | 'team';
 
+function localDateStamp() {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 export function People() {
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -54,21 +61,19 @@ export function People() {
   const team = useCompanyTeam(profile?.role === 'company_admin' ? profile.company_id : undefined);
   const placements = usePlacements();
 
-  const facultyStudents = useMemo(() => {
-    const map = new Map<string, { id: string; full_name: string; email: string; placementId: string; title: string; company: string }>();
-    for (const placement of placements.data ?? []) {
-      if (placement.faculty_supervisor_id !== profile?.id) continue;
-      map.set(placement.student_id, {
-        id: placement.student_id,
+  const facultyStudents = useMemo(
+    () => (placements.data ?? [])
+      .filter((placement) => placement.faculty_supervisor_id === profile?.id)
+      .map((placement) => ({
+        id: placement.id,
         full_name: placement.student?.full_name ?? 'Student',
         email: placement.student?.email ?? '',
         placementId: placement.id,
         title: placement.posting?.title ?? 'Placement',
         company: placement.company?.name ?? '',
-      });
-    }
-    return [...map.values()];
-  }, [placements.data, profile?.id]);
+      })),
+    [placements.data, profile?.id],
+  );
 
   if (!profile) return null;
 
@@ -132,7 +137,7 @@ export function People() {
         (student.student_profile?.skills ?? []).join('; '),
       ]),
     );
-    downloadCsv(`students-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    downloadCsv(`students-${localDateStamp()}.csv`, csv);
   };
 
   return (
@@ -188,6 +193,10 @@ export function People() {
       {isCoordinator && tab === 'students' ? (
         people.isLoading ? (
           <Loading />
+        ) : people.isError ? (
+          <Alert tone="danger" title="Could not load university members">
+            {errorMessage(people.error)} <Button size="sm" variant="secondary" onClick={() => void people.refetch()}>Try again</Button>
+          </Alert>
         ) : (
           <Card className='people-overflow-hidden-1'>
             {students.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
@@ -255,6 +264,10 @@ export function People() {
       {isCoordinator && tab === 'faculty' ? (
         people.isLoading ? (
           <Loading />
+        ) : people.isError ? (
+          <Alert tone="danger" title="Could not load faculty supervisors">
+            {errorMessage(people.error)} <Button size="sm" variant="secondary" onClick={() => void people.refetch()}>Try again</Button>
+          </Alert>
         ) : (
           <Card className='people-overflow-hidden-1'>
             {facultyMembers.filter((faculty) => filter(faculty.full_name, faculty.email)).length === 0 ? (
@@ -317,6 +330,10 @@ export function People() {
           <Card className='people-overflow-hidden-1'>
             {team.isLoading ? (
               <Loading />
+            ) : team.isError ? (
+              <Alert tone="danger" title="Could not load company team">
+                {errorMessage(team.error)} <Button size="sm" variant="secondary" onClick={() => void team.refetch()}>Try again</Button>
+              </Alert>
             ) : (team.data ?? []).filter((member) => filter(member.full_name, member.email)).length === 0 ? (
               <EmptyState
                 icon={<Users className='people-h-5-1' />}
@@ -377,6 +394,10 @@ export function People() {
       {isFaculty ? (
         placements.isLoading ? (
           <Loading />
+        ) : placements.isError ? (
+          <Alert tone="danger" title="Could not load assigned placements">
+            {errorMessage(placements.error)} <Button size="sm" variant="secondary" onClick={() => void placements.refetch()}>Try again</Button>
+          </Alert>
         ) : facultyStudents.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
           <EmptyState
             icon={<Users className='people-h-5-1' />}

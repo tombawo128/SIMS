@@ -124,10 +124,10 @@ export function ProfilePage() {
         cv_path: path,
       });
       toast({ title: 'CV uploaded', tone: 'success' });
-      if (fileInput.current) fileInput.current.value = '';
     } catch (caught) {
       setStudentError(errorMessage(caught));
     } finally {
+      if (fileInput.current) fileInput.current.value = '';
       setUploading(false);
     }
   };
@@ -226,9 +226,11 @@ export function ProfilePage() {
               />
               <form onSubmit={saveStudentDetails} className='profile-space-y-4-1'>
                 {studentError ? <Alert tone="danger">{studentError}</Alert> : null}
+                {studentProfile.isLoading ? <Alert tone="info">Loading your student details…</Alert> : null}
                 {studentProfile.isError ? (
                   <Alert tone="danger" title="Could not load student details">
-                    Refresh the page before updating your CV or student information.
+                    Student information could not be retrieved. Retry before saving changes.
+                    <Button size="sm" variant="secondary" onClick={() => void studentProfile.refetch()} loading={studentProfile.isFetching}>Retry</Button>
                   </Alert>
                 ) : null}
                 <div className='profile-grid-2'>
@@ -293,13 +295,14 @@ export function ProfilePage() {
                     variant="secondary"
                     type="button"
                     loading={uploading}
+                    disabled={studentProfile.isLoading || studentProfile.isError || savingStudent}
                     onClick={() => fileInput.current?.click()}
                   >
                     <Upload className='profile-h-35-1' /> {studentProfile.data?.cv_path ? 'Replace CV' : 'Upload CV'}
                   </Button>
                 </div>
 
-                <Button type="submit" loading={savingStudent}>
+                <Button type="submit" loading={savingStudent} disabled={studentProfile.isLoading || studentProfile.isError || uploading}>
                   <Save className='profile-h-4-1' /> Save student details
                 </Button>
               </form>

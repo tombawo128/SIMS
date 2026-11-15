@@ -25,7 +25,7 @@ import {
   useMarkNotificationRead,
   useNotifications,
 } from '@/hooks/useNotifications';
-import { Avatar, EmptyState } from '@/components/ui';
+import { Avatar, EmptyState, useToast } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 const iconMap: Record<NavIcon, LucideIcon> = {
@@ -138,6 +138,7 @@ function NotificationBell() {
   const notifications = useNotifications(profile?.id);
   const markRead = useMarkNotificationRead(profile?.id);
   const markAll = useMarkAllNotificationsRead(profile?.id);
+  const { toast } = useToast();
 
   const items = notifications.data ?? [];
   const unread = items.filter((item) => !item.read_at).length;
@@ -149,6 +150,8 @@ function NotificationBell() {
         onClick={() => setOpen((current) => !current)}
         className='bell__button'
         aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
+        aria-expanded={open}
+        aria-controls="notification-dropdown"
       >
         <Bell className='icon' />
         {unread ? (
@@ -161,13 +164,14 @@ function NotificationBell() {
       {open ? (
         <>
           <div className='bell__overlay' onClick={() => setOpen(false)} aria-hidden />
-          <div className='bell__dropdown'>
+          <div className='bell__dropdown' id="notification-dropdown">
             <div className='bell__dropdown-header'>
               <p className='heading-sm'>Notifications</p>
               {unread ? (
                 <button
                   type="button"
-                  onClick={() => markAll.mutate()}
+                  onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })}
+                  disabled={markAll.isPending}
                   className='link-action'
                 >
                   Mark all read
@@ -176,7 +180,15 @@ function NotificationBell() {
             </div>
 
             <div className='bell__list'>
-              {items.length === 0 ? (
+              {notifications.isLoading ? (
+                <p className='bell__item-body' role="status">Loading notifications…</p>
+              ) : notifications.isError ? (
+                <div className='bell__item-content' role="alert">
+                  <p className='bell__item-title'>Notifications unavailable</p>
+                  <p className='bell__item-body'>We could not load your updates.</p>
+                  <button type="button" className='link-action' onClick={() => void notifications.refetch()}>Try again</button>
+                </div>
+              ) : items.length === 0 ? (
                 <EmptyState title="You're all caught up" description="New activity will appear here." />
               ) : (
                 items.slice(0, 8).map((item) => (
@@ -184,7 +196,9 @@ function NotificationBell() {
                     key={item.id}
                     type="button"
                     onClick={() => {
-                      if (!item.read_at) markRead.mutate(item.id);
+                      if (!item.read_at) {
+                        markRead.mutate(item.id, { onError: (error) => toast({ title: 'Could not mark notification as read', description: error.message, tone: 'error' }) });
+                      }
                       setOpen(false);
                       navigate(item.link ?? '/notifications');
                     }}

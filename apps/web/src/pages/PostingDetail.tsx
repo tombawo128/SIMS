@@ -104,7 +104,9 @@ export function PostingDetail() {
     isStudent &&
     data.status === 'published' &&
     !closed &&
-    (!existingApplication || existingApplication.status === 'draft');
+    !existingApplication &&
+    !applications.isLoading &&
+    !applications.isError;
   const canManage =
     profile &&
     ['company_admin', 'site_supervisor'].includes(profile.role) &&
@@ -113,6 +115,11 @@ export function PostingDetail() {
   const submitApplication = async () => {
     if (!profile || !profile.university_id) return;
     setError('');
+    if (applications.isLoading || applications.isError || studentProfile.isLoading || studentProfile.isError) {
+      setError('Your application and student profile details must finish loading before you can apply.');
+      return;
+    }
+    if (apply.isPending || saveStudentProfile.isPending) return;
     if (!coverLetter.trim()) {
       setError('Add a short cover letter before submitting.');
       return;
@@ -184,6 +191,14 @@ export function PostingDetail() {
         }
       />
 
+      {applications.isError && isStudent ? (
+        <div className='posting-detail-mb-5-1'>
+          <Alert tone="danger" title="Could not check your existing applications">
+            Retry loading your applications before applying. <Button size="sm" variant="secondary" onClick={() => void applications.refetch()} loading={applications.isFetching}>Retry</Button>
+          </Alert>
+        </div>
+      ) : null}
+
       {existingApplication ? (
         <div className='posting-detail-mb-5-1'>
           <Alert
@@ -200,6 +215,7 @@ export function PostingDetail() {
                   size="sm"
                   variant="secondary"
                   loading={withdraw.isPending}
+                  disabled={withdraw.isPending}
                   onClick={async () => {
                     try {
                       await withdraw.mutateAsync(existingApplication.id);
@@ -366,7 +382,11 @@ export function PostingDetail() {
             <Button variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={submitApplication} loading={apply.isPending || saveStudentProfile.isPending}>
+            <Button
+              onClick={submitApplication}
+              loading={apply.isPending || saveStudentProfile.isPending}
+              disabled={applications.isLoading || applications.isError || studentProfile.isLoading || studentProfile.isError}
+            >
               Submit application
             </Button>
           </>
@@ -374,9 +394,10 @@ export function PostingDetail() {
       >
         <div className='posting-detail-space-y-4-2'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
+          {studentProfile.isLoading ? <Alert tone="info">Loading your student profile…</Alert> : null}
           {studentProfile.isError ? (
             <Alert tone="danger" title="Could not load your student profile">
-              Close this window, refresh the page, and try again before submitting your application.
+              Retry loading your student details before submitting. <Button size="sm" variant="secondary" onClick={() => void studentProfile.refetch()} loading={studentProfile.isFetching}>Retry</Button>
             </Alert>
           ) : null}
 

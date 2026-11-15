@@ -54,12 +54,15 @@ Deno.serve(async (req) => {
 
   const { data: caller, error: profileError } = await admin
     .from('profiles')
-    .select('id, role')
+    .select('id, role, account_status, deleted_at')
     .eq('id', userData.user.id)
     .single();
 
   if (profileError || !caller) {
     return json({ error: 'Profile not found' }, 403);
+  }
+  if (caller.account_status !== 'active' || caller.deleted_at) {
+    return json({ error: 'Your account is not active' }, 403);
   }
   if (caller.role !== 'platform_admin') {
     return json({ error: 'Only a general administrator can manage administrator accounts' }, 403);
@@ -140,7 +143,7 @@ Deno.serve(async (req) => {
 
     const { data: target, error: targetError } = await admin
       .from('profiles')
-      .select('id, role')
+      .select('id, role, account_status, deleted_at')
       .eq('id', id)
       .single();
 
@@ -149,6 +152,9 @@ Deno.serve(async (req) => {
     }
     if (target.role !== 'platform_admin') {
       return json({ error: 'That account is not a general administrator' }, 400);
+    }
+    if (target.deleted_at) {
+      return json({ error: 'That administrator is already archived' }, 409);
     }
 
     const { error: deleteError } = await admin.auth.admin.deleteUser(id);

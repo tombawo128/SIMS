@@ -1,0 +1,67 @@
+name: Backend verification
+
+on:
+  push:
+    branches:
+      - backend-hardening
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: backend-verification-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    name: Rebuild database and run SQL tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: v2.stable
+
+      - name: Configure isolated CI database ports
+        run: |
+          # GitHub-hosted runners may already have a PostgreSQL service on 54322.
+          # Override only this workflow's local database ports; keep developer defaults unchanged.
+          sed -i '/^\[db\]/,/^\[db\.pooler\]/ { s/^port = 54322$/port = 55432/; s/^shadow_port = 54320$/shadow_port = 55430/; }' supabase/config.toml
+          grep -A 8 '^\[db\]' supabase/config.toml
+
+      - name: Start local Supabase
+        run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy
+
+      - name: Apply the complete migration history
+        run: supabase db reset --local
+
+      - name: Run database tests
+        run: supabase test db
+
+  edge-functions:
+    name: Type-check Edge Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Type-check Edge Functions
+        run: |
+          set -e
+          for file in supabase/functions/*/index.ts; do
+            echo "Checking $file"
+            deno check --node-modules-dir=auto --no-lock "$file"
+          done

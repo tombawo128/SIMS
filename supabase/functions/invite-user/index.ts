@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data: caller, error: profileError } = await admin.from('profiles')
-    .select('id, role, university_id, company_id').eq('id', userData.user.id).single();
+    .select('id, role, university_id, company_id, account_status, deleted_at').eq('id', userData.user.id).single();
   if (profileError || !caller) return json({ error: 'Profile not found' }, 403);
 
   let body: InviteBody;
@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
   const fullName = body.full_name?.trim();
   const role = body.role;
   if (!email || !fullName || !role) return json({ error: 'Email, full name, and role are required' }, 400);
+  if (caller.account_status !== 'active' || caller.deleted_at) return json({ error: 'Your account is not active' }, 403);
   if (!(ALLOWED_BY_CALLER[caller.role] ?? []).includes(role)) return json({ error: 'You are not allowed to invite this role' }, 403);
 
   let universityId: string | null = null;
@@ -78,6 +79,10 @@ Deno.serve(async (req) => {
   });
 
   if (createError || !created.user) {
+    // Remove the one-time provisioning ticket so a failed attempt cannot
+    // leave stale authorization data behind.
+    const { error: cleanupError } = await admin.from('provision_tickets').delete().eq('email', email);
+    if (cleanupError) console.error('Provision ticket cleanup failed', cleanupError);
     console.error('Auth user creation failed', createError);
     return json({
       error: createError?.message?.toLowerCase().includes('already')

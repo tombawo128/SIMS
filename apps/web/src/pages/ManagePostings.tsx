@@ -17,6 +17,7 @@ import {
 import { useApplications } from '@/hooks/useApplications';
 import { errorMessage } from '@/lib/utils';
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -128,7 +129,11 @@ export function ManagePostings() {
           <Spinner className='manage-postings-h-6-1' />
         </div>
       ) : postings.isError ? (
-        <EmptyState title="Could not load postings" description="Refresh the page and try again." />
+        <EmptyState
+          title="Could not load postings"
+          description="Your company postings could not be retrieved. Try again."
+          action={<Button size="sm" variant="secondary" onClick={() => void postings.refetch()} loading={postings.isFetching}>Retry</Button>}
+        />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='manage-postings-h-5-1' />}
@@ -141,6 +146,12 @@ export function ManagePostings() {
           }
         />
       ) : (
+        <>
+        {applications.isError ? (
+          <Alert tone="warning" title="Applicant counts are unavailable">
+            Postings loaded, but applicant totals could not be retrieved. <Button size="sm" variant="ghost" onClick={() => void applications.refetch()}>Retry counts</Button>
+          </Alert>
+        ) : null}
         <Card className='manage-postings-overflow-hidden-1'>
           <Table className='manage-postings-border-0-1'>
             <thead>
@@ -180,7 +191,7 @@ export function ManagePostings() {
                     </Td>
                     <Td>
                       <span className='manage-postings-text-sm-2'>
-                        {applicationCounts[posting.id] ?? 0}
+                        {applications.isLoading ? '…' : applications.isError ? 'Unavailable' : applicationCounts[posting.id] ?? 0}
                       </span>
                     </Td>
                     <Td>
@@ -203,6 +214,7 @@ export function ManagePostings() {
                             size="sm"
                             onClick={() => changeStatus(posting.id, 'published')}
                             loading={updateStatus.isPending}
+                            disabled={updateStatus.isPending}
                           >
                             Publish
                           </Button>
@@ -221,6 +233,7 @@ export function ManagePostings() {
                           variant="ghost"
                           onClick={() => deletePosting(posting.id, posting.title)}
                           loading={removePosting.isPending}
+                          disabled={removePosting.isPending}
                         >
                           <Trash2 className='manage-postings-h-35-1' />
                         </Button>
@@ -232,6 +245,7 @@ export function ManagePostings() {
             </tbody>
           </Table>
         </Card>
+        </>
       )}
     </div>
   );

@@ -45,7 +45,8 @@ export function DailyReportsPanel({
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const [reportDate, setReportDate] = useState(today < startDate ? startDate : today > endDate ? endDate : today);
   const [hours, setHours] = useState('8');
   const [tasks, setTasks] = useState('');
@@ -114,13 +115,15 @@ export function DailyReportsPanel({
     return [...map.entries()].sort((a, b) => b[0] - a[0]);
   }, [reports]);
 
+  const beforePlacementStart = today < startDate;
+  const maxReportDate = today < endDate ? today : endDate;
   const currentWeek = weekForDate(reportDate, startDate);
   const weekStatus = weeklyLogs.find((log) => log.week_number === currentWeek)?.status;
   const canEditWeek = !['submitted', 'approved'].includes(weekStatus ?? '');
   const save = async () => {
     setErrorText('');
-    if (!reportDate || !tasks.trim() || Number(hours) < 0 || Number(hours) > 24 || !Number.isFinite(Number(hours))) {
-      setErrorText('Choose a valid date, enter 0–24 hours, and describe the work completed.');
+    if (!reportDate || reportDate < startDate || reportDate > endDate || reportDate > today || beforePlacementStart || !tasks.trim() || Number(hours) < 0 || Number(hours) > 24 || !Number.isFinite(Number(hours))) {
+      setErrorText('Choose a report date within the placement period and not in the future, enter 0–24 hours, and describe the work completed.');
       return;
     }
     try { await saveReport.mutateAsync(); } catch (error) { setErrorText(errorMessage(error)); }
@@ -143,7 +146,7 @@ export function DailyReportsPanel({
           {errorText ? <Alert tone="danger">{errorText}</Alert> : null}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12, padding: 16 }}>
             <Field label="Report date" htmlFor="daily-report-date">
-              <Input id="daily-report-date" type="date" min={startDate} max={endDate} value={reportDate} onChange={(event) => setReportDate(event.target.value)} />
+              <Input id="daily-report-date" type="date" min={startDate} max={maxReportDate} value={reportDate} disabled={Boolean(editingId) || beforePlacementStart} onChange={(event) => setReportDate(event.target.value)} />
             </Field>
             <Field label="Hours worked" htmlFor="daily-report-hours">
               <Input id="daily-report-hours" type="number" min="0" max="24" step="0.5" value={hours} onChange={(event) => setHours(event.target.value)} />
@@ -158,15 +161,16 @@ export function DailyReportsPanel({
               <Textarea id="daily-report-outcomes" rows={2} value={outcomes} onChange={(event) => setOutcomes(event.target.value)} placeholder="What did you learn or practice?" />
             </Field>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek}><Plus size={16} /> Save daily report</Button>
-              {editingId ? <Button variant="secondary" onClick={() => { setEditingId(null); setTasks(''); setOutcomes(''); }}>Cancel edit</Button> : null}
+              <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek || beforePlacementStart}><Plus size={16} /> Save daily report</Button>
+              {editingId ? <Button variant="secondary" onClick={() => { setEditingId(null); setHours('8'); setTasks(''); setOutcomes(''); setErrorText(''); }}>Cancel edit</Button> : null}
             </div>
+            {beforePlacementStart ? <Alert tone="info">Daily reports can be recorded from the placement start date.</Alert> : null}
             {!canEditWeek ? <Alert tone="info">This week has already been submitted. You cannot change its daily entries.</Alert> : null}
           </div>
         </Card>
       ) : null}
 
-      {reportsQuery.isLoading ? <Card>Loading daily reports…</Card> : reportsQuery.isError ? <Alert tone="danger">Could not load daily reports. Refresh and try again.</Alert> : reports.length === 0 ? (
+      {reportsQuery.isLoading ? <Card>Loading daily reports…</Card> : reportsQuery.isError ? <Alert tone="danger">Could not load daily reports. <Button size="sm" variant="secondary" onClick={() => void reportsQuery.refetch()} loading={reportsQuery.isFetching}>Retry</Button></Alert> : reports.length === 0 ? (
         <EmptyState icon={<ClipboardList size={20} />} title="No daily reports yet" description="Daily entries will appear here as the student records their internship activities." />
       ) : grouped.map(([week, entries]) => {
         const status = weeklyLogs.find((log) => log.week_number === week)?.status ?? 'draft';
@@ -178,7 +182,7 @@ export function DailyReportsPanel({
               title={`Week ${week} · ${totalHours} hours`}
               description={`${entries.length} daily entr${entries.length === 1 ? 'y' : 'ies'} · ${status.replace('_', ' ')}`}
               actions={isStudent && !locked ? (
-                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending}>
+                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending}>
                   <Send size={15} /> Submit week
                 </Button>
               ) : <StatusBadge status={status} label={status.replace('_', ' ')} />}

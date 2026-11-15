@@ -46,6 +46,17 @@ const embedExample = `<iframe
   loading="lazy">
 </iframe>`;
 
+function localDateValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isKeyExpired(key: IntegrationApiKey) {
+  return Boolean(key.expires_at && new Date(key.expires_at).getTime() <= Date.now());
+}
+
 function ComingSoon({ title, description }: { title: string; description: string }) {
   return (
     <div className="integration-empty">
@@ -149,6 +160,14 @@ export function IntegrationCentre() {
   });
   const connections = integrationData.data?.connections ?? [];
   const apiKeys = integrationData.data?.api_keys ?? [];
+  const today = localDateValue(new Date());
+  const maxExpiry = new Date();
+  maxExpiry.setFullYear(maxExpiry.getFullYear() + 1);
+  const maxExpiryDate = localDateValue(maxExpiry);
+  const revokeKey = (key: IntegrationApiKey) => {
+    if (!window.confirm(`Revoke the API credential "${key.name}"? Any system using it will immediately lose access.`)) return;
+    revokeApiKey.mutate(key.id);
+  };
 
   const copyText = async (value: string, label: string) => {
     try {
@@ -219,7 +238,7 @@ export function IntegrationCentre() {
             <>
               <div className="integration-stats">
                 <article><span className="integration-stat-icon"><Link2 size={18} /></span><strong>{connections.filter(item => item.status === 'active').length}</strong><small>Active connections</small><em>Organisation systems</em></article>
-                <article><span className="integration-stat-icon"><KeyRound size={18} /></span><strong>{apiKeys.filter(key => !key.revoked_at).length}</strong><small>Active API keys</small><em>Credentials in use</em></article>
+                <article><span className="integration-stat-icon"><KeyRound size={18} /></span><strong>{apiKeys.filter(key => !key.revoked_at && !isKeyExpired(key)).length}</strong><small>Active API keys</small><em>Credentials in use</em></article>
                 <article><span className="integration-stat-icon"><ShieldCheck size={18} /></span><strong>{connections.filter(item => item.status === 'suspended').length}</strong><small>Suspended systems</small><em>Access paused</em></article>
                 <article><span className="integration-stat-icon"><Code2 size={18} /></span><strong>{integrationScopes.length}</strong><small>Available scopes</small><em>Read-only permissions</em></article>
               </div>
@@ -233,17 +252,19 @@ export function IntegrationCentre() {
                     </select>
                   </label>
                   <label>Organisation
-                    <select value={orgId} onChange={event => setOrgId(event.target.value)} required>
+                    <select value={orgId} onChange={event => setOrgId(event.target.value)} required disabled={organizations.isLoading || organizations.isError || !(organizations.data?.length)}> 
                       <option value="">Choose an active {orgType}</option>
                       {(organizations.data ?? []).map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
                     </select>
                   </label>
+                  {organizations.isLoading ? <p className="integration-muted">Loading active organisations…</p> : null}
+                  {organizations.isError ? <Alert tone="danger">Could not load organisations. <Button size="sm" variant="secondary" onClick={() => void organizations.refetch()}>Retry</Button></Alert> : null}
                   <label>Connected system name
                     <input value={connectionName} onChange={event => setConnectionName(event.target.value)} minLength={2} maxLength={100} placeholder="e.g. University student portal" required />
                   </label>
                   <div className="integration-form__actions"><span>Each connection belongs to exactly one organisation.</span><Button type="submit" disabled={!orgId || connectionName.trim().length < 2 || createConnection.isPending} loading={createConnection.isPending}><Plus size={15} /> Register system</Button></div>
                 </form>
-                {integrationData.isLoading ? <p className="integration-muted">Loading registered systems…</p> : integrationData.isError ? <Alert tone="danger" title="Could not load integrations">{(integrationData.error as Error).message}</Alert> : (
+                {integrationData.isLoading ? <p className="integration-muted">Loading registered systems…</p> : integrationData.isError ? <Alert tone="danger" title="Could not load integrations">{(integrationData.error as Error).message} <Button size="sm" variant="secondary" onClick={() => void integrationData.refetch()}>Retry</Button></Alert> : (
                   <div className="integration-connection-list">
                     {connections.length === 0 ? <EmptyState title="No connected systems" description="Register a university or company system to begin issuing API credentials." /> : connections.map(connection => (
                       <div className="integration-connection-row" key={connection.id}>
@@ -290,25 +311,25 @@ export function IntegrationCentre() {
                     <input value={keyName} onChange={event => setKeyName(event.target.value)} minLength={2} maxLength={100} required />
                   </label>
                   <label>Expiry date (optional, maximum 12 months)
-                    <input type="date" value={keyExpiry} min={new Date().toISOString().slice(0,10)} onChange={event => setKeyExpiry(event.target.value)} />
+                    <input type="date" value={keyExpiry} min={today} max={maxExpiryDate} onChange={event => setKeyExpiry(event.target.value)} />
                   </label>
                   <fieldset><legend>Permission scopes</legend>
                     <div className="integration-scope-checks">
                       {integrationScopes.map(scope => <label key={scope.value}><input type="checkbox" checked={selectedScopes.includes(scope.value)} onChange={event => setSelectedScopes(current => event.target.checked ? [...current, scope.value] : current.filter(item => item !== scope.value))} />{scope.label}<code>{scope.value}</code></label>)}
                     </div>
                   </fieldset>
-                  <div className="integration-form__actions"><span>Read-only access in this first API release.</span><Button type="submit" disabled={!keyConnectionId || keyName.trim().length < 2 || selectedScopes.length === 0 || createApiKey.isPending} loading={createApiKey.isPending}><KeyRound size={15} /> Generate API key</Button></div>
+                  <div className="integration-form__actions"><span>Read-only access in this first API release.</span><Button type="submit" disabled={!keyConnectionId || keyName.trim().length < 2 || selectedScopes.length === 0 || createApiKey.isPending || Boolean(oneTimeSecret)} loading={createApiKey.isPending}><KeyRound size={15} /> Generate API key</Button></div>
                 </form>
-                {oneTimeSecret ? <div className="integration-secret-panel"><strong>Copy your new API key now</strong><p>This is the only time SIMS will display the full secret.</p><code>{oneTimeSecret}</code><Button size="sm" onClick={() => void copyText(oneTimeSecret, 'New API key')}>{copied === 'New API key' ? <Check size={14} /> : <Copy size={14} />} Copy secret</Button><button type="button" onClick={() => setOneTimeSecret('')}>I have saved it</button></div> : null}
+                {oneTimeSecret ? <div className="integration-secret-panel"><strong>Copy your new API key now</strong><p>This is the only time SIMS will display the full secret. Save or dismiss it before generating another key.</p><code>{oneTimeSecret}</code><Button size="sm" onClick={() => void copyText(oneTimeSecret, 'New API key')}>{copied === 'New API key' ? <Check size={14} /> : <Copy size={14} />} Copy secret</Button><button type="button" onClick={() => setOneTimeSecret('')}>I have saved it</button></div> : null}
               </Card>
               <Card>
                 <CardHeader title="Issued credentials" description="Only key prefixes are visible. Full secrets are never retrievable." actions={<Button size="sm" variant="secondary" onClick={() => void integrationData.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
-                {integrationData.isLoading ? <p className="integration-muted">Loading API credentials…</p> : apiKeys.length === 0 ? <EmptyState icon={<KeyRound />} title="No API credentials" description="Register a system and generate its first API key." /> : <div className="integration-key-list">{apiKeys.map(key => {
+                {integrationData.isLoading ? <p className="integration-muted">Loading API credentials…</p> : integrationData.isError ? <Alert tone="danger">Could not load API credentials. <Button size="sm" variant="secondary" onClick={() => void integrationData.refetch()}>Retry</Button></Alert> : apiKeys.length === 0 ? <EmptyState icon={<KeyRound />} title="No API credentials" description="Register a system and generate its first API key." /> : <div className="integration-key-list">{apiKeys.map(key => {
                   const connection = connections.find(item => item.id === key.integration_id);
                   return <div className="integration-key-row" key={key.id}>
                     <div><strong>{key.name}</strong><small>{connection?.organization_name ?? 'Organisation'} · {key.key_prefix}…</small><div className="integration-key-scopes">{key.scopes.map(scope => <code key={scope}>{scope}</code>)}</div></div>
-                    <div className="integration-key-meta"><Badge tone={key.revoked_at ? 'slate' : 'emerald'}>{key.revoked_at ? 'Revoked' : 'Active'}</Badge><small>{key.expires_at ? 'Expires '+new Date(key.expires_at).toLocaleDateString() : 'No expiry'}</small><small>{key.last_used_at ? 'Last used '+new Date(key.last_used_at).toLocaleString() : 'Never used'}</small></div>
-                    {!key.revoked_at ? <Button size="sm" variant="secondary" onClick={() => revokeApiKey.mutate(key.id)} disabled={revokeApiKey.isPending}>Revoke</Button> : null}
+                    <div className="integration-key-meta"><Badge tone={key.revoked_at ? 'slate' : isKeyExpired(key) ? 'amber' : 'emerald'}>{key.revoked_at ? 'Revoked' : isKeyExpired(key) ? 'Expired' : 'Active'}</Badge><small>{key.expires_at ? 'Expires '+new Date(key.expires_at).toLocaleDateString() : 'No expiry'}</small><small>{key.last_used_at ? 'Last used '+new Date(key.last_used_at).toLocaleString() : 'Never used'}</small></div>
+                    {!key.revoked_at ? <Button size="sm" variant="secondary" onClick={() => revokeKey(key)} disabled={revokeApiKey.isPending}>Revoke</Button> : null}
                   </div>;
                 })}</div>}
               </Card>

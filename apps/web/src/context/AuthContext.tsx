@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // FETCH USER PROFILE
   // ========================================
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string): Promise<boolean> => {
     const requestId = ++profileRequestId.current;
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
 
         if (requestId !== profileRequestId.current) {
-          return;
+          return false;
         }
 
         if (!error && data) {
@@ -119,7 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setProfileError(null);
           }
 
-          return;
+          return true;
+        }
+
+        if (error) {
+          console.error('Profile fetch attempt failed:', error);
         }
       } catch (error) {
         console.error('Profile fetch attempt failed:', error);
@@ -136,6 +140,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         'We could not load your profile. Contact your administrator.'
       );
     }
+
+    return false;
   }, []);
 
   // ========================================
@@ -358,7 +364,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
 
     try {
-      await fetchProfile(userId);
+      const loaded = await fetchProfile(userId);
+      if (!loaded && sessionRef.current?.user.id === userId) {
+        throw new Error('We could not refresh your account profile. Please try again.');
+      }
     } finally {
       if (
         mounted.current &&
