@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(114);
+select plan(115);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -1068,6 +1068,28 @@ select is(
   'a different company cannot read the applicant CV'
 );
 
+reset role;
+update public.applications
+set cv_path = '99999999-9999-4999-8999-999999999022/borrowed-cv.pdf'
+where id = '55555555-5555-4555-8555-555555550001';
+
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999041');
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'cvs'
+     and name = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'),
+  0::bigint,
+  'application metadata cannot grant access to a CV owned by a different student'
+);
+
+reset role;
+update public.applications
+set cv_path = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'
+where id = '55555555-5555-4555-8555-555555550001';
+
+set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
 select is(
