@@ -112,9 +112,7 @@ select is(
 );
 
 set local role authenticated;
-
-
-
+select public.test_as('99999999-9999-4999-8999-999999999021');
 
 select is(
   (select count(*) from public.weekly_logs where placement_id = '66666666-6666-4666-8666-666666660001'),
