@@ -912,10 +912,10 @@ select is(
 );
 
 select throws_ok(
-  $ select public.record_grade(
+  $$ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
        'Attempted duplicate grade'
-     ) $,
+     ) $$,
   'P0001',
   'A final grade has already been recorded',
   'a recorded final grade cannot be overwritten or re-notified'
