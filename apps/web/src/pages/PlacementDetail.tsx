@@ -240,6 +240,10 @@ export function PlacementDetail() {
 
   const doSubmitEvaluation = async () => {
     setActionError('');
+    if (!evaluationComments.trim()) {
+      setActionError('Add written comments to support the evaluation.');
+      return;
+    }
     try {
       await submitEvaluation.mutateAsync({
         placementId: placement.id,

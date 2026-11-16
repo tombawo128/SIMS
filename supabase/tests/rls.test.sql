@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(89);
+select plan(90);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -803,20 +803,20 @@ select throws_ok(
 );
 
 reset role;
-insert into public.evaluations (
-  id, placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score
-) values (
-  '88888888-8888-4888-8888-888888880003',
-  '66666666-6666-4666-8666-666666660001',
-  '99999999-9999-4999-8999-999999999031',
-  'site_supervisor',
-  'final',
-  '{"professionalism":4,"technical_skill":5,"communication":4,"initiative":4}'::jsonb,
-  'Final company internship evaluation completed.',
-  4.25
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999031');
+
+select lives_ok(
+  $ select public.submit_evaluation(
+       '66666666-6666-4666-8666-666666660001',
+       'final',
+       '{"professionalism":4,"technical_skill":5,"communication":4,"initiative":4}'::jsonb,
+       'Final company internship evaluation completed.',
+       4.25
+     ) $,
+  'assigned company site supervisor can submit the final evaluation'
 );
 
-set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
 select lives_ok(

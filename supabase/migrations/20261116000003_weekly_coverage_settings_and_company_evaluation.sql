@@ -439,14 +439,122 @@ begin
   if p_overall is null or p_overall < 1 or p_overall > 5 then
     raise exception 'The overall evaluation score must be between 1 and 5';
   end if;
-  if jsonb_typeof(p_rubric) is distinct from 'object'
-     or (select count(*) from jsonb_object_keys(p_rubric)) <> 4
+  if jsonb_typeof(p_rubric) is distinct from 'object' then
+    raise exception 'Evaluation rubric must contain exactly four scoring criteria';
+  end if;
+
+  if (select count(*) from jsonb_object_keys(p_rubric)) <> 4
      or not (p_rubric ?& array['professionalism', 'technical_skill', 'communication', 'initiative'])
-     or coalesce(p_rubric->>'professionalism', '') !~ '^[1-5]$'
-     or coalesce(p_rubric->>'technical_skill', '') !~ '^[1-5]$'
-     or coalesce(p_rubric->>'communication', '') !~ '^[1-5]$'
-     or coalesce(p_rubric->>'initiative', '') !~ '^[1-5]$' then
+     or coalesce(p_rubric->>'professionalism', '') !~ '^[1-5]
+
+  insert into public.evaluations
+    (placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score)
+  values
+    (p_placement_id, auth.uid(), v_role, p_type, p_rubric, trim(p_comments), p_overall)
+  on conflict (placement_id, evaluator_role, type) do update
+    set evaluator_id = excluded.evaluator_id,
+        rubric_scores = excluded.rubric_scores,
+        comments = excluded.comments,
+        overall_score = excluded.overall_score;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Evaluation submitted',
+    'A ' || p_type::text || ' evaluation has been submitted for your placement.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+revoke all on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) from public, anon;
+grant execute on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) to authenticated, service_role;
+
+
+     or coalesce(p_rubric->>'technical_skill', '') !~ '^[1-5]
+
+  insert into public.evaluations
+    (placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score)
+  values
+    (p_placement_id, auth.uid(), v_role, p_type, p_rubric, trim(p_comments), p_overall)
+  on conflict (placement_id, evaluator_role, type) do update
+    set evaluator_id = excluded.evaluator_id,
+        rubric_scores = excluded.rubric_scores,
+        comments = excluded.comments,
+        overall_score = excluded.overall_score;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Evaluation submitted',
+    'A ' || p_type::text || ' evaluation has been submitted for your placement.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+revoke all on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) from public, anon;
+grant execute on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) to authenticated, service_role;
+
+
+     or coalesce(p_rubric->>'communication', '') !~ '^[1-5]
+
+  insert into public.evaluations
+    (placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score)
+  values
+    (p_placement_id, auth.uid(), v_role, p_type, p_rubric, trim(p_comments), p_overall)
+  on conflict (placement_id, evaluator_role, type) do update
+    set evaluator_id = excluded.evaluator_id,
+        rubric_scores = excluded.rubric_scores,
+        comments = excluded.comments,
+        overall_score = excluded.overall_score;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Evaluation submitted',
+    'A ' || p_type::text || ' evaluation has been submitted for your placement.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+revoke all on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) from public, anon;
+grant execute on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) to authenticated, service_role;
+
+
+     or coalesce(p_rubric->>'initiative', '') !~ '^[1-5]
+
+  insert into public.evaluations
+    (placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score)
+  values
+    (p_placement_id, auth.uid(), v_role, p_type, p_rubric, trim(p_comments), p_overall)
+  on conflict (placement_id, evaluator_role, type) do update
+    set evaluator_id = excluded.evaluator_id,
+        rubric_scores = excluded.rubric_scores,
+        comments = excluded.comments,
+        overall_score = excluded.overall_score;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Evaluation submitted',
+    'A ' || p_type::text || ' evaluation has been submitted for your placement.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+revoke all on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) from public, anon;
+grant execute on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) to authenticated, service_role;
+
+ then
     raise exception 'Each evaluation rubric score must be a whole number from 1 to 5';
+  end if;
+
+  if p_overall is distinct from round((
+    (p_rubric->>'professionalism')::numeric
+    + (p_rubric->>'technical_skill')::numeric
+    + (p_rubric->>'communication')::numeric
+    + (p_rubric->>'initiative')::numeric
+  ) / 4, 2) then
+    raise exception 'Overall evaluation score must equal the average of the four rubric scores';
   end if;
 
   insert into public.evaluations
