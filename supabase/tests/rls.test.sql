@@ -39,6 +39,42 @@ begin
 end;
 $test$;
 
+-- Evaluate the actual DELETE policy expression without deleting directly from
+-- storage.objects. Supabase's protect_delete trigger intentionally requires the
+-- Storage HTTP API for object deletion.
+create or replace function public.test_storage_delete_policy_allows(
+  p_bucket_id text,
+  p_object_name text
+)
+returns boolean
+language plpgsql
+security invoker
+set search_path = public
+as $policy_test$
+declare
+  v_qual text;
+  v_allowed boolean;
+begin
+  select qual into v_qual
+  from pg_policies
+  where schemaname = 'storage'
+    and tablename = 'objects'
+    and policyname = 'reports_owner_delete'
+    and cmd = 'DELETE';
+
+  if v_qual is null then
+    raise exception 'reports_owner_delete policy is missing';
+  end if;
+
+  execute format(
+    'select coalesce((%s), false) from (select $1::text as bucket_id, $2::text as name) as candidate',
+    v_qual
+  ) into v_allowed using p_bucket_id, p_object_name;
+
+  return coalesce(v_allowed, false);
+end;
+$policy_test$;
+
 set local role authenticated;
 
 -- ---------------------------------------------------------------------------
@@ -1126,11 +1162,13 @@ select is(
 
 select public.test_as('99999999-9999-4999-8999-999999999022');
 
-select lives_ok(
-  $$ delete from storage.objects
-     where bucket_id = 'reports'
-       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $$,
-  'another student cannot delete the placement report'
+select is(
+  public.test_storage_delete_policy_allows(
+    'reports',
+    '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'
+  ),
+  false,
+  'another student is denied by the actual placement report DELETE policy'
 );
 
 select is(
@@ -1138,24 +1176,27 @@ select is(
    where bucket_id = 'reports'
      and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
   1::bigint,
-  'report remains available after another student delete attempt'
+  'report metadata remains available after the unauthorised delete policy check'
 );
 
 select public.test_as('99999999-9999-4999-8999-999999999021');
 
-select lives_ok(
-  $$ delete from storage.objects
-     where bucket_id = 'reports'
-       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $$,
-  'student can delete their own placement report'
+select is(
+  public.test_storage_delete_policy_allows(
+    'reports',
+    '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'
+  ),
+  true,
+  'the report owner is allowed by the actual placement report DELETE policy'
 );
 
 select is(
-  (select count(*) from storage.objects
-   where bucket_id = 'reports'
-     and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
-  0::bigint,
-  'student-owned report is removed from private storage metadata'
+  public.test_storage_delete_policy_allows(
+    'reports',
+    '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999022/borrowed-report.pdf'
+  ),
+  false,
+  'the report owner cannot delete a report stored in another student folder'
 );
 
 reset role;
