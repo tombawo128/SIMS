@@ -332,6 +332,9 @@ begin
   if v_placement.status = 'cancelled' then
     raise exception 'A cancelled placement cannot receive a final grade';
   end if;
+  if v_placement.final_grade is not null or v_placement.status = 'completed' then
+    raise exception 'A final grade has already been recorded';
+  end if;
   if v_placement.end_date > current_date then
     raise exception 'The placement must reach its end date before final grading';
   end if;
