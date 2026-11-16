@@ -1,5 +1,45 @@
 -- User preferences, university-scoped opportunity visibility, weekly coverage, and company final evaluation gate.
 
+-- CVs are private to their owner, the company receiving the application,
+-- university coordinators, and supervisors assigned to the resulting placement.
+-- A student must never inherit CV access merely by sharing a university.
+create or replace function public.can_read_cv(object_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path to 'public'
+as $function$
+  select case
+    when split_part(object_name, '/', 1) = auth.uid()::text then true
+    else exists (
+      select 1
+      from public.applications a
+      where a.cv_path = object_name
+        and (
+          (
+            public.auth_role() = 'company_admin'
+            and a.company_id = public.auth_company_id()
+          )
+          or (
+            public.auth_role() = 'coordinator'
+            and a.university_id = public.auth_university_id()
+          )
+          or exists (
+            select 1
+            from public.placements pl
+            where pl.application_id = a.id
+              and (
+                pl.faculty_supervisor_id = auth.uid()
+                or pl.site_supervisor_id = auth.uid()
+              )
+          )
+        )
+    )
+  end;
+$function$;
+
+
 -- Store notification preferences on the user's own profile row. This avoids
 -- introducing another exposed Data API table and inherits the existing self-only RLS.
 alter table public.profiles
