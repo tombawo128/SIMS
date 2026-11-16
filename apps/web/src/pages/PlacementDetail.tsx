@@ -169,7 +169,6 @@ export function PlacementDetail() {
   const isStudent = placement.student_id === profile?.id;
   const isSiteSupervisor = placement.site_supervisor_id === profile?.id;
   const isFaculty = placement.faculty_supervisor_id === profile?.id;
-  const isCompanyAdmin = profile?.role === 'company_admin' && profile.company_id === placement.company_id;
   const isCoordinator = profile?.role === 'coordinator' && profile.university_id === placement.university_id;
 
   const studentDepartment = placement.student?.department?.trim() ?? '';
@@ -224,7 +223,7 @@ export function PlacementDetail() {
 
   const openEvaluation = () => {
     setActionError('');
-    const selectedType: EvaluationType = isCompanyAdmin && !isSiteSupervisor ? 'midterm' : evaluationType;
+    const selectedType: EvaluationType = evaluationType;
     setEvaluationType(selectedType);
     const existing = evaluationFor(selectedType);
     setRubric(existing?.rubric_scores ?? DEFAULT_RUBRIC);
