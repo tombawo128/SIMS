@@ -129,6 +129,10 @@ export function DailyReportsPanel({
       setErrorText('Choose a report date within the placement period and not in the future, enter 0–24 hours, and describe the work completed.');
       return;
     }
+    if (!canAddAnotherDay) {
+      setErrorText('A maximum of 5 daily entries is allowed per internship week.');
+      return;
+    }
     try { await saveReport.mutateAsync(); } catch (error) { setErrorText(errorMessage(error)); }
   };
 
@@ -164,10 +168,11 @@ export function DailyReportsPanel({
               <Textarea id="daily-report-outcomes" rows={2} value={outcomes} onChange={(event) => setOutcomes(event.target.value)} placeholder="What did you learn or practice?" />
             </Field>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek || beforePlacementStart}><Plus size={16} /> Save daily report</Button>
+              <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek || beforePlacementStart || !canAddAnotherDay}><Plus size={16} /> Save daily report</Button>
               {editingId ? <Button variant="secondary" onClick={() => { setEditingId(null); setHours('8'); setTasks(''); setOutcomes(''); setErrorText(''); }}>Cancel edit</Button> : null}
             </div>
             {beforePlacementStart ? <Alert tone="info">Daily reports can be recorded from the placement start date.</Alert> : null}
+            {!canAddAnotherDay ? <Alert tone="warning">This week already has 5 daily reports. Edit an existing day instead of adding another.</Alert> : null}
             {!canEditWeek ? <Alert tone="info">This week has already been submitted. You cannot change its daily entries.</Alert> : null}
           </div>
         </Card>

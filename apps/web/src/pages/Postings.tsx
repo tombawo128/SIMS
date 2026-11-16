@@ -19,6 +19,7 @@ import type { PostingType } from '@sims/shared';
 import { usePostings } from '@/hooks/usePostings';
 import { useAuth } from '@/context/AuthContext';
 import {
+  Alert,
   Badge,
   Button,
   Card,
