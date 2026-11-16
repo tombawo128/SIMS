@@ -365,7 +365,7 @@ begin
     v_category_enabled := case
       when p_title ilike any (array['%application%', '%shortlist%', '%offer%'])
         then coalesce((v_preferences->>'application_updates')::boolean, true)
-      when p_title ilike any (array['%weekly%', '%report%', '%supervisor%', '%evaluation%', '%grade%'])
+      when p_title ilike any (array['%weekly%', '%report%', '%supervisor%', '%evaluation%', '%grade%', '%placement%'])
         then coalesce((v_preferences->>'supervision_updates')::boolean, true)
       when p_title ilike any (array['%announcement%', '%system%'])
         then coalesce((v_preferences->>'system_announcements')::boolean, true)
@@ -578,4 +578,65 @@ $function$;
 
 revoke all on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) from public, anon;
 grant execute on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) to authenticated, service_role;
+
+
+
+-- Broadcast delivery honours each recipient's announcement preferences as well.
+create or replace function public.publish_admin_broadcast(
+  p_title text,
+  p_body text,
+  p_audience_role public.user_role default null,
+  p_link text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_broadcast_id uuid;
+  v_count integer;
+begin
+  if auth.uid() is null or not public.is_platform_admin() then
+    raise exception 'Only platform administrators can send broadcasts' using errcode = '42501';
+  end if;
+  if p_title is null or length(trim(p_title)) = 0 or length(trim(p_title)) > 160 then
+    raise exception 'Title must contain 1 to 160 characters';
+  end if;
+  if p_body is null or length(trim(p_body)) = 0 or length(trim(p_body)) > 5000 then
+    raise exception 'Message must contain 1 to 5000 characters';
+  end if;
+
+  insert into public.admin_broadcasts (title, body, audience_role, link, created_by)
+  values (trim(p_title), trim(p_body), p_audience_role, nullif(trim(p_link), ''), auth.uid())
+  returning id into v_broadcast_id;
+
+  insert into public.notifications (user_id, title, body, link)
+  select p.id, trim(p_title), trim(p_body), nullif(trim(p_link), '')
+  from public.profiles p
+  where p.account_status = 'active'
+    and p.deleted_at is null
+    and (p_audience_role is null or p.role = p_audience_role)
+    and p.id <> auth.uid()
+    and coalesce((p.notification_preferences->>'in_app_notifications')::boolean, true)
+    and coalesce((p.notification_preferences->>'system_announcements')::boolean, true);
+
+  get diagnostics v_count = row_count;
+  update public.admin_broadcasts set recipients_count = v_count where id = v_broadcast_id;
+
+  insert into public.audit_logs (actor_id, entity, entity_id, action, metadata)
+  values (
+    auth.uid(),
+    'admin_broadcasts',
+    v_broadcast_id::text,
+    'broadcast_sent',
+    jsonb_build_object('audience_role', p_audience_role, 'recipients_count', v_count, 'title', trim(p_title))
+  );
+
+  return jsonb_build_object('id', v_broadcast_id, 'recipients_count', v_count);
+end;
+$function$;
+
+revoke all on function public.publish_admin_broadcast(text,text,public.user_role,text) from public, anon;
+grant execute on function public.publish_admin_broadcast(text,text,public.user_role,text) to authenticated;
 
