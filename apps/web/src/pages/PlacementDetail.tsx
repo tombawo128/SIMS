@@ -178,7 +178,7 @@ export function PlacementDetail() {
     : [];
 
   const canReviewLogs = isFaculty;
-  const canEvaluateSite = isSiteSupervisor || isCompanyAdmin;
+  const canEvaluateSite = isSiteSupervisor;
   const canEvaluateFaculty = isFaculty;
   const canSubmitEvaluation = canEvaluateSite || canEvaluateFaculty;
   const canGrade = isFaculty;

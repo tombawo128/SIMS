@@ -418,11 +418,6 @@ begin
 
   if v_actor_role = 'site_supervisor' and v_placement.site_supervisor_id = auth.uid() then
     v_role := 'site_supervisor';
-  elsif v_actor_role = 'company_admin' and v_placement.company_id = public.auth_company_id() then
-    if p_type = 'final' then
-      raise exception 'Only the assigned company site supervisor can submit the final evaluation';
-    end if;
-    v_role := 'site_supervisor';
   elsif v_actor_role = 'faculty_supervisor' and v_placement.faculty_supervisor_id = auth.uid() then
     if p_type <> 'final' then
       raise exception 'Faculty supervisors can only submit final evaluations';
