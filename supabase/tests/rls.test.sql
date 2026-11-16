@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(78);
+select plan(89);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -677,15 +677,83 @@ select throws_ok(
 );
 
 select throws_ok(
-  $$ select public.submit_weekly_report(
+  $ select public.submit_weekly_report(
        '66666666-6666-4666-8666-666666660001',
        (select ceil((end_date - start_date + 1)::numeric / 7)::integer
         from public.placements
         where id = '66666666-6666-4666-8666-666666660001')
-     ) $$,
+     ) $,
   'P0001',
   'A weekly report can only be submitted after that placement week has ended',
   'students cannot submit a weekly report before the week ends'
+);
+
+select lives_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select start_date + 28 from public.placements where id = '66666666-6666-4666-8666-666666660001'),
+       8, 'Week five day one', 'Completed assigned work'
+     ) $,
+  'student can save the first daily report for a week'
+);
+
+select lives_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select start_date + 29 from public.placements where id = '66666666-6666-4666-8666-666666660001'),
+       8, 'Week five day two', 'Completed assigned work'
+     ) $,
+  'student can save the second daily report for a week'
+);
+
+select throws_ok(
+  $ select public.submit_weekly_report('66666666-6666-4666-8666-666666660001', 5) $,
+  'P0001',
+  'At least 3 different daily reports are required for each internship week',
+  'weekly report cannot be submitted with fewer than three daily entries'
+);
+
+select lives_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select start_date + 30 from public.placements where id = '66666666-6666-4666-8666-666666660001'),
+       8, 'Week five day three', 'Completed assigned work'
+     ) $,
+  'student can save a third daily report for the week'
+);
+
+select lives_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select start_date + 31 from public.placements where id = '66666666-6666-4666-8666-666666660001'),
+       8, 'Week five day four', 'Completed assigned work'
+     ) $,
+  'student can save a fourth daily report for the week'
+);
+
+select lives_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select start_date + 32 from public.placements where id = '66666666-6666-4666-8666-666666660001'),
+       8, 'Week five day five', 'Completed assigned work'
+     ) $,
+  'student can save a fifth daily report for the week'
+);
+
+select throws_ok(
+  $ select public.save_daily_report(
+       '66666666-6666-4666-8666-666666660001',
+       (select start_date + 33 from public.placements where id = '66666666-6666-4666-8666-666666660001'),
+       8, 'Week five day six', 'This must be rejected'
+     ) $,
+  'P0001',
+  'A maximum of 5 daily reports is allowed per internship week',
+  'student cannot save more than five daily reports in a week'
+);
+
+select lives_ok(
+  $ select public.submit_weekly_report('66666666-6666-4666-8666-666666660001', 5) $,
+  'weekly report can be submitted once three to five daily entries exist and the week has ended'
 );
 
 reset role;
@@ -699,14 +767,65 @@ set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
 select throws_ok(
-  $$ select public.record_grade(
+  $ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
        85,
        'Final review'
-     ) $$,
+     ) $,
   'P0001',
   'Every expected internship week must be submitted, approved, and rated before final grading',
   'faculty cannot finalize a placement with missing, unapproved, or unrated weeks'
+);
+
+reset role;
+update public.weekly_logs
+set status = 'approved',
+    rating_overall = 4.00,
+    rating_scores = '{"professionalism":4,"technical_skill":4,"communication":4,"initiative":4}'::jsonb,
+    rated_by = '99999999-9999-4999-8999-999999999011',
+    rated_at = now(),
+    reviewed_by = '99999999-9999-4999-8999-999999999011',
+    reviewed_at = now()
+where placement_id = '66666666-6666-4666-8666-666666660001';
+
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select throws_ok(
+  $ select public.record_grade(
+       '66666666-6666-4666-8666-666666660001',
+       85,
+       'Final review'
+     ) $,
+  'P0001',
+  'The assigned company site supervisor must submit the final evaluation before final grading',
+  'university final grade is blocked until the assigned company supervisor submits a final evaluation'
+);
+
+reset role;
+insert into public.evaluations (
+  id, placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score
+) values (
+  '88888888-8888-4888-8888-888888880003',
+  '66666666-6666-4666-8666-666666660001',
+  '99999999-9999-4999-8999-999999999031',
+  'site_supervisor',
+  'final',
+  '{"professionalism":4,"technical_skill":5,"communication":4,"initiative":4}'::jsonb,
+  'Final company internship evaluation completed.',
+  4.25
+);
+
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select lives_ok(
+  $ select public.record_grade(
+       '66666666-6666-4666-8666-666666660001',
+       85,
+       'Final review'
+     ) $,
+  'university faculty can record the final grade after company evaluation and all weekly checks pass'
 );
 
 reset role;
