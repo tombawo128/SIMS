@@ -676,10 +676,10 @@ select is(
 );
 
 select throws_ok(
-  $ select public.record_grade(
+  $$ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
        'Final review'
-     ) $,
+     ) $$,
   'P0001',
   'The placement must reach its end date before final grading',
   'faculty cannot record a final grade before the placement end date'
@@ -971,37 +971,37 @@ set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999021');
 
 select lives_ok(
-  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+  $$ insert into storage.objects (bucket_id, name, owner_id, metadata)
      values (
        'cvs',
        '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf',
        '99999999-9999-4999-8999-999999999021',
        '{"mimetype":"application/pdf","size":1024}'::jsonb
-     ) $,
+     ) $$,
   'student can upload a CV into their own private folder'
 );
 
 select lives_ok(
-  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+  $$ insert into storage.objects (bucket_id, name, owner_id, metadata)
      values (
        'reports',
        '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf',
        '99999999-9999-4999-8999-999999999021',
        '{"mimetype":"application/pdf","size":1024}'::jsonb
-     ) $,
+     ) $$,
   'student can upload an internship report for their own placement'
 );
 
 select public.test_as('99999999-9999-4999-8999-999999999022');
 
 select throws_ok(
-  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+  $$ insert into storage.objects (bucket_id, name, owner_id, metadata)
      values (
        'cvs',
        '99999999-9999-4999-8999-999999999021/forbidden-cv.pdf',
        '99999999-9999-4999-8999-999999999022',
        '{"mimetype":"application/pdf","size":1024}'::jsonb
-     ) $,
+     ) $$,
   '42501',
   'new row violates row-level security policy for table "objects"',
   'student cannot upload a CV into another student private folder'
@@ -1016,13 +1016,13 @@ select is(
 );
 
 select throws_ok(
-  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+  $$ insert into storage.objects (bucket_id, name, owner_id, metadata)
      values (
        'reports',
        '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999022/forbidden-report.pdf',
        '99999999-9999-4999-8999-999999999022',
        '{"mimetype":"application/pdf","size":1024}'::jsonb
-     ) $,
+     ) $$,
   '42501',
   'new row violates row-level security policy for table "objects"',
   'student cannot upload a report into another student placement folder'
