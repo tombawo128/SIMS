@@ -185,7 +185,9 @@ export function PlacementDetail() {
   const expectedWeeks = Math.ceil((new Date(`${placement.end_date}T00:00:00Z`).getTime() - new Date(`${placement.start_date}T00:00:00Z`).getTime() + 86400000) / (7 * 86400000));
   const ratedApprovedWeeks = sortedLogs.filter((log) => log.status === 'approved' && log.rating_overall !== null && log.rating_overall !== undefined).length;
   const allWeeksComplete = sortedLogs.length === expectedWeeks && sortedLogs.every((log, index) => log.week_number === index + 1);
-  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && allWeeksComplete && ratedApprovedWeeks === expectedWeeks;
+  const companyFinalEvaluation = (placement.evaluations ?? []).find((evaluation) => evaluation.evaluator_role === 'site_supervisor' && evaluation.type === 'final' && evaluation.evaluator_id === placement.site_supervisor_id);
+  const hasCompanyFinalEvaluation = Boolean(companyFinalEvaluation);
+  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && allWeeksComplete && ratedApprovedWeeks === expectedWeeks && hasCompanyFinalEvaluation;
   const facultyRequest = (placement.faculty_supervisor_requests ?? []).find((request) => request.status === 'pending') ?? (placement.faculty_supervisor_requests ?? []).slice(-1)[0];
   const evaluatorRole: EvaluationRole = canEvaluateSite ? 'site_supervisor' : 'faculty_supervisor';
 
@@ -474,7 +476,8 @@ export function PlacementDetail() {
               <CardHeader title="Progress" />
               <div className='placement-detail-space-y-3-1'>
                 <ProgressRow label="Logs approved" value={approvedLogs} total={expectedWeeks} />
-                {isFaculty && placement.final_grade === null && !gradeReady ? <Alert tone="warning">Final grading is locked. All {expectedWeeks} expected weeks must be approved and rated, and the placement end date must have passed.</Alert> : null}
+                {isFaculty && placement.final_grade === null && !hasCompanyFinalEvaluation ? <Alert tone="warning">The assigned company site supervisor must submit the final evaluation before the university can record the final grade.</Alert> : null}
+                {isFaculty && placement.final_grade === null && !gradeReady && hasCompanyFinalEvaluation ? <Alert tone="warning">Final grading is locked. All {expectedWeeks} expected weeks must be approved and rated, and the placement end date must have passed.</Alert> : null}
                 <ProgressRow
                   label="Evaluations in"
                   value={placement.evaluations?.length ?? 0}
@@ -933,7 +936,7 @@ export function PlacementDetail() {
               onChange={(event) => changeEvaluationType(event.target.value as EvaluationType)}
             >
               {canEvaluateSite ? <option value="midterm">Midterm</option> : null}
-              <option value="final">Final</option>
+              {(!canEvaluateSite || isSiteSupervisor) ? <option value="final">Final</option> : null}
             </Select>
           </Field>
 
@@ -1117,7 +1120,8 @@ export function PlacementDetail() {
       >
         <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
-          {!gradeReady && placement.final_grade === null ? <Alert tone="warning">Final grading is locked until the placement end date has passed and all {expectedWeeks} expected weekly reports are approved and rated. Currently approved: {approvedLogs}; rated: {ratedApprovedWeeks}.</Alert> : null}
+          {!hasCompanyFinalEvaluation && placement.final_grade === null ? <Alert tone="warning">The assigned company site supervisor must submit the final evaluation before the university can record the final grade.</Alert> : null}
+          {!gradeReady && placement.final_grade === null && hasCompanyFinalEvaluation ? <Alert tone="warning">Final grading is locked until the placement end date has passed and all {expectedWeeks} expected weekly reports are approved and rated. Currently approved: {approvedLogs}; rated: {ratedApprovedWeeks}.</Alert> : null}
           <Field label="Final grade (0–100)" htmlFor="grade-value" required>
             <Input
               id="grade-value"

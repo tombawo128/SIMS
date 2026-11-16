@@ -142,7 +142,8 @@ export type NavIcon =
   | 'team'
   | 'building'
   | 'user'
-  | 'school';
+  | 'school'
+  | 'settings';
 
 export interface NavItem {
   label: string;
@@ -155,9 +156,10 @@ const OPPORTUNITIES: NavItem = { label: 'Opportunities', to: '/postings', icon: 
 const APPLICATIONS: NavItem = { label: 'Applications', to: '/applications', icon: 'file-text' };
 const PLACEMENTS: NavItem = { label: 'Placements', to: '/placements', icon: 'placements' };
 const PROFILE: NavItem = { label: 'Profile', to: '/profile', icon: 'user' };
+const SETTINGS: NavItem = { label: 'Settings', to: '/settings', icon: 'settings' };
 
 export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
-  student: [DASHBOARD, OPPORTUNITIES, { ...APPLICATIONS, label: 'My Applications' }, { ...PLACEMENTS, label: 'My Placement' }, PROFILE],
+  student: [DASHBOARD, OPPORTUNITIES, { ...APPLICATIONS, label: 'My Applications' }, { ...PLACEMENTS, label: 'My Placement' }, PROFILE, SETTINGS],
   faculty_supervisor: [
     DASHBOARD,
     OPPORTUNITIES,
@@ -165,6 +167,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     APPLICATIONS,
     PLACEMENTS,
     PROFILE,
+    SETTINGS,
   ],
   coordinator: [
     DASHBOARD,

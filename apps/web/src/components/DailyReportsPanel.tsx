@@ -119,6 +119,9 @@ export function DailyReportsPanel({
   const maxReportDate = today < endDate ? today : endDate;
   const currentWeek = weekForDate(reportDate, startDate);
   const weekStatus = weeklyLogs.find((log) => log.week_number === currentWeek)?.status;
+  const currentWeekEntries = reports.filter((report) => report.week_number === currentWeek);
+  const isEditingExistingDay = currentWeekEntries.some((report) => report.report_date === reportDate);
+  const canAddAnotherDay = isEditingExistingDay || currentWeekEntries.length < 5;
   const canEditWeek = !['submitted', 'approved'].includes(weekStatus ?? '');
   const save = async () => {
     setErrorText('');
@@ -184,7 +187,7 @@ export function DailyReportsPanel({
           <Card key={week}>
             <CardHeader
               title={`Week ${week} · ${totalHours} hours`}
-              description={`${entries.length} daily entr${entries.length === 1 ? 'y' : 'ies'} · ${status.replace('_', ' ')}`}
+              description={`${entries.length} of 3–5 required days · ${totalHours} hours · ${status.replace('_', ' ')}`}
               actions={isStudent && !locked ? (
                 <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending || !canSubmitWeek}>
                   <Send size={15} /> Submit week
@@ -192,7 +195,9 @@ export function DailyReportsPanel({
               ) : <StatusBadge status={status} label={status.replace('_', ' ')} />}
             />
             {errorText ? <div style={{ padding: 12 }}><Alert tone="danger">{errorText}</Alert></div> : null}
-            {isStudent && !locked && !canSubmitWeek ? <div style={{ padding: '0 16px 12px' }}><Alert tone="info">You can submit this report after the week ends on {formatDate(weekEnd)}.</Alert></div> : null}
+            {isStudent && !locked && entries.length < 3 ? <div style={{ padding: '0 16px 12px' }}><Alert tone="warning">Add at least 3 different daily reports before submitting this week. You currently have {entries.length}.</Alert></div> : null}
+            {isStudent && !locked && entries.length > 5 ? <div style={{ padding: '0 16px 12px' }}><Alert tone="danger">A week cannot contain more than 5 daily reports.</Alert></div> : null}
+            {isStudent && !locked && !canSubmitWeek && entries.length >= 3 && entries.length <= 5 ? <div style={{ padding: '0 16px 12px' }}><Alert tone="info">You can submit this report after the week ends on {formatDate(weekEnd)}.</Alert></div> : null}
             <div style={{ display: 'grid', gap: 0 }}>
               {entries.map((entry) => (
                 <div key={entry.id} style={{ padding: 16, borderTop: '1px solid #e2e8f0', display: 'grid', gap: 8 }}>

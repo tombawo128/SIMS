@@ -1,0 +1,409 @@
+-- User preferences, university-scoped opportunity visibility, weekly coverage, and company final evaluation gate.
+
+create table if not exists public.user_settings (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  in_app_notifications boolean not null default true,
+  application_updates boolean not null default true,
+  supervision_updates boolean not null default true,
+  system_announcements boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_settings enable row level security;
+
+drop policy if exists user_settings_select_own on public.user_settings;
+create policy user_settings_select_own on public.user_settings
+  for select to authenticated using (user_id = (select auth.uid()));
+
+drop policy if exists user_settings_insert_own on public.user_settings;
+create policy user_settings_insert_own on public.user_settings
+  for insert to authenticated with check (user_id = (select auth.uid()));
+
+drop policy if exists user_settings_update_own on public.user_settings;
+create policy user_settings_update_own on public.user_settings
+  for update to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+drop trigger if exists user_settings_updated_at on public.user_settings;
+create trigger user_settings_updated_at
+  before update on public.user_settings
+  for each row execute function public.set_updated_at();
+
+grant select, insert, update on public.user_settings to authenticated;
+revoke all on public.user_settings from anon;
+
+-- This SECURITY DEFINER helper avoids relying on a nested RLS-visible read of
+-- posting_universities while evaluating the job_postings SELECT policy.
+create or replace function public.posting_visible_to_university(
+  p_posting_id uuid,
+  p_university_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path to 'public'
+as $function$
+  select exists (
+    select 1
+    from public.posting_universities pu
+    where pu.posting_id = p_posting_id
+      and pu.university_id = p_university_id
+  );
+$function$;
+
+revoke all on function public.posting_visible_to_university(uuid,uuid) from public, anon;
+grant execute on function public.posting_visible_to_university(uuid,uuid) to authenticated, service_role;
+
+drop policy if exists job_postings_select on public.job_postings;
+create policy job_postings_select on public.job_postings
+  for select to authenticated
+  using (
+    company_id = (select public.auth_company_id())
+    or (select public.is_platform_admin())
+    or (
+      status = 'published'
+      and (
+        visibility = 'all_universities'
+        or (
+          (select public.auth_university_id()) is not null
+          and public.posting_visible_to_university(id, (select public.auth_university_id()))
+        )
+      )
+    )
+  );
+
+-- Daily reports are unique by placement/date. Locking the placement serializes
+-- concurrent writes so a student cannot create a sixth day through parallel requests.
+create or replace function public.save_daily_report(
+  p_placement_id uuid,
+  p_report_date date,
+  p_hours numeric,
+  p_tasks text,
+  p_learning_outcomes text default ''
+)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_placement public.placements%rowtype;
+  v_week integer;
+  v_report_id uuid;
+  v_week_status public.log_status;
+  v_day_count integer;
+begin
+  select * into v_placement
+  from public.placements
+  where id = p_placement_id and student_id = auth.uid()
+  for update;
+
+  if not found then raise exception 'Placement not found'; end if;
+  if public.auth_role() is distinct from 'student' or v_placement.status <> 'active' then
+    raise exception 'Only active students can save daily reports';
+  end if;
+  if p_report_date is null
+     or p_report_date < v_placement.start_date
+     or p_report_date > v_placement.end_date
+     or p_report_date > current_date then
+    raise exception 'Report date must be within the placement period and cannot be in the future';
+  end if;
+  if p_hours is null or p_hours < 0 or p_hours > 24 then
+    raise exception 'Hours must be between 0 and 24';
+  end if;
+  if nullif(trim(coalesce(p_tasks, '')), '') is null then
+    raise exception 'Describe the work completed that day';
+  end if;
+
+  v_week := floor((p_report_date - v_placement.start_date)::numeric / 7)::integer + 1;
+
+  select status into v_week_status
+  from public.weekly_logs
+  where placement_id = p_placement_id and week_number = v_week;
+
+  if v_week_status in ('submitted', 'approved') then
+    raise exception 'This week has already been submitted for supervisor review';
+  end if;
+
+  if not exists (
+    select 1 from public.daily_reports
+    where placement_id = p_placement_id and report_date = p_report_date
+  ) then
+    select count(*) into v_day_count
+    from public.daily_reports
+    where placement_id = p_placement_id and week_number = v_week and student_id = auth.uid();
+
+    if v_day_count >= 5 then
+      raise exception 'A maximum of 5 daily reports is allowed per internship week';
+    end if;
+  end if;
+
+  insert into public.daily_reports
+    (placement_id, student_id, report_date, week_number, hours, tasks, learning_outcomes, status)
+  values
+    (p_placement_id, auth.uid(), p_report_date, v_week, p_hours, trim(p_tasks), coalesce(trim(p_learning_outcomes), ''), 'draft')
+  on conflict (placement_id, report_date) do update
+    set hours = excluded.hours,
+        tasks = excluded.tasks,
+        learning_outcomes = excluded.learning_outcomes,
+        status = 'draft',
+        updated_at = now()
+  returning id into v_report_id;
+
+  return v_report_id;
+end;
+$function$;
+
+create or replace function public.submit_weekly_report(
+  p_placement_id uuid,
+  p_week_number integer
+)
+returns uuid
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_placement public.placements%rowtype;
+  v_log public.weekly_logs%rowtype;
+  v_hours numeric;
+  v_tasks text;
+  v_outcomes text;
+  v_log_id uuid;
+  v_expected_weeks integer;
+  v_week_end date;
+  v_day_count integer;
+begin
+  select * into v_placement
+  from public.placements
+  where id = p_placement_id and student_id = auth.uid()
+  for update;
+
+  if not found then raise exception 'Placement not found'; end if;
+  if public.auth_role() is distinct from 'student' or v_placement.status <> 'active' then
+    raise exception 'Only active students can submit weekly reports';
+  end if;
+  if p_week_number is null or p_week_number < 1 then
+    raise exception 'Invalid week number';
+  end if;
+  if v_placement.faculty_supervisor_id is null then
+    raise exception 'A university faculty supervisor must be assigned before submitting a weekly report';
+  end if;
+
+  v_expected_weeks := ceil((v_placement.end_date - v_placement.start_date + 1)::numeric / 7)::integer;
+  if p_week_number > v_expected_weeks then
+    raise exception 'The selected week is outside the placement period';
+  end if;
+  v_week_end := least(v_placement.start_date + (p_week_number * 7) - 1, v_placement.end_date);
+  if v_week_end > current_date then
+    raise exception 'A weekly report can only be submitted after that placement week has ended';
+  end if;
+
+  select * into v_log
+  from public.weekly_logs
+  where placement_id = p_placement_id and week_number = p_week_number
+  for update;
+
+  if found and v_log.status not in ('draft', 'needs_revision') then
+    raise exception 'This week has already been submitted';
+  end if;
+
+  select count(*),
+         coalesce(sum(hours), 0),
+         string_agg(to_char(report_date, 'Dy, DD Mon') || ': ' || tasks, E'\n' order by report_date),
+         string_agg(nullif(learning_outcomes, ''), E'\n' order by report_date)
+  into v_day_count, v_hours, v_tasks, v_outcomes
+  from public.daily_reports
+  where placement_id = p_placement_id
+    and week_number = p_week_number
+    and student_id = auth.uid();
+
+  if v_day_count < 3 then
+    raise exception 'At least 3 different daily reports are required for each internship week';
+  end if;
+  if v_day_count > 5 then
+    raise exception 'A maximum of 5 daily reports is allowed per internship week';
+  end if;
+  if v_tasks is null then raise exception 'Add daily reports before submitting the week'; end if;
+  if v_hours <= 0 then raise exception 'Your weekly report must include some working hours'; end if;
+
+  insert into public.weekly_logs
+    (placement_id, week_number, hours, tasks, learning_outcomes, status, submitted_at, reviewed_at, reviewed_by,
+     rating_scores, rating_overall, rating_comment, rated_by, rated_at)
+  values
+    (p_placement_id, p_week_number, v_hours, v_tasks, coalesce(v_outcomes, ''), 'submitted', now(), null, null,
+     '{}'::jsonb, null, null, null, null)
+  on conflict (placement_id, week_number) do update
+    set hours = excluded.hours,
+        tasks = excluded.tasks,
+        learning_outcomes = excluded.learning_outcomes,
+        status = 'submitted',
+        submitted_at = now(),
+        reviewed_at = null,
+        reviewed_by = null,
+        supervisor_comment = null,
+        rating_scores = '{}'::jsonb,
+        rating_overall = null,
+        rating_comment = null,
+        rated_by = null,
+        rated_at = null,
+        updated_at = now()
+  returning id into v_log_id;
+
+  update public.daily_reports
+  set status = 'submitted', submitted_at = now(), reviewed_at = null, reviewed_by = null,
+      supervisor_comment = null, updated_at = now()
+  where placement_id = p_placement_id and week_number = p_week_number and student_id = auth.uid();
+
+  perform public.notify_user(
+    v_placement.faculty_supervisor_id,
+    'Weekly report awaiting approval',
+    'A student submitted daily reports for week ' || p_week_number || '.',
+    '/placements/' || p_placement_id
+  );
+
+  return v_log_id;
+end;
+$function$;
+
+-- The university's official grade cannot be recorded until the designated
+-- company site supervisor has submitted the final evaluation.
+create or replace function public.record_grade(
+  p_placement_id uuid,
+  p_grade numeric,
+  p_notes text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_placement public.placements%rowtype;
+  v_expected_weeks integer;
+  v_total_weeks integer;
+  v_complete_weeks integer;
+  v_min_week integer;
+  v_max_week integer;
+  v_has_company_final boolean;
+begin
+  select * into v_placement
+  from public.placements
+  where id = p_placement_id
+  for update;
+
+  if not found then raise exception 'Placement not found'; end if;
+  if public.auth_role() is distinct from 'faculty_supervisor'
+     or v_placement.faculty_supervisor_id is distinct from auth.uid() then
+    raise exception 'Only the assigned university faculty supervisor can record the official final grade';
+  end if;
+  if p_grade is null or p_grade < 0 or p_grade > 100 then
+    raise exception 'Grade must be between 0 and 100';
+  end if;
+  if v_placement.status = 'cancelled' then
+    raise exception 'A cancelled placement cannot receive a final grade';
+  end if;
+  if v_placement.end_date > current_date then
+    raise exception 'The placement must reach its end date before final grading';
+  end if;
+
+  v_expected_weeks := ceil((v_placement.end_date - v_placement.start_date + 1)::numeric / 7)::integer;
+
+  select count(*),
+         count(*) filter (where status = 'approved' and rating_overall is not null),
+         min(week_number),
+         max(week_number)
+  into v_total_weeks, v_complete_weeks, v_min_week, v_max_week
+  from public.weekly_logs
+  where placement_id = p_placement_id;
+
+  if v_total_weeks <> v_expected_weeks
+     or v_complete_weeks <> v_expected_weeks
+     or v_min_week <> 1
+     or v_max_week <> v_expected_weeks then
+    raise exception 'Every expected internship week must be submitted, approved, and rated before final grading';
+  end if;
+
+  select exists (
+    select 1
+    from public.evaluations e
+    where e.placement_id = p_placement_id
+      and e.evaluator_role = 'site_supervisor'
+      and e.type = 'final'
+      and e.evaluator_id = v_placement.site_supervisor_id
+  ) into v_has_company_final;
+
+  if not v_has_company_final then
+    raise exception 'The assigned company site supervisor must submit the final evaluation before final grading';
+  end if;
+
+  update public.placements
+  set final_grade = p_grade,
+      grade_notes = p_notes,
+      graded_by = auth.uid(),
+      graded_at = now(),
+      status = 'completed',
+      updated_at = now()
+  where id = p_placement_id;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Final grade recorded',
+    'Your official internship grade has been recorded and the placement is complete.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+-- Notification preferences are opt-out by default only after a user saves settings;
+-- accounts without a settings row keep the current notification behaviour.
+create or replace function public.notify_user(
+  p_user uuid,
+  p_title text,
+  p_body text,
+  p_link text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_settings public.user_settings%rowtype;
+  v_category_enabled boolean := true;
+begin
+  select * into v_settings
+  from public.user_settings
+  where user_id = p_user;
+
+  if found then
+    v_category_enabled := case
+      when p_title ilike any (array['%application%', '%shortlist%', '%offer%'])
+        then v_settings.application_updates
+      when p_title ilike any (array['%weekly%', '%report%', '%supervisor%', '%evaluation%', '%grade%'])
+        then v_settings.supervision_updates
+      when p_title ilike any (array['%announcement%', '%system%'])
+        then v_settings.system_announcements
+      else true
+    end;
+
+    if not v_settings.in_app_notifications or not v_category_enabled then
+      return;
+    end if;
+  end if;
+
+  insert into public.notifications (user_id, title, body, link)
+  values (p_user, p_title, p_body, p_link);
+end;
+$function$;
+
+revoke all on function public.notify_user(uuid, text, text, text) from public, anon, authenticated;
+revoke all on function public.save_daily_report(uuid,date,numeric,text,text) from public, anon;
+revoke all on function public.submit_weekly_report(uuid,integer) from public, anon;
+revoke all on function public.record_grade(uuid,numeric,text) from public, anon;
+grant execute on function public.save_daily_report(uuid,date,numeric,text,text) to authenticated, service_role;
+grant execute on function public.submit_weekly_report(uuid,integer) to authenticated, service_role;
+grant execute on function public.record_grade(uuid,numeric,text) to authenticated, service_role;
