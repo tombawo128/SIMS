@@ -404,17 +404,17 @@ export function PlacementDetail() {
                 <UserCheck className='placement-detail-h-4-1' /> {placement.faculty_supervisor_id ? 'Change faculty supervisor' : 'Assign faculty'}
               </Button>
             ) : null}
-            {canGrade ? (
+            {canGrade && placement.final_grade === null ? (
               <Button
                 variant="secondary"
-                disabled={placement.final_grade === null && !gradeReady}
+                disabled={!gradeReady}
                 onClick={() => {
                   setGradeNotes(placement.grade_notes ?? '');
                   setActionError('');
                   setGradeOpen(true);
                 }}
               >
-                <GraduationCap className='placement-detail-h-4-1' /> {placement.final_grade !== null ? 'Update grade' : 'Record grade'}
+                <GraduationCap className='placement-detail-h-4-1' /> Record grade
               </Button>
             ) : null}
           </>
@@ -1111,7 +1111,7 @@ export function PlacementDetail() {
       <Modal
         open={gradeOpen}
         onClose={() => setGradeOpen(false)}
-        title="Record final grade"
+        title="Calculate final grade"
         description="SIMS calculates the final mark from approved weekly ratings and both assigned supervisors’ final evaluations. The university faculty supervisor reviews and records the calculated result."
         footer={
           <>
@@ -1119,7 +1119,7 @@ export function PlacementDetail() {
               Cancel
             </Button>
             <Button onClick={doRecordGrade} loading={recordGrade.isPending}>
-              Save grade
+              Calculate and record grade
             </Button>
           </>
         }
