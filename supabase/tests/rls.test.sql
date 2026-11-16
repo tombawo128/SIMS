@@ -85,6 +85,8 @@ select lives_ok(
   'platform administrator can publish an announcement to students'
 );
 
+reset role;
+
 select is(
   (select count(*) from public.notifications
    where user_id = '99999999-9999-4999-8999-999999999021'
@@ -108,6 +110,9 @@ select is(
   1::bigint,
   'students with enabled preferences receive system announcements'
 );
+
+set local role authenticated;
+
 
 
 
