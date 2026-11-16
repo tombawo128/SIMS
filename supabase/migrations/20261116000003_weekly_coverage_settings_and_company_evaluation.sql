@@ -445,7 +445,21 @@ begin
 
   if (select count(*) from jsonb_object_keys(p_rubric)) <> 4
      or not (p_rubric ?& array['professionalism', 'technical_skill', 'communication', 'initiative'])
-     or coalesce(p_rubric->>'professionalism', '') !~ '^[1-5]
+     or coalesce(p_rubric->>'professionalism', '') not in ('1', '2', '3', '4', '5')
+     or coalesce(p_rubric->>'technical_skill', '') not in ('1', '2', '3', '4', '5')
+     or coalesce(p_rubric->>'communication', '') not in ('1', '2', '3', '4', '5')
+     or coalesce(p_rubric->>'initiative', '') not in ('1', '2', '3', '4', '5') then
+    raise exception 'Each evaluation rubric score must be a whole number from 1 to 5';
+  end if;
+
+  if p_overall is distinct from round((
+    (p_rubric->>'professionalism')::numeric
+    + (p_rubric->>'technical_skill')::numeric
+    + (p_rubric->>'communication')::numeric
+    + (p_rubric->>'initiative')::numeric
+  ) / 4, 2) then
+    raise exception 'Overall evaluation score must equal the average of the four rubric scores';
+  end if;
 
   insert into public.evaluations
     (placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score)
