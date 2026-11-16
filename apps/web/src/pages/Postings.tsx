@@ -45,6 +45,7 @@ export function Postings() {
   const [location, setLocation] = useState('');
   const [remoteOnly, setRemoteOnly] = useState(false);
 
+  const hasActiveFilters = Boolean(search.trim() || type || location.trim() || remoteOnly);
   const filters = useMemo(
     () => ({ search, type, location, remoteOnly }),
     [search, type, location, remoteOnly],
@@ -128,8 +129,8 @@ export function Postings() {
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='postings-h-5-1' />}
-          title={profile?.role === 'student' ? 'No published opportunities for your university yet' : 'No opportunities match those filters'}
-          description={profile?.role === 'student' ? 'Company opportunities appear here after a company publishes a posting and makes it available to your university. Check back when new internships are published.' : 'Try clearing the search or widening the filters.'}
+          title={profile?.role === 'student' && !hasActiveFilters ? 'No published opportunities for your university yet' : 'No opportunities match those filters'}
+          description={profile?.role === 'student' && !hasActiveFilters ? 'Company opportunities appear here after a company publishes a posting and makes it available to your university. Check back when new internships are published.' : 'Try clearing the search or widening the filters.'}
         />
       ) : (
         <>
