@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(111);
+select plan(113);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -1062,6 +1062,14 @@ select public.test_as('99999999-9999-4999-8999-999999999011');
 
 select is(
   (select count(*) from storage.objects
+   where bucket_id = 'cvs'
+     and name = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'),
+  1::bigint,
+  'assigned faculty supervisor can read the CV for their placement'
+);
+
+select is(
+  (select count(*) from storage.objects
    where bucket_id = 'reports'
      and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
   1::bigint,
@@ -1069,6 +1077,14 @@ select is(
 );
 
 select public.test_as('99999999-9999-4999-8999-999999999031');
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'cvs'
+     and name = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'),
+  1::bigint,
+  'assigned company site supervisor can read the CV for their placement'
+);
 
 select is(
   (select count(*) from storage.objects
