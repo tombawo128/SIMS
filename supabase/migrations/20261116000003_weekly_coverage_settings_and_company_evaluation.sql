@@ -253,12 +253,16 @@ $function$;
 
 -- The university's official grade cannot be recorded until the designated
 -- company site supervisor has submitted the final evaluation.
+-- The university final mark is calculated from three independent assessment sources:
+-- 30% approved weekly faculty ratings, 40% company site-supervisor final evaluation,
+-- and 30% university faculty final evaluation. All component scores are on a 1-5 scale.
+drop function if exists public.record_grade(uuid, numeric, text);
+
 create or replace function public.record_grade(
   p_placement_id uuid,
-  p_grade numeric,
   p_notes text default null
 )
-returns void
+returns numeric
 language plpgsql
 security definer
 set search_path to 'public'
@@ -270,7 +274,10 @@ declare
   v_complete_weeks integer;
   v_min_week integer;
   v_max_week integer;
-  v_has_company_final boolean;
+  v_weekly_average numeric;
+  v_company_score numeric;
+  v_faculty_score numeric;
+  v_final_grade numeric;
 begin
   select * into v_placement
   from public.placements
@@ -281,9 +288,6 @@ begin
   if public.auth_role() is distinct from 'faculty_supervisor'
      or v_placement.faculty_supervisor_id is distinct from auth.uid() then
     raise exception 'Only the assigned university faculty supervisor can record the official final grade';
-  end if;
-  if p_grade is null or p_grade < 0 or p_grade > 100 then
-    raise exception 'Grade must be between 0 and 100';
   end if;
   if v_placement.status = 'cancelled' then
     raise exception 'A cancelled placement cannot receive a final grade';
@@ -297,8 +301,9 @@ begin
   select count(*),
          count(*) filter (where status = 'approved' and rating_overall is not null),
          min(week_number),
-         max(week_number)
-  into v_total_weeks, v_complete_weeks, v_min_week, v_max_week
+         max(week_number),
+         avg(rating_overall) filter (where status = 'approved' and rating_overall is not null)
+  into v_total_weeks, v_complete_weeks, v_min_week, v_max_week, v_weekly_average
   from public.weekly_logs
   where placement_id = p_placement_id;
 
@@ -309,22 +314,38 @@ begin
     raise exception 'Every expected internship week must be submitted, approved, and rated before final grading';
   end if;
 
-  select exists (
-    select 1
-    from public.evaluations e
-    where e.placement_id = p_placement_id
-      and e.evaluator_role = 'site_supervisor'
-      and e.type = 'final'
-      and e.evaluator_id = v_placement.site_supervisor_id
-  ) into v_has_company_final;
+  select e.overall_score into v_company_score
+  from public.evaluations e
+  where e.placement_id = p_placement_id
+    and e.evaluator_role = 'site_supervisor'
+    and e.type = 'final'
+    and e.evaluator_id = v_placement.site_supervisor_id;
 
-  if not v_has_company_final then
+  if v_company_score is null then
     raise exception 'The assigned company site supervisor must submit the final evaluation before final grading';
   end if;
 
+  select e.overall_score into v_faculty_score
+  from public.evaluations e
+  where e.placement_id = p_placement_id
+    and e.evaluator_role = 'faculty_supervisor'
+    and e.type = 'final'
+    and e.evaluator_id = v_placement.faculty_supervisor_id;
+
+  if v_faculty_score is null then
+    raise exception 'The assigned university faculty supervisor must submit the final evaluation before final grading';
+  end if;
+
+  v_final_grade := round(
+    (v_weekly_average / 5.0 * 100.0 * 0.30)
+    + (v_company_score / 5.0 * 100.0 * 0.40)
+    + (v_faculty_score / 5.0 * 100.0 * 0.30),
+    2
+  );
+
   update public.placements
-  set final_grade = p_grade,
-      grade_notes = p_notes,
+  set final_grade = v_final_grade,
+      grade_notes = nullif(trim(coalesce(p_notes, '')), ''),
       graded_by = auth.uid(),
       graded_at = now(),
       status = 'completed',
@@ -334,9 +355,11 @@ begin
   perform public.notify_user(
     v_placement.student_id,
     'Final grade recorded',
-    'Your official internship grade has been recorded and the placement is complete.',
+    'Your official internship grade has been calculated and recorded as ' || v_final_grade || '%.',
     '/placements/' || p_placement_id
   );
+
+  return v_final_grade;
 end;
 $function$;
 
@@ -386,10 +409,10 @@ $function$;
 revoke all on function public.notify_user(uuid, text, text, text) from public, anon, authenticated;
 revoke all on function public.save_daily_report(uuid,date,numeric,text,text) from public, anon;
 revoke all on function public.submit_weekly_report(uuid,integer) from public, anon;
-revoke all on function public.record_grade(uuid,numeric,text) from public, anon;
+revoke all on function public.record_grade(uuid,text) from public, anon;
 grant execute on function public.save_daily_report(uuid,date,numeric,text,text) to authenticated, service_role;
 grant execute on function public.submit_weekly_report(uuid,integer) to authenticated, service_role;
-grant execute on function public.record_grade(uuid,numeric,text) to authenticated, service_role;
+grant execute on function public.record_grade(uuid,text) to authenticated, service_role;
 
 
 create or replace function public.submit_evaluation(
