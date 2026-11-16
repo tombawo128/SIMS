@@ -187,7 +187,7 @@ export function DailyReportsPanel({
         const weekEndDate = new Date(`${startDate}T00:00:00Z`);
         weekEndDate.setUTCDate(weekEndDate.getUTCDate() + week * 7 - 1);
         const weekEnd = weekEndDate.toISOString().slice(0, 10) > endDate ? endDate : weekEndDate.toISOString().slice(0, 10);
-        const canSubmitWeek = weekEnd <= today;
+        const canSubmitWeek = weekEnd <= today && entries.length >= 3 && entries.length <= 5;
         return (
           <Card key={week}>
             <CardHeader
