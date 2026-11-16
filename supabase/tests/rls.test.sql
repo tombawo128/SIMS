@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(90);
+select plan(96);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -63,6 +63,52 @@ select is(
   0::bigint,
   'notification preference changes do not expose another student profile'
 );
+
+reset role;
+update public.profiles
+set notification_preferences = jsonb_set(
+  notification_preferences,
+  '{system_announcements}',
+  'false'::jsonb
+)
+where id = '99999999-9999-4999-8999-999999999022';
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999001');
+
+select lives_ok(
+  $ select public.publish_admin_broadcast(
+       'Preferences CI broadcast',
+       'Checking that user announcement preferences are respected.',
+       'student',
+       '/notifications'
+     ) $,
+  'platform administrator can publish an announcement to students'
+);
+
+select is(
+  (select count(*) from public.notifications
+   where user_id = '99999999-9999-4999-8999-999999999021'
+     and title = 'Preferences CI broadcast'),
+  0::bigint,
+  'global in-app notification opt-out suppresses system announcements'
+);
+
+select is(
+  (select count(*) from public.notifications
+   where user_id = '99999999-9999-4999-8999-999999999022'
+     and title = 'Preferences CI broadcast'),
+  0::bigint,
+  'system announcement preference suppresses broadcast delivery'
+);
+
+select is(
+  (select count(*) from public.notifications
+   where user_id = '99999999-9999-4999-8999-999999999023'
+     and title = 'Preferences CI broadcast'),
+  1::bigint,
+  'students with enabled preferences receive system announcements'
+);
+
 
 
 select is(
@@ -130,6 +176,20 @@ select is(
   3::bigint,
   'company admin sees only applications to their company postings'
 );
+
+select throws_ok(
+  $ select public.submit_evaluation(
+       '66666666-6666-4666-8666-666666660001',
+       'final',
+       '{"professionalism":4,"technical_skill":4,"communication":4,"initiative":4}'::jsonb,
+       'Company admin must not replace the assigned site supervisor.',
+       4.00
+     ) $,
+  'P0001',
+  'Not authorized to evaluate this placement',
+  'company administrator cannot replace the assigned site supervisor final evaluation'
+);
+
 
 select is(
   (select count(*) from public.applications where company_id = '22222222-2222-4222-8222-222222222202'),
