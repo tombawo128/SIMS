@@ -676,11 +676,10 @@ select is(
 );
 
 select throws_ok(
-  $$ select public.record_grade(
+  $ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
-       85,
        'Final review'
-     ) $$,
+     ) $,
   'P0001',
   'The placement must reach its end date before final grading',
   'faculty cannot record a final grade before the placement end date'
