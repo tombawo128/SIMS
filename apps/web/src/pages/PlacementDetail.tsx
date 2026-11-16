@@ -129,7 +129,6 @@ export function PlacementDetail() {
   const [facultyId, setFacultyId] = useState('');
 
   const [gradeOpen, setGradeOpen] = useState(false);
-  const [gradeValue, setGradeValue] = useState('');
   const [gradeNotes, setGradeNotes] = useState('');
 
   const [uploading, setUploading] = useState(false);
@@ -185,8 +184,17 @@ export function PlacementDetail() {
   const ratedApprovedWeeks = sortedLogs.filter((log) => log.status === 'approved' && log.rating_overall !== null && log.rating_overall !== undefined).length;
   const allWeeksComplete = sortedLogs.length === expectedWeeks && sortedLogs.every((log, index) => log.week_number === index + 1);
   const companyFinalEvaluation = (placement.evaluations ?? []).find((evaluation) => evaluation.evaluator_role === 'site_supervisor' && evaluation.type === 'final' && evaluation.evaluator_id === placement.site_supervisor_id);
+  const facultyFinalEvaluation = (placement.evaluations ?? []).find((evaluation) => evaluation.evaluator_role === 'faculty_supervisor' && evaluation.type === 'final' && evaluation.evaluator_id === placement.faculty_supervisor_id);
   const hasCompanyFinalEvaluation = Boolean(companyFinalEvaluation);
-  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && allWeeksComplete && ratedApprovedWeeks === expectedWeeks && hasCompanyFinalEvaluation;
+  const hasFacultyFinalEvaluation = Boolean(facultyFinalEvaluation);
+  const weeklyRatingAverage = ratedApprovedWeeks > 0
+    ? sortedLogs.filter((log) => log.status === 'approved' && log.rating_overall !== null && log.rating_overall !== undefined)
+        .reduce((total, log) => total + Number(log.rating_overall), 0) / ratedApprovedWeeks
+    : null;
+  const gradePreview = weeklyRatingAverage !== null && companyFinalEvaluation?.overall_score != null && facultyFinalEvaluation?.overall_score != null
+    ? Number(((weeklyRatingAverage / 5 * 100 * 0.30) + (Number(companyFinalEvaluation.overall_score) / 5 * 100 * 0.40) + (Number(facultyFinalEvaluation.overall_score) / 5 * 100 * 0.30)).toFixed(2))
+    : null;
+  const gradeReady = placement.end_date <= new Date().toISOString().slice(0, 10) && allWeeksComplete && ratedApprovedWeeks === expectedWeeks && hasCompanyFinalEvaluation && hasFacultyFinalEvaluation;
   const facultyRequest = (placement.faculty_supervisor_requests ?? []).find((request) => request.status === 'pending') ?? (placement.faculty_supervisor_requests ?? []).slice(-1)[0];
   const evaluatorRole: EvaluationRole = canEvaluateSite ? 'site_supervisor' : 'faculty_supervisor';
 
@@ -334,15 +342,9 @@ export function PlacementDetail() {
 
   const doRecordGrade = async () => {
     setActionError('');
-    const grade = Number(gradeValue);
-    if (!Number.isFinite(grade) || grade < 0 || grade > 100) {
-      setActionError('Enter a grade between 0 and 100.');
-      return;
-    }
     try {
       await recordGrade.mutateAsync({
         placementId: placement.id,
-        grade,
         notes: gradeNotes.trim(),
       });
       toast({ title: 'Final grade recorded', tone: 'success' });
@@ -1111,7 +1113,7 @@ export function PlacementDetail() {
         open={gradeOpen}
         onClose={() => setGradeOpen(false)}
         title="Record final grade"
-        description="The official grade remains a university decision. SIMS requires the placement end date to pass and every expected week to be approved and rated before the grade can be recorded."
+        description="SIMS calculates the final mark from approved weekly ratings and both assigned supervisors’ final evaluations. The university faculty supervisor reviews and records the calculated result."
         footer={
           <>
             <Button variant="secondary" onClick={() => setGradeOpen(false)}>
@@ -1125,19 +1127,10 @@ export function PlacementDetail() {
       >
         <div className='placement-detail-space-y-4-1'>
           {actionError ? <Alert tone="danger">{actionError}</Alert> : null}
-          {!hasCompanyFinalEvaluation && placement.final_grade === null ? <Alert tone="warning">The assigned company site supervisor must submit the final evaluation before the university can record the final grade.</Alert> : null}
-          {!gradeReady && placement.final_grade === null && hasCompanyFinalEvaluation ? <Alert tone="warning">Final grading is locked until the placement end date has passed and all {expectedWeeks} expected weekly reports are approved and rated. Currently approved: {approvedLogs}; rated: {ratedApprovedWeeks}.</Alert> : null}
-          <Field label="Final grade (0–100)" htmlFor="grade-value" required>
-            <Input
-              id="grade-value"
-              type="number"
-              min={0}
-              max={100}
-              step="0.5"
-              value={gradeValue}
-              onChange={(event) => setGradeValue(event.target.value)}
-            />
-          </Field>
+          {!hasCompanyFinalEvaluation && placement.final_grade === null ? <Alert tone="warning">The assigned company site supervisor must submit the company final evaluation before grading.</Alert> : null}
+          {!hasFacultyFinalEvaluation && placement.final_grade === null ? <Alert tone="warning">The assigned university faculty supervisor must submit the faculty final evaluation before grading.</Alert> : null}
+          {!gradeReady && placement.final_grade === null ? <Alert tone="warning">Final grading is locked until the placement end date has passed, all {expectedWeeks} weekly reports are approved and rated, and both assigned supervisors have submitted final evaluations. Currently approved: {approvedLogs}; rated: {ratedApprovedWeeks}.</Alert> : null}
+          {gradePreview !== null ? <Alert tone="info" title={`Calculated final mark: ${gradePreview.toFixed(2)} / 100`}>30% approved weekly ratings · 40% company final evaluation · 30% university faculty final evaluation. The database recalculates this mark when you record it.</Alert> : <Alert tone="info">The final mark will be calculated automatically when all required assessment evidence is complete.</Alert>}
           <Field label="Grade notes" htmlFor="grade-notes">
             <Textarea
               id="grade-notes"
