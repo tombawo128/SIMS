@@ -1171,6 +1171,8 @@ select is(
   'another student is denied by the actual placement report DELETE policy'
 );
 
+reset role;
+
 select is(
   (select count(*) from storage.objects
    where bucket_id = 'reports'
@@ -1179,6 +1181,7 @@ select is(
   'report metadata remains available after the unauthorised delete policy check'
 );
 
+set local role authenticated;
 select public.test_as('99999999-9999-4999-8999-999999999021');
 
 select is(
