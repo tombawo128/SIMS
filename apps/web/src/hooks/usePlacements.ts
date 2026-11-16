@@ -247,13 +247,13 @@ export function useAssignFaculty() {
 export function useRecordGrade() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { placementId: string; grade: number; notes: string }) => {
-      const { error } = await supabase.rpc('record_grade', {
+    mutationFn: async (input: { placementId: string; notes: string }) => {
+      const { data, error } = await supabase.rpc('record_grade', {
         p_placement_id: input.placementId,
-        p_grade: input.grade,
         p_notes: input.notes,
       });
       if (error) throw error;
+      return data as number;
     },
     onSuccess: () => invalidatePlacementData(queryClient),
   });
