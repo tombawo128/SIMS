@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(94);
+select plan(97);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -859,7 +859,6 @@ select public.test_as('99999999-9999-4999-8999-999999999011');
 select throws_ok(
   $ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
-       85,
        'Final review'
      ) $,
   'P0001',
@@ -884,13 +883,40 @@ select lives_ok(
 
 select public.test_as('99999999-9999-4999-8999-999999999011');
 
-select lives_ok(
+select throws_ok(
   $ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
-       85,
        'Final review'
      ) $,
-  'university faculty can record the final grade after company evaluation and all weekly checks pass'
+  'P0001',
+  'The assigned university faculty supervisor must submit the final evaluation before final grading',
+  'university final grade is blocked until the assigned faculty supervisor submits a final evaluation'
+);
+
+select lives_ok(
+  $ select public.submit_evaluation(
+       '66666666-6666-4666-8666-666666660001',
+       'final',
+       '{"professionalism":5,"technical_skill":4,"communication":5,"initiative":4}'::jsonb,
+       'Final university faculty evaluation completed.',
+       4.50
+     ) $,
+  'assigned university faculty supervisor can submit the final evaluation'
+);
+
+select is(
+  public.record_grade(
+    '66666666-6666-4666-8666-666666660001',
+    'Final review'
+  ),
+  85.00::numeric,
+  'automatic final grade correctly weights weekly ratings 30%, company final 40%, and faculty final 30%'
+);
+
+select is(
+  to_regprocedure('public.record_grade(uuid,numeric,text)'),
+  null::regprocedure,
+  'manual client-supplied grade overload is removed'
 );
 
 reset role;
