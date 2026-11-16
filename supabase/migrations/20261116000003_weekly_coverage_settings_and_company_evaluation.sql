@@ -1,62 +1,39 @@
 -- User preferences, university-scoped opportunity visibility, weekly coverage, and company final evaluation gate.
 
-create table if not exists public.user_settings (
-  user_id uuid primary key references public.profiles(id) on delete cascade,
-  in_app_notifications boolean not null default true,
-  application_updates boolean not null default true,
-  supervision_updates boolean not null default true,
-  system_announcements boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+-- Store notification preferences on the user's own profile row. This avoids
+-- introducing another exposed Data API table and inherits the existing self-only RLS.
+alter table public.profiles
+  add column if not exists notification_preferences jsonb not null
+  default '{"in_app_notifications":true,"application_updates":true,"supervision_updates":true,"system_announcements":true}'::jsonb;
 
-alter table public.user_settings enable row level security;
+do $constraint$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'profiles_notification_preferences_check'
+      and conrelid = 'public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_notification_preferences_check
+      check (
+        jsonb_typeof(notification_preferences) = 'object'
+        and notification_preferences ?& array[
+          'in_app_notifications',
+          'application_updates',
+          'supervision_updates',
+          'system_announcements'
+        ]
+        and jsonb_typeof(notification_preferences->'in_app_notifications') = 'boolean'
+        and jsonb_typeof(notification_preferences->'application_updates') = 'boolean'
+        and jsonb_typeof(notification_preferences->'supervision_updates') = 'boolean'
+        and jsonb_typeof(notification_preferences->'system_announcements') = 'boolean'
+      );
+  end if;
+end;
+$constraint$;
 
-drop policy if exists user_settings_select_own on public.user_settings;
-create policy user_settings_select_own on public.user_settings
-  for select to authenticated using (user_id = (select auth.uid()));
-
-drop policy if exists user_settings_insert_own on public.user_settings;
-create policy user_settings_insert_own on public.user_settings
-  for insert to authenticated with check (user_id = (select auth.uid()));
-
-drop policy if exists user_settings_update_own on public.user_settings;
-create policy user_settings_update_own on public.user_settings
-  for update to authenticated
-  using (user_id = (select auth.uid()))
-  with check (user_id = (select auth.uid()));
-
-drop trigger if exists user_settings_updated_at on public.user_settings;
-create trigger user_settings_updated_at
-  before update on public.user_settings
-  for each row execute function public.set_updated_at();
-
-grant select, insert, update on public.user_settings to authenticated;
-revoke all on public.user_settings from anon;
-
--- This SECURITY DEFINER helper avoids relying on a nested RLS-visible read of
--- posting_universities while evaluating the job_postings SELECT policy.
-create or replace function public.posting_visible_to_university(
-  p_posting_id uuid,
-  p_university_id uuid
-)
-returns boolean
-language sql
-stable
-security definer
-set search_path to 'public'
-as $function$
-  select exists (
-    select 1
-    from public.posting_universities pu
-    where pu.posting_id = p_posting_id
-      and pu.university_id = p_university_id
-  );
-$function$;
-
-revoke all on function public.posting_visible_to_university(uuid,uuid) from public, anon;
-grant execute on function public.posting_visible_to_university(uuid,uuid) to authenticated, service_role;
-
+-- Keep the company-owned draft visibility required by INSERT ... RETURNING,
+-- while allowing students to read only published postings visible to their university.
 drop policy if exists job_postings_select on public.job_postings;
 create policy job_postings_select on public.job_postings
   for select to authenticated
@@ -69,7 +46,12 @@ create policy job_postings_select on public.job_postings
         visibility = 'all_universities'
         or (
           (select public.auth_university_id()) is not null
-          and public.posting_visible_to_university(id, (select public.auth_university_id()))
+          and exists (
+            select 1
+            from public.posting_universities pu
+            where pu.posting_id = job_postings.id
+              and pu.university_id = (select public.auth_university_id())
+          )
         )
       )
     )
@@ -372,25 +354,26 @@ security definer
 set search_path to 'public'
 as $function$
 declare
-  v_settings public.user_settings%rowtype;
+  v_preferences jsonb;
   v_category_enabled boolean := true;
 begin
-  select * into v_settings
-  from public.user_settings
-  where user_id = p_user;
+  select notification_preferences into v_preferences
+  from public.profiles
+  where id = p_user;
 
   if found then
     v_category_enabled := case
       when p_title ilike any (array['%application%', '%shortlist%', '%offer%'])
-        then v_settings.application_updates
+        then coalesce((v_preferences->>'application_updates')::boolean, true)
       when p_title ilike any (array['%weekly%', '%report%', '%supervisor%', '%evaluation%', '%grade%'])
-        then v_settings.supervision_updates
+        then coalesce((v_preferences->>'supervision_updates')::boolean, true)
       when p_title ilike any (array['%announcement%', '%system%'])
-        then v_settings.system_announcements
+        then coalesce((v_preferences->>'system_announcements')::boolean, true)
       else true
     end;
 
-    if not v_settings.in_app_notifications or not v_category_enabled then
+    if not coalesce((v_preferences->>'in_app_notifications')::boolean, true)
+       or not v_category_enabled then
       return;
     end if;
   end if;

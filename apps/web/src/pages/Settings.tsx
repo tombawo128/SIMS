@@ -67,20 +67,15 @@ export function SettingsPage() {
       setLoadingPreferences(true);
       setPreferencesError('');
       const { data, error } = await supabase
-        .from('user_settings')
-        .select('in_app_notifications, application_updates, supervision_updates, system_announcements')
-        .eq('user_id', profile.id)
+        .from('profiles')
+        .select('notification_preferences')
+        .eq('id', profile.id)
         .maybeSingle();
       if (cancelled) return;
       if (error) {
         setPreferencesError(error.message);
-      } else if (data) {
-        setPreferences({
-          in_app_notifications: data.in_app_notifications,
-          application_updates: data.application_updates,
-          supervision_updates: data.supervision_updates,
-          system_announcements: data.system_announcements,
-        });
+      } else if (data?.notification_preferences) {
+        setPreferences({ ...DEFAULT_PREFERENCES, ...data.notification_preferences });
       }
       setLoadingPreferences(false);
     };
@@ -96,10 +91,9 @@ export function SettingsPage() {
     setSavingPreference(true);
     setPreferencesError('');
     try {
-      const { error } = await supabase.from('user_settings').upsert(
-        { user_id: profile.id, ...next },
-        { onConflict: 'user_id' },
-      );
+      const { error } = await supabase.from('profiles')
+        .update({ notification_preferences: next })
+        .eq('id', profile.id);
       if (error) throw error;
       toast({ title: 'Notification preferences saved', tone: 'success' });
     } catch (caught) {

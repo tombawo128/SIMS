@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(75);
+select plan(78);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -45,6 +45,25 @@ set local role authenticated;
 -- Student isolation (Bay State student 1)
 -- ---------------------------------------------------------------------------
 select public.test_as('99999999-9999-4999-8999-999999999021');
+select lives_ok(
+  $$ update public.profiles
+     set notification_preferences = '{"in_app_notifications":false,"application_updates":true,"supervision_updates":true,"system_announcements":true}'::jsonb
+     where id = auth.uid() $$,
+  'student can update notification preferences on their own profile'
+);
+
+select is(
+  (select notification_preferences->>'in_app_notifications' from public.profiles where id = auth.uid()),
+  'false',
+  'student can read back their own notification preference'
+);
+
+select is(
+  (select count(*) from public.profiles where id = '99999999-9999-4999-8999-999999999023'),
+  0::bigint,
+  'notification preference changes do not expose another student profile'
+);
+
 
 select is(
   (select count(*) from public.weekly_logs where placement_id = '66666666-6666-4666-8666-666666660001'),
