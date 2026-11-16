@@ -64,7 +64,6 @@ export function App() {
               <Route path="/postings/:id" element={<PostingDetail />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/notifications" element={<Notifications />} />
 
               <Route element={<RoleRoute allow={['coordinator', 'company_admin']} />}>
