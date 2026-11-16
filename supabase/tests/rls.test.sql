@@ -1129,9 +1129,9 @@ select is(
 select public.test_as('99999999-9999-4999-8999-999999999022');
 
 select lives_ok(
-  $ delete from storage.objects
+  $$ delete from storage.objects
      where bucket_id = 'reports'
-       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $,
+       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $$,
   'another student cannot delete the placement report'
 );
 
@@ -1146,9 +1146,9 @@ select is(
 select public.test_as('99999999-9999-4999-8999-999999999021');
 
 select lives_ok(
-  $ delete from storage.objects
+  $$ delete from storage.objects
      where bucket_id = 'reports'
-       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $,
+       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $$,
   'student can delete their own placement report'
 );
 
