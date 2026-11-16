@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(97);
+select plan(111);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -957,6 +957,159 @@ select is(
    where placement_id = '66666666-6666-4666-8666-666666660002'),
   'assigned',
   'coordinator assignment updates the student request to assigned'
+);
+
+-- ---------------------------------------------------------------------------
+-- Private CV and internship report storage access
+-- ---------------------------------------------------------------------------
+reset role;
+update public.applications
+set cv_path = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'
+where id = '55555555-5555-4555-8555-555555550001';
+
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999021');
+
+select lives_ok(
+  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+     values (
+       'cvs',
+       '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf',
+       '99999999-9999-4999-8999-999999999021',
+       '{"mimetype":"application/pdf","size":1024}'::jsonb
+     ) $,
+  'student can upload a CV into their own private folder'
+);
+
+select lives_ok(
+  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+     values (
+       'reports',
+       '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf',
+       '99999999-9999-4999-8999-999999999021',
+       '{"mimetype":"application/pdf","size":1024}'::jsonb
+     ) $,
+  'student can upload an internship report for their own placement'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999022');
+
+select throws_ok(
+  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+     values (
+       'cvs',
+       '99999999-9999-4999-8999-999999999021/forbidden-cv.pdf',
+       '99999999-9999-4999-8999-999999999022',
+       '{"mimetype":"application/pdf","size":1024}'::jsonb
+     ) $,
+  '42501',
+  'new row violates row-level security policy for table "objects"',
+  'student cannot upload a CV into another student private folder'
+);
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'cvs'
+     and name = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'),
+  0::bigint,
+  'another student cannot read a private CV'
+);
+
+select throws_ok(
+  $ insert into storage.objects (bucket_id, name, owner_id, metadata)
+     values (
+       'reports',
+       '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999022/forbidden-report.pdf',
+       '99999999-9999-4999-8999-999999999022',
+       '{"mimetype":"application/pdf","size":1024}'::jsonb
+     ) $,
+  '42501',
+  'new row violates row-level security policy for table "objects"',
+  'student cannot upload a report into another student placement folder'
+);
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'reports'
+     and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
+  0::bigint,
+  'another student cannot read a private internship report'
+);
+
+reset role;
+set local role authenticated;
+select public.test_as('99999999-9999-4999-8999-999999999041');
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'cvs'
+     and name = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'),
+  1::bigint,
+  'company administrator can read the CV of a student who applied to its company'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999042');
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'cvs'
+     and name = '99999999-9999-4999-8999-999999999021/storage-regression-cv.pdf'),
+  0::bigint,
+  'a different company cannot read the applicant CV'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999011');
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'reports'
+     and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
+  1::bigint,
+  'assigned faculty supervisor can read the placement report'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999031');
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'reports'
+     and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
+  1::bigint,
+  'assigned company site supervisor can read the placement report'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999022');
+
+select lives_ok(
+  $ delete from storage.objects
+     where bucket_id = 'reports'
+       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $,
+  'another student cannot delete the placement report'
+);
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'reports'
+     and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
+  1::bigint,
+  'report remains available after another student delete attempt'
+);
+
+select public.test_as('99999999-9999-4999-8999-999999999021');
+
+select lives_ok(
+  $ delete from storage.objects
+     where bucket_id = 'reports'
+       and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf' $,
+  'student can delete their own placement report'
+);
+
+select is(
+  (select count(*) from storage.objects
+   where bucket_id = 'reports'
+     and name = '66666666-6666-4666-8666-666666660001/99999999-9999-4999-8999-999999999021/storage-regression-report.pdf'),
+  0::bigint,
+  'student-owned report is removed from private storage metadata'
 );
 
 reset role;
