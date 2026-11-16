@@ -409,7 +409,6 @@ export function PlacementDetail() {
                 variant="secondary"
                 disabled={placement.final_grade === null && !gradeReady}
                 onClick={() => {
-                  setGradeValue(placement.final_grade !== null ? String(placement.final_grade) : '');
                   setGradeNotes(placement.grade_notes ?? '');
                   setActionError('');
                   setGradeOpen(true);
