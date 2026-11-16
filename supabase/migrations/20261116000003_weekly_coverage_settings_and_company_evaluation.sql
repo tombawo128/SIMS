@@ -11,6 +11,13 @@ security definer
 set search_path to 'public'
 as $function$
   select case
+    when not exists (
+      select 1
+      from public.profiles p
+      where p.id = auth.uid()
+        and p.account_status = 'active'
+        and p.deleted_at is null
+    ) then false
     when split_part(object_name, '/', 1) = auth.uid()::text then true
     else exists (
       select 1
