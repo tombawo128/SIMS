@@ -407,3 +407,89 @@ revoke all on function public.record_grade(uuid,numeric,text) from public, anon;
 grant execute on function public.save_daily_report(uuid,date,numeric,text,text) to authenticated, service_role;
 grant execute on function public.submit_weekly_report(uuid,integer) to authenticated, service_role;
 grant execute on function public.record_grade(uuid,numeric,text) to authenticated, service_role;
+
+
+create or replace function public.submit_evaluation(
+  p_placement_id uuid,
+  p_type public.evaluation_type,
+  p_rubric jsonb,
+  p_comments text,
+  p_overall numeric default null
+)
+returns void
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_placement public.placements%rowtype;
+  v_role public.evaluation_role;
+  v_actor_role public.user_role;
+begin
+  select * into v_placement
+  from public.placements
+  where id = p_placement_id;
+
+  if not found then raise exception 'Placement not found'; end if;
+  v_actor_role := public.auth_role();
+
+  if v_actor_role = 'site_supervisor' and v_placement.site_supervisor_id = auth.uid() then
+    v_role := 'site_supervisor';
+  elsif v_actor_role = 'company_admin' and v_placement.company_id = public.auth_company_id() then
+    if p_type = 'final' then
+      raise exception 'Only the assigned company site supervisor can submit the final evaluation';
+    end if;
+    v_role := 'site_supervisor';
+  elsif v_actor_role = 'faculty_supervisor' and v_placement.faculty_supervisor_id = auth.uid() then
+    if p_type <> 'final' then
+      raise exception 'Faculty supervisors can only submit final evaluations';
+    end if;
+    v_role := 'faculty_supervisor';
+  else
+    raise exception 'Not authorized to evaluate this placement';
+  end if;
+
+  if v_placement.status <> 'active' then
+    raise exception 'Evaluations are locked after placement completion';
+  end if;
+  if p_type is null or p_type not in ('midterm', 'final') then
+    raise exception 'Choose a valid evaluation type';
+  end if;
+  if nullif(trim(coalesce(p_comments, '')), '') is null then
+    raise exception 'Add written comments to support the evaluation';
+  end if;
+  if p_overall is null or p_overall < 1 or p_overall > 5 then
+    raise exception 'The overall evaluation score must be between 1 and 5';
+  end if;
+  if jsonb_typeof(p_rubric) is distinct from 'object'
+     or (select count(*) from jsonb_object_keys(p_rubric)) <> 4
+     or not (p_rubric ?& array['professionalism', 'technical_skill', 'communication', 'initiative'])
+     or coalesce(p_rubric->>'professionalism', '') !~ '^[1-5]$'
+     or coalesce(p_rubric->>'technical_skill', '') !~ '^[1-5]$'
+     or coalesce(p_rubric->>'communication', '') !~ '^[1-5]$'
+     or coalesce(p_rubric->>'initiative', '') !~ '^[1-5]$' then
+    raise exception 'Each evaluation rubric score must be a whole number from 1 to 5';
+  end if;
+
+  insert into public.evaluations
+    (placement_id, evaluator_id, evaluator_role, type, rubric_scores, comments, overall_score)
+  values
+    (p_placement_id, auth.uid(), v_role, p_type, p_rubric, trim(p_comments), p_overall)
+  on conflict (placement_id, evaluator_role, type) do update
+    set evaluator_id = excluded.evaluator_id,
+        rubric_scores = excluded.rubric_scores,
+        comments = excluded.comments,
+        overall_score = excluded.overall_score;
+
+  perform public.notify_user(
+    v_placement.student_id,
+    'Evaluation submitted',
+    'A ' || p_type::text || ' evaluation has been submitted for your placement.',
+    '/placements/' || p_placement_id
+  );
+end;
+$function$;
+
+revoke all on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) from public, anon;
+grant execute on function public.submit_evaluation(uuid,public.evaluation_type,jsonb,text,numeric) to authenticated, service_role;
+

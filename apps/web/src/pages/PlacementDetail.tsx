@@ -224,7 +224,9 @@ export function PlacementDetail() {
 
   const openEvaluation = () => {
     setActionError('');
-    const existing = evaluationFor(evaluationType);
+    const selectedType: EvaluationType = isCompanyAdmin && !isSiteSupervisor ? 'midterm' : evaluationType;
+    setEvaluationType(selectedType);
+    const existing = evaluationFor(selectedType);
     setRubric(existing?.rubric_scores ?? DEFAULT_RUBRIC);
     setEvaluationComments(existing?.comments ?? '');
     setEvaluationOpen(true);

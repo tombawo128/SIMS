@@ -24,6 +24,7 @@ const Users = lazy(() => import('@/pages/Users').then((m) => ({ default: m.Users
 const RecycleBin = lazy(() => import('@/pages/RecycleBin').then((m) => ({ default: m.RecycleBin })));
 const ProfilePage = lazy(() => import('@/pages/Profile').then((m) => ({ default: m.ProfilePage })));
 const SettingsPage = lazy(() => import('@/pages/Settings').then((m) => ({ default: m.SettingsPage })));
+const SettingsPage = lazy(() => import('@/pages/Settings').then((m) => ({ default: m.SettingsPage })));
 const Notifications = lazy(() => import('@/pages/Notifications').then((m) => ({ default: m.Notifications })));
 const NotFound = lazy(() => import('@/pages/NotFound').then((m) => ({ default: m.NotFound })));
 const ActivityLogs = lazy(() => import('@/pages/AdminConsole').then((m) => ({ default: m.ActivityLogs })));
@@ -63,6 +64,7 @@ export function App() {
               <Route path="/postings" element={<Postings />} />
               <Route path="/postings/:id" element={<PostingDetail />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/notifications" element={<Notifications />} />
 

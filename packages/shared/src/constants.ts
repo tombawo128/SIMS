@@ -157,6 +157,7 @@ const APPLICATIONS: NavItem = { label: 'Applications', to: '/applications', icon
 const PLACEMENTS: NavItem = { label: 'Placements', to: '/placements', icon: 'placements' };
 const PROFILE: NavItem = { label: 'Profile', to: '/profile', icon: 'user' };
 const SETTINGS: NavItem = { label: 'Settings', to: '/settings', icon: 'settings' };
+const SETTINGS: NavItem = { label: 'Settings', to: '/settings', icon: 'settings' };
 
 export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   student: [DASHBOARD, OPPORTUNITIES, { ...APPLICATIONS, label: 'My Applications' }, { ...PLACEMENTS, label: 'My Placement' }, PROFILE, SETTINGS],
@@ -177,6 +178,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     PLACEMENTS,
     { label: 'Analytics', to: '/analytics', icon: 'dashboard' },
     PROFILE,
+    SETTINGS,
   ],
   site_supervisor: [
     DASHBOARD,
@@ -184,6 +186,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     APPLICATIONS,
     PLACEMENTS,
     PROFILE,
+    SETTINGS,
   ],
   company_admin: [
     DASHBOARD,
@@ -193,6 +196,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Team', to: '/people', icon: 'team' },
     { label: 'Analytics', to: '/analytics', icon: 'dashboard' },
     PROFILE,
+    SETTINGS,
   ],
   platform_admin: [
     DASHBOARD,
@@ -204,6 +208,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Admin Management', to: '/admin/management', icon: 'team' },
     { label: 'Analytics', to: '/admin/analytics', icon: 'dashboard' },
     PROFILE,
+    SETTINGS,
   ],
 };
 
