@@ -16,6 +16,7 @@ as $function$
       select 1
       from public.applications a
       where a.cv_path = object_name
+        and split_part(object_name, '/', 1) = a.student_id::text
         and (
           (
             public.auth_role() = 'company_admin'
