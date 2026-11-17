@@ -504,3 +504,28 @@
 .integration-centre .integration-hero__meta .integration-dot{background:#B8C9EE;box-shadow:0 0 0 4px #FFFFFF18}
 @media(max-width:1100px){.integration-centre .integration-overview-grid{grid-template-columns:1fr}.integration-centre .integration-systems-empty{min-height:145px}}
 @media(max-width:650px){.integration-centre .integration-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.integration-centre .integration-overview-grid{grid-template-columns:1fr}.integration-centre .integration-form--register{grid-template-columns:1fr;padding:15px}.integration-centre .integration-form__wide{grid-column:auto}.integration-centre .integration-form--register .integration-form__actions{align-items:stretch;flex-direction:column}.integration-centre .integration-form__actions button{width:100%}.integration-centre .integration-card-grid{grid-template-columns:1fr}.integration-centre .integration-connection-row{grid-template-columns:minmax(0,1fr) auto}.integration-centre .integration-connection-row>button{grid-column:1/-1;justify-self:start}}
+
+
+/* Workspace analytics: enforce consistent card rhythm in company and university views */
+.analytics-workspace{display:flex;min-width:0;flex-direction:column;gap:20px}
+.analytics-workspace__metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));align-items:stretch;gap:18px;min-width:0}
+.analytics-workspace__metrics-grid>.card{min-width:0;height:100%;margin:0}
+.analytics-workspace__reports-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:20px;min-width:0}
+.analytics-workspace__reports-grid>.card{min-width:0;height:100%;margin:0;overflow:hidden;border:1px solid #DCE4F0;border-radius:14px;background:#fff;box-shadow:0 5px 18px #152D500A}
+.analytics-workspace__reports-grid>.card .card__header{padding:18px 20px;border-bottom:1px solid #E9EEF5}
+.analytics-workspace__reports-grid>.card>div:not(.card__header){min-width:0}
+.analytics-workspace .analytics-filter-panel{margin:0;overflow:hidden}
+.analytics-workspace .analytics-filter-panel .card__header{padding:18px 20px;border-bottom:1px solid #E9EEF5}
+.analytics-workspace .analytics-filter-panel>div:not(.card__header){padding:18px 20px!important}
+@media(max-width:900px){.analytics-workspace__reports-grid{grid-template-columns:1fr;gap:16px}}
+@media(max-width:600px){.analytics-workspace{gap:16px}.analytics-workspace__metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.analytics-workspace__reports-grid{gap:13px}.analytics-workspace__reports-grid>.card .card__header{padding:15px}.analytics-workspace .analytics-filter-panel>div:not(.card__header){padding:14px!important}}
+/* Integration registration panel: keep every field inside the card's content box */
+.integration-centre .integration-overview-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-width:0}
+.integration-centre .integration-overview-grid>.card{min-width:0;max-width:100%;overflow:hidden;box-sizing:border-box}
+.integration-centre .integration-overview-grid>.card *{box-sizing:border-box}
+.integration-centre .integration-form--register{width:100%;max-width:100%;min-width:0;margin:0;overflow:hidden}
+.integration-centre .integration-form--register label{width:100%;max-width:100%;min-width:0}
+.integration-centre .integration-form--register input,.integration-centre .integration-form--register select{display:block;min-width:0;max-width:100%}
+.integration-centre .integration-form--register .integration-form__actions{min-width:0;flex-wrap:wrap}
+.integration-centre .integration-form--register .integration-form__actions button{flex:0 0 auto;max-width:100%}
+@media(max-width:1100px){.integration-centre .integration-overview-grid{grid-template-columns:minmax(0,1fr)}}
