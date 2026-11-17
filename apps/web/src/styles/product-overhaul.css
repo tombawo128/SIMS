@@ -529,3 +529,45 @@
 .integration-centre .integration-form--register .integration-form__actions{min-width:0;flex-wrap:wrap}
 .integration-centre .integration-form--register .integration-form__actions button{flex:0 0 auto;max-width:100%}
 @media(max-width:1100px){.integration-centre .integration-overview-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Header correction: role and page context stay on the left; account and alerts stay on the right. */
+.workspace-breadcrumb__role{
+  display:inline-flex;align-items:center;min-height:27px;padding:0 10px;border:1px solid #DCE6F5;
+  border-radius:7px;background:#EEF3FC;color:#1034A6;font-size:10px;font-weight:800;white-space:nowrap
+}
+.workspace-topbar__right{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
+.workspace-topbar__right .workspace-account{order:1}
+.workspace-topbar__right .bell{order:2;flex:none}
+.workspace-topbar__right .bell__button{width:39px;height:39px;border:1px solid #E1E7EF;border-radius:10px;background:#fff;color:#425875}
+.workspace-topbar__right .bell__button:hover{background:#F3F6FB;border-color:#C9D6E8;color:#1034A6}
+.workspace-topbar__right .bell__badge{border:2px solid #fff}
+@media(max-width:720px){
+  .workspace-breadcrumb>span:first-child{display:inline-flex}
+  .workspace-breadcrumb__role{font-size:9px;padding:0 7px}
+  .workspace-topbar__right{gap:8px}
+  .workspace-topbar__right .workspace-account{display:flex}
+  .workspace-topbar__right .bell__button{width:36px;height:36px}
+}
+
+/* Keep the redesign's spacing and containment consistent across every authenticated route. */
+.workspace-shell .workspace-main__inner>*{min-width:0}
+.workspace-shell .page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.workspace-shell .page-header__description{max-width:760px;line-height:1.65}
+.workspace-shell .card{min-width:0;overflow-wrap:anywhere}
+.workspace-shell .card__header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.workspace-shell .table-wrap,.workspace-shell [class*="table-container"]{max-width:100%;overflow-x:auto}
+.workspace-shell input,.workspace-shell select,.workspace-shell textarea{max-width:100%;box-sizing:border-box}
+.workspace-shell .analytics-page__metrics{gap:14px}
+.workspace-shell .analytics-page__detail-grid{gap:16px}
+.workspace-shell .analytics-page__detail-grid>*{min-width:0}
+.workspace-shell .analytics-page__organization-grid{gap:14px}
+@media(max-width:900px){
+  .workspace-shell .page-header{align-items:flex-start}
+  .workspace-shell .analytics-page__metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .workspace-shell .page-header{gap:12px;margin-bottom:18px}
+  .workspace-shell .analytics-page__metrics{grid-template-columns:minmax(0,1fr)}
+  .workspace-shell .analytics-page__detail-grid{grid-template-columns:minmax(0,1fr)}
+}
+
