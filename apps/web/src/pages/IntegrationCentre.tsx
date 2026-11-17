@@ -238,39 +238,53 @@ export function IntegrationCentre() {
                 <article><span className="integration-stat-icon"><Code2 size={18} /></span><strong>{integrationScopes.length}</strong><small>Available scopes</small><em>Read-only permissions</em></article>
               </div>
 
-              <Card>
-                <CardHeader title="Register an organisation system" description="Connect an existing SIMS university or company tenant to an external system." />
-                <form className="integration-form" onSubmit={event => { event.preventDefault(); createConnection.mutate(); }}>
-                  <label>Organisation type
-                    <select value={orgType} onChange={event => { setOrgType(event.target.value as 'university' | 'company'); setOrgId(''); }}>
-                      <option value="university">University</option><option value="company">Company</option>
-                    </select>
-                  </label>
-                  <label>Organisation
-                    <select value={orgId} onChange={event => setOrgId(event.target.value)} required disabled={organizations.isLoading || organizations.isError || !(organizations.data?.length)}> 
-                      <option value="">Choose an active {orgType}</option>
-                      {(organizations.data ?? []).map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
-                    </select>
-                  </label>
-                  {organizations.isLoading ? <p className="integration-muted">Loading active organisations…</p> : null}
-                  {organizations.isError ? <Alert tone="danger">Could not load organisations. <Button size="sm" variant="secondary" onClick={() => void organizations.refetch()}>Retry</Button></Alert> : null}
-                  <label>Connected system name
-                    <input value={connectionName} onChange={event => setConnectionName(event.target.value)} minLength={2} maxLength={100} placeholder="e.g. University student portal" required />
-                  </label>
-                  <div className="integration-form__actions"><span>Each connection belongs to exactly one organisation.</span><Button type="submit" disabled={!orgId || connectionName.trim().length < 2 || createConnection.isPending} loading={createConnection.isPending}><Plus size={15} /> Register system</Button></div>
-                </form>
-                {integrationData.isLoading ? <p className="integration-muted">Loading registered systems…</p> : integrationData.isError ? <Alert tone="danger" title="Could not load integrations">{(integrationData.error as Error).message} <Button size="sm" variant="secondary" onClick={() => void integrationData.refetch()}>Retry</Button></Alert> : (
-                  <div className="integration-connection-list">
-                    {connections.length === 0 ? <EmptyState title="No connected systems" description="Register a university or company system to begin issuing API credentials." /> : connections.map(connection => (
-                      <div className="integration-connection-row" key={connection.id}>
-                        <div><strong>{connection.name}</strong><small>{connection.organization_name} · {connection.organization_type}</small></div>
-                        <Badge tone={connection.status === 'active' ? 'emerald' : 'amber'}>{connection.status}</Badge>
-                        <Button size="sm" variant="secondary" onClick={() => setConnectionStatus.mutate({ id: connection.id, status: connection.status === 'active' ? 'suspended' : 'active' })} disabled={setConnectionStatus.isPending}>{connection.status === 'active' ? 'Suspend' : 'Reactivate'}</Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Card>
+              <div className="integration-overview-grid">
+                <Card>
+                  <CardHeader title="Register a system" description="Connect an active SIMS university or company tenant." />
+                  <form className="integration-form integration-form--register" onSubmit={event => { event.preventDefault(); createConnection.mutate(); }}>
+                    <label>Organisation type
+                      <select value={orgType} onChange={event => { setOrgType(event.target.value as 'university' | 'company'); setOrgId(''); }}>
+                        <option value="university">University</option><option value="company">Company</option>
+                      </select>
+                    </label>
+                    <label>Organisation
+                      <select value={orgId} onChange={event => setOrgId(event.target.value)} required disabled={organizations.isLoading || organizations.isError || !(organizations.data?.length)}>
+                        <option value="">Choose an active {orgType}</option>
+                        {(organizations.data ?? []).map(org => <option key={org.id} value={org.id}>{org.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="integration-form__wide">Connected system name
+                      <input value={connectionName} onChange={event => setConnectionName(event.target.value)} minLength={2} maxLength={100} placeholder="e.g. University student portal" required />
+                    </label>
+                    {organizations.isLoading ? <p className="integration-muted integration-form__wide">Loading active organisations…</p> : null}
+                    {organizations.isError ? <div className="integration-form__wide"><Alert tone="danger">Could not load organisations. <Button size="sm" variant="secondary" onClick={() => void organizations.refetch()}>Retry</Button></Alert></div> : null}
+                    <div className="integration-form__actions integration-form__wide">
+                      <span>One connection is assigned to one organisation.</span>
+                      <Button type="submit" disabled={!orgId || connectionName.trim().length < 2 || createConnection.isPending} loading={createConnection.isPending}><Plus size={15} /> Register system</Button>
+                    </div>
+                  </form>
+                </Card>
+                <Card>
+                  <CardHeader title="Connected systems" description="Monitor registered organisation connections and access status." actions={<Badge tone="slate">{connections.length} total</Badge>} />
+                  {integrationData.isLoading ? <p className="integration-muted integration-systems-state">Loading registered systems…</p> : integrationData.isError ? <div className="integration-systems-state"><Alert tone="danger" title="Could not load integrations">{(integrationData.error as Error).message} <Button size="sm" variant="secondary" onClick={() => void integrationData.refetch()}>Retry</Button></Alert></div> : (
+                    <div className="integration-connection-list">
+                      {connections.length === 0 ? (
+                        <div className="integration-systems-empty">
+                          <span><Link2 size={20} /></span>
+                          <strong>No systems connected yet</strong>
+                          <p>Your registered university and company systems will appear here. Create the first connection using the form.</p>
+                        </div>
+                      ) : connections.map(connection => (
+                        <div className="integration-connection-row" key={connection.id}>
+                          <div><strong>{connection.name}</strong><small>{connection.organization_name} · {connection.organization_type}</small></div>
+                          <Badge tone={connection.status === 'active' ? 'emerald' : 'amber'}>{connection.status}</Badge>
+                          <Button size="sm" variant="secondary" onClick={() => setConnectionStatus.mutate({ id: connection.id, status: connection.status === 'active' ? 'suspended' : 'active' })} disabled={setConnectionStatus.isPending}>{connection.status === 'active' ? 'Suspend' : 'Reactivate'}</Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </div>
               <div className="integration-card-grid">
                 <Card><div className="integration-feature"><span><KeyRound /></span><div><h3>API management</h3><p>Issue organisation-scoped credentials and control access to approved SIMS resources.</p><button type="button" onClick={() => setSection('api')}>Explore API access <ArrowUpRight size={15} /></button></div></div></Card>
                 <Card><div className="integration-feature"><span><Webhook /></span><div><h3>Webhooks</h3><p>Notify external systems when applications, placements or report statuses change.</p><button type="button" onClick={() => setSection('webhooks')}>Configure webhooks <ArrowUpRight size={15} /></button></div></div></Card>
