@@ -311,7 +311,7 @@ export function Users() {
   };
 
   return (
-    <main className="users users-page">
+    <section className="users users-page">
       <section className="page-hero">
         <div><span className="page-hero__eyebrow">IDENTITY AND ACCESS</span><h1>Platform users.</h1><p>Review account requests, manage access status and maintain a clear view of every SIMS user.</p></div>
         <div className="page-hero__aside"><strong>{counts.all}</strong><span>registered users</span><small>{counts.pending} awaiting approval</small><Button variant="secondary" onClick={exportCsv} disabled={filtered.length === 0}><Download size={15}/> Export users</Button></div>
@@ -689,6 +689,6 @@ export function Users() {
           </button>
         </div>
       ) : null}
-    </main>
+    </section>
   );
 }
