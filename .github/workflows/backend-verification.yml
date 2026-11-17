@@ -52,6 +52,12 @@ jobs:
           export API_URL ANON_KEY
           node scripts/storage-api-smoke.mjs
 
+      - name: Collect local Auth and Storage logs on failure
+        if: failure()
+        run: |
+          docker logs supabase_auth_sims --tail 200 || true
+          docker logs supabase_storage_sims --tail 200 || true
+
   edge-functions:
     name: Type-check Edge Functions
     runs-on: ubuntu-latest
