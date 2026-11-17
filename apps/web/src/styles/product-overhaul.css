@@ -281,3 +281,66 @@
 .people-page .people-grid-1 .card{border-radius:13px}
 @media(max-width:800px){.page-hero{align-items:flex-start;flex-direction:column;padding:22px}.page-hero__aside{width:100%;align-items:flex-start;padding:13px 0 0;border-left:0;border-top:1px solid #E1E7EF}.opportunities-page .postings-grid-1{grid-template-columns:1fr 1fr}.opportunities-page .postings-col-span-2-1{grid-column:1/-1}.opportunities-page .postings-grid-2,.placements-page .placements-student-grid,.people-page .people-grid-1{grid-template-columns:1fr}.placements-page .placements-toolbar,.manage-opportunities-page .manage-postings-mb-4-1{align-items:stretch;flex-direction:column}.placements-page .placements-toolbar>div:last-child,.manage-opportunities-page .manage-postings-mb-4-1>div:last-child{width:100%}}
 @media(max-width:520px){.page-hero h1{font-size:23px}.people-page__actions{justify-content:stretch;flex-wrap:wrap}.opportunities-page .postings-grid-1{grid-template-columns:1fr}.opportunities-page .postings-col-span-2-1{grid-column:auto}.page-hero__aside strong{font-size:25px}}
+
+
+/* Authentication experience: editorial split layout and stronger form hierarchy */
+.sims-auth{grid-template-columns:minmax(390px,.88fr) minmax(0,1.12fr);background:#F4F6FA}
+.sims-auth__aside{position:relative;overflow:hidden;justify-content:space-between;padding:clamp(34px,5vw,76px);background:linear-gradient(150deg,#081D55 0%,#0B287F 52%,#1034A6 100%)}
+.sims-auth__aside:before{content:"";position:absolute;right:-190px;top:13%;width:510px;height:510px;border:1px solid #FFFFFF1E;border-radius:50%;box-shadow:0 0 0 40px #FFFFFF08,0 0 0 85px #FFFFFF05,0 0 0 130px #FFFFFF03;pointer-events:none}
+.sims-auth__aside:after{content:"";position:absolute;left:0;bottom:0;width:100%;height:45%;background:linear-gradient(0deg,#07194380,transparent);pointer-events:none}
+.sims-auth__aside-brand,.sims-auth__aside-body,.sims-auth__aside-foot{position:relative;z-index:1}
+.sims-auth__aside-logo{width:44px;height:44px;border-radius:13px;background:#FFFFFF;color:#1034A6}
+.sims-auth__aside-name{font-size:16px;letter-spacing:-.035em}
+.sims-auth__aside-kicker{display:block;margin-bottom:18px;color:#C4D4F4;font-size:9px;letter-spacing:.18em;font-weight:850}
+.sims-auth__aside-title{max-width:540px;font-size:clamp(35px,4vw,53px);line-height:1.08;letter-spacing:-.06em;font-weight:780}
+.sims-auth__aside-text{max-width:450px;margin-top:20px;color:#D1DDF4;font-size:14px;line-height:1.85}
+.sims-auth__aside-flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:30px}
+.sims-auth__aside-flow span{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #FFFFFF2A;border-radius:8px;background:#FFFFFF0D;color:#EDF2FC;font-size:9px;font-weight:650}
+.sims-auth__aside-flow b{color:#BFD0F2;font-size:8px}
+.sims-auth__aside-flow i{width:10px;height:1px;background:#AFC2E855}
+.sims-auth__aside-list{margin-top:25px;border-top-color:#FFFFFF20}
+.sims-auth__aside-item{border-bottom-color:#FFFFFF20;color:#E6EDFB;font-size:11px}
+.sims-auth__aside-check{color:#C4D5F8}
+.sims-auth__aside-foot{color:#B8C9EA;font-size:9px}
+.sims-auth__main{background:linear-gradient(145deg,#F8FAFD,#F1F4F8)}
+.sims-auth__content{align-items:center;padding:clamp(28px,5vw,70px)}
+.sims-auth__inner{max-width:440px}
+.sims-auth__inner--wide{max-width:700px}
+.sims-auth__card{padding:clamp(25px,3vw,42px);border:1px solid #E1E7EF;border-radius:17px;background:#fff;box-shadow:0 20px 55px #1D365B10}
+.sims-auth__title{font-size:29px;letter-spacing:-.05em;font-weight:790}
+.sims-auth__subtitle{font-size:12px;line-height:1.8}
+.sims-auth__body{margin-top:27px}
+.sims-auth__body .field{gap:7px}
+.sims-auth__body input:not([type=checkbox]):not([type=radio]),.sims-auth__body select{min-height:45px;border-radius:8px;font-size:12px}
+.sims-auth__body button[type=submit]{min-height:46px;border-radius:8px;font-size:12px}
+.sims-auth__back{margin-top:18px;font-size:10px}
+.sims-auth__bar{background:#0B287F}
+@media(max-width:1023px){.sims-auth{grid-template-columns:1fr}.sims-auth__aside{display:none}.sims-auth__bar{display:block}.sims-auth__content{padding:35px 20px}}
+/* Account centre */
+.profile-page .profile-hero{align-items:center;background:linear-gradient(110deg,#fff 0%,#F3F6FC 100%)}
+.profile-hero__identity{display:flex;align-items:center;gap:17px}
+.profile-hero__identity .avatar{width:58px;height:58px;border:3px solid #fff;box-shadow:0 0 0 1px #DCE4EF,0 7px 16px #17345b14}
+.profile-hero__identity h1{margin:0;font-size:24px;letter-spacing:-.045em;color:#192B43}
+.profile-hero__identity p{margin:6px 0 0;color:#718096;font-size:10px}
+.profile-hero__meta{display:flex;align-items:flex-end;flex-direction:column;gap:8px}
+.profile-hero__meta>span{font-size:9px;color:#8492A4}
+.profile-page .profile-grid-1{grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);align-items:start;gap:17px}
+.profile-page .profile-grid-1 .card{border-radius:13px}
+.profile-page .profile-grid-1 .card__header{padding:17px 20px}
+.profile-page .profile-grid-1 .profile-space-y-6-1{gap:17px}
+.profile-page .profile-grid-1 form{padding:19px 20px}
+.profile-page .profile-grid-1 .profile-grid-2{gap:14px}
+.profile-page .profile-rounded-xl-1{border-color:#E1E7EF;background:#F8FAFC}
+@media(max-width:850px){.profile-page .profile-grid-1{grid-template-columns:1fr}}
+@media(max-width:520px){.profile-page .profile-hero{align-items:flex-start}.profile-hero__identity{align-items:flex-start}.profile-hero__identity .avatar{width:47px;height:47px}.profile-hero__identity h1{font-size:20px}.profile-hero__meta{align-items:flex-start}}
+/* Notification inbox */
+.notifications-page .notifications-hero{background:linear-gradient(115deg,#fff,#F4F7FC)}
+.notifications-page .notifications-mb-4-1{display:inline-flex;padding:6px;border:1px solid #E0E6EF;border-radius:10px;background:#fff}
+.notifications-page .notifications-overflow-hidden-1{border-radius:14px}
+.notifications-page .notifications-flex-2{width:100%;padding:18px 20px;display:flex;align-items:flex-start;gap:15px;text-align:left;background:#fff;border-bottom:1px solid #EDF1F5;transition:background .15s}
+.notifications-page .notifications-flex-2:hover{background:#F7F9FC}
+.notifications-page .notifications-bg-indigo-5040-1{background:#F2F6FD}
+.notifications-page .notifications-text-sm-1{color:#253850;font-size:12px;font-weight:750}
+.notifications-page .notifications-mt-1-1{color:#718096;font-size:11px;line-height:1.7}
+.notifications-page .notifications-text-xs-1{color:#8A98A9;font-size:9px}
+@media(max-width:650px){.notifications-page .notifications-flex-2{padding:14px}.notifications-page .notifications-flex-3{align-items:flex-start;flex-direction:column;gap:4px}}
