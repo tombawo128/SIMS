@@ -184,20 +184,15 @@ export function IntegrationCentre() {
 
   return (
     <div className="integration-centre">
-      <PageHeader
-        title="Integration Centre"
-        description="Connect university and company systems to SIMS through secure, managed integrations."
-        actions={<Badge tone="blue">Platform administration</Badge>}
-      />
-
       <section className="integration-hero">
         <div className="integration-hero__content">
           <span className="integration-eyebrow"><Globe2 size={14} /> SIMS CONNECTIVITY</span>
-          <h2>Bring every organisation system together.</h2>
+          <h1>Bring every organisation system together.</h1>
           <p>A secure control centre for registering university and company systems, issuing scoped API credentials and managing access to SIMS data.</p>
           <div className="integration-hero__meta">
             <span><i className="integration-dot" /> {connections.filter(item => item.status === 'active').length} active connection(s)</span>
             <span><ShieldCheck size={15} /> Tenant-scoped access model</span>
+            <span><Badge tone="blue">Platform administration</Badge></span>
           </div>
         </div>
         <div className="integration-hero__art" aria-hidden="true">
