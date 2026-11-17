@@ -33,7 +33,7 @@ export function Notifications() {
   const visible = tab === 'unread' ? unread : items;
 
   return (
-    <main className="notifications-page">
+    <section className="notifications-page">
       <section className="page-hero notifications-hero">
         <div><span className="page-hero__eyebrow">YOUR ACTIVITY</span><h1>Notifications</h1><p>Important updates from applications, placements, weekly reports and evaluations.</p></div>
         <div className="page-hero__aside"><strong>{unread.length}</strong><span>unread updates</span><small>{items.length} total notifications</small>{unread.length ? <Button size="sm" variant="secondary" onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })} loading={markAll.isPending} disabled={markAll.isPending}><CheckCheck size={15}/> Mark all read</Button> : null}</div>
@@ -101,6 +101,6 @@ export function Notifications() {
           </div>
         </Card>
       )}
-    </main>
+    </section>
   );
 }
