@@ -216,7 +216,7 @@ export function WorkspaceAnalytics() {
           <StatCard label="Placements without faculty" value={filteredPlacements.filter((p) => !p.faculty_supervisor_id).length} />
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 }}>
+        <div className="analytics-workspace__metrics-grid">
           <StatCard label="Students hosted" value={students} icon={<Users size={19} />} hint="Unique students in the filtered portfolio" />
           <StatCard label="Active placements" value={active} icon={<Briefcase size={19} />} />
           <StatCard label="Completed placements" value={completed} icon={<CheckCircle2 size={19} />} />
