@@ -31,7 +31,6 @@ const AdminManagement = lazy(() => import('@/pages/AdminConsole').then((m) => ({
 const AdminAnalytics = lazy(() => import('@/pages/AdminConsole').then((m) => ({ default: m.Analytics })));
 const Broadcasts = lazy(() => import('@/pages/AdminConsole').then((m) => ({ default: m.Broadcasts })));
 const SystemAlerts = lazy(() => import('@/pages/AdminConsole').then((m) => ({ default: m.SystemAlerts })));
-const IntegrationCentre = lazy(() => import('@/pages/IntegrationCentre').then((m) => ({ default: m.IntegrationCentre })));
 
 const WORKFLOW_ROLES = [
   'student',
@@ -95,7 +94,6 @@ export function App() {
                 <Route path="/admin/system-alerts" element={<SystemAlerts />} />
                 <Route path="/admin/management" element={<AdminManagement />} />
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                <Route path="/admin/integrations" element={<IntegrationCentre />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

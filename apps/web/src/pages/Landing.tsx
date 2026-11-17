@@ -1,448 +1,171 @@
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight,
-  BookOpen,
-  Briefcase,
-  Building2,
-  CheckCircle2,
-  ChevronRight,
-  GraduationCap,
-  LineChart,
-  Sparkles,
-  ShieldCheck,
-  ClipboardCheck,
-  FileText,
-  Bell,
-  Users,
-  Workflow,
-  BarChart3,
-  CalendarCheck,
-  CircleHelp,
-  Zap,
+  ArrowRight, ArrowUpRight, BriefcaseBusiness, Building2, Check,
+  ChevronRight, ClipboardCheck, FileCheck2, GraduationCap, Layers3,
+  LockKeyhole, Menu, Network, ShieldCheck, Sparkles, UsersRound,
+  Workflow, X, ChartNoAxesCombined, CalendarDays, BellRing,
 } from 'lucide-react';
+import { useState } from 'react';
 import { APP_NAME } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
 
-
-
-const roles = [
+const audiences = [
   {
     icon: GraduationCap,
-    title: 'Students',
-    body: 'Discover internships across every partner campus, apply in minutes, and track your entire placement journey in one place.',
-    color: 'landing-gradient-indigo-1',
-    bg: 'landing-bg-indigo-50-1',
-    text: 'landing-text-indigo-600-1',
+    title: 'For students',
+    copy: 'Find relevant opportunities, follow every application, and keep your internship work organised from start to finish.',
+    points: ['Opportunity discovery', 'Application tracking', 'Weekly activity and feedback'],
   },
   {
     icon: Building2,
-    title: 'Universities',
-    body: 'Give coordinators and faculty a single hub to manage placements, approve weekly logs, and monitor learning outcomes.',
-    color: 'landing-gradient-violet-1',
-    bg: 'landing-bg-violet-50-1',
-    text: 'landing-text-violet-600-1',
+    title: 'For universities',
+    copy: 'Coordinate placements across students, faculty and partner organisations with a shared view of progress.',
+    points: ['Student and placement oversight', 'Supervisor coordination', 'Assessment visibility'],
   },
   {
-    icon: Briefcase,
-    title: 'Companies',
-    body: 'Post roles to targeted campuses, review applicants instantly, and supervise interns with structured evaluations.',
-    color: 'landing-gradient-emerald-1',
-    bg: 'landing-bg-emerald-50-1',
-    text: 'landing-text-emerald-600-1',
+    icon: BriefcaseBusiness,
+    title: 'For employers',
+    copy: 'Manage internship opportunities, review applicants and support interns throughout their placement.',
+    points: ['Opportunity publishing', 'Applicant review', 'Intern supervision'],
   },
 ];
 
-const steps = [
-  {
-    step: '01',
-    icon: Briefcase,
-    title: 'Post & Discover',
-    body: 'Companies publish internships and graduate roles. Students browse and apply with a few clicks.',
-  },
-  {
-    step: '02',
-    icon: CheckCircle2,
-    title: 'Review & Place',
-    body: 'Coordinators review applications, match students to opportunities, and confirm placements.',
-  },
-  {
-    step: '03',
-    icon: BookOpen,
-    title: 'Log & Evaluate',
-    body: 'Students submit weekly logs. Supervisors and faculty provide feedback and midterm evaluations.',
-  },
-  {
-    step: '04',
-    icon: LineChart,
-    title: 'Grade & Report',
-    body: 'Final evaluations are submitted, grades are recorded, and program reports are generated automatically.',
-  },
+const stages = [
+  { number: '01', icon: BriefcaseBusiness, title: 'Discover opportunities', copy: 'Companies publish roles and students explore opportunities that match their interests.' },
+  { number: '02', icon: ClipboardCheck, title: 'Review and place', copy: 'Applications move through review and placement coordination with clear ownership.' },
+  { number: '03', icon: FileCheck2, title: 'Record progress', copy: 'Students submit weekly activity and supervisors provide structured feedback.' },
+  { number: '04', icon: ChartNoAxesCombined, title: 'Evaluate outcomes', copy: 'Faculty and company supervisors contribute to evaluations and final assessment.' },
 ];
-
-const stats = [
-  { value: '4', label: 'Connected workflow stages' },
-  { value: '3', label: 'Core stakeholder groups' },
-  { value: '1', label: 'Central workspace' },
-  { value: 'End-to-end', label: 'Placement visibility' },
-];
-
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
 
 export function Landing() {
   const { session } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const primaryHref = session ? '/dashboard' : '/signup';
 
   return (
-    <div className='landing-min-h-screen-1'>
-      {/* ── Navigation ──────────────────────────────────────────── */}
-      <header className='landing-absolute-1'>
-        <div className='landing-mx-auto-1'>
-          <Link to="/" className='landing-flex-1'>
-            <div className='landing-flex-2'>
-              <GraduationCap className='landing-h-5-1' />
-            </div>
-            <span className='landing-text-base-1'>{APP_NAME}</span>
+    <main className="sims-public">
+      <header className="public-header">
+        <div className="public-header__inner">
+          <Link to="/" className="public-brand" aria-label={APP_NAME + ' home'}>
+            <span className="public-brand__mark"><GraduationCap size={23} /></span>
+            <span className="public-brand__name">{APP_NAME}<small>Student internship management</small></span>
           </Link>
-
-          <nav className='landing-hidden-1'>
-            <a href="#features" className='landing-transition-1'>Features</a>
-            <a href="#how-it-works" className='landing-transition-1'>How it works</a>
-            <a href="#capabilities" className='landing-transition-1'>Capabilities</a>
-            <a href="#security" className='landing-transition-1'>Security</a>
-            <a href="#faq" className='landing-transition-1'>FAQ</a>
+          <button className="public-menu-toggle" type="button" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+            {menuOpen ? <X size={21} /> : <Menu size={21} />}
+          </button>
+          <nav className={menuOpen ? 'public-nav public-nav--open' : 'public-nav'} aria-label="Main navigation">
+            <a href="#platform" onClick={() => setMenuOpen(false)}>Platform</a>
+            <a href="#workflow" onClick={() => setMenuOpen(false)}>How it works</a>
+            <a href="#stakeholders" onClick={() => setMenuOpen(false)}>Who it serves</a>
+            <Link to="/login" className="public-nav__signin">Sign in</Link>
+            <Link to={primaryHref} className="public-nav__cta">{session ? 'Open workspace' : 'Get started'} <ArrowUpRight size={16} /></Link>
           </nav>
-
-          <div className='landing-flex-3'>
-            {session ? (
-              <Link to="/dashboard">
-                <Button size="sm" className='landing-bg-white-1'>
-                  Dashboard
-                  <ChevronRight className='landing-h-35-1' />
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link to="/login">
-                  <Button size="sm" variant="ghost" className='landing-text-slate-300-1'>
-                    Sign in
-                  </Button>
-                </Link>
-                <Link to="/signup">
-                  <Button size="sm" className='landing-bg-white-2'>
-                    Get started free
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
         </div>
       </header>
 
-      {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className='landing-relative-1'>
-        {/* Animated gradient blobs */}
-        <div className='landing-pointer-events-none-1' />
-        <div className='landing-pointer-events-none-2' />
-        <div className='landing-pointer-events-none-3' />
-
-        <div className='landing-relative-2'>
-          <div className='landing-mx-auto-2'>
-            <span className='landing-inline-flex-1'>
-              <Sparkles className='landing-h-35-1' />
-              The modern internship management platform
-            </span>
-
-            <h1 className='landing-mt-8-1'>
-              Where internships{' '}
-              <span className='landing-bg-gradient-to-r-1'>
-                actually work
-              </span>
-            </h1>
-
-            <p className='landing-mx-auto-3'>
-              Connect universities, students, and companies on one platform. From posting opportunities
-              to final grades — no spreadsheets, no email chains, no chaos.
-            </p>
-
-            <div className='landing-mt-10-1'>
-              <Link to={session ? '/dashboard' : '/signup'}>
-                <Button size="lg" className='landing-bg-indigo-500-1'>
-                  {session ? 'Go to dashboard' : 'Start for free'}
-                  <ArrowRight className='landing-h-4-1' />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button size="lg" variant="ghost" className='landing-border-1'>
-                  Sign in
-                </Button>
-              </Link>
+      <section className="public-hero">
+        <div className="public-hero__grid">
+          <div className="public-hero__copy">
+            <div className="public-kicker"><span /> ONE CONNECTED INTERNSHIP WORKSPACE</div>
+            <h1>Make every internship <em>count.</em></h1>
+            <p className="public-hero__lead">From the first application to the final evaluation, SIMS brings students, universities and employers into one organised placement journey.</p>
+            <div className="public-hero__actions">
+              <Link to={primaryHref}><Button size="lg">{session ? 'Go to your workspace' : 'Explore SIMS'} <ArrowRight size={17} /></Button></Link>
+              <a className="public-text-link" href="#platform">Discover the platform <ChevronRight size={16} /></a>
             </div>
-
+            <div className="public-hero__proof">
+              <span><ShieldCheck size={17} /> Role-based workspaces</span>
+              <span><Workflow size={17} /> Connected workflows</span>
+              <span><LockKeyhole size={17} /> Managed access</span>
+            </div>
           </div>
 
-          {/* Hero preview card */}
-          <div className='landing-relative-3'>
-            <div className='landing-absolute-2' />
-            <div className='landing-relative-4'>
-              {/* Window chrome */}
-              <div className='landing-flex-5'>
-                <span className='landing-h-25-1' />
-                <span className='landing-h-25-2' />
-                <span className='landing-h-25-3' />
-                <span className='landing-ml-3-1'>sims-dashboard · illustrative sample data</span>
+          <div className="public-product" aria-label="Illustration of the SIMS management workspace">
+            <div className="public-product__glow" />
+            <div className="public-product__window">
+              <div className="public-product__top">
+                <div className="public-product__brand"><span><GraduationCap size={15} /></span> SIMS <small>WORKSPACE</small></div>
+                <div className="public-product__top-right"><span className="public-product__live" /> Workspace overview <BellRing size={15} /></div>
               </div>
-
-              <div className='landing-p-5-1'>
-                <div className='landing-flex-6'>
-                  <div>
-                    <p className='landing-text-11px-1'>Active placement</p>
-                    <p className='landing-mt-1-1'>Ava Thompson · Acme Software</p>
+              <div className="public-product__body">
+                <aside className="public-product__rail">
+                  <span className="is-active"><Layers3 size={15} /></span>
+                  <span><BriefcaseBusiness size={15} /></span>
+                  <span><UsersRound size={15} /></span>
+                  <span><CalendarDays size={15} /></span>
+                  <span><ChartNoAxesCombined size={15} /></span>
+                </aside>
+                <div className="public-product__main">
+                  <div className="public-product__welcome"><div><small>WORKSPACE OVERVIEW</small><strong>Internship operations</strong><p>Keep every stage moving forward.</p></div><span className="public-product__avatar">JD</span></div>
+                  <div className="public-product__metric-grid">
+                    <div className="public-product__metric"><span>Applications</span><strong><ClipboardCheck size={16} /> Review queue</strong><small>Track incoming applications</small></div>
+                    <div className="public-product__metric"><span>Placements</span><strong><BriefcaseBusiness size={16} /> Active journeys</strong><small>Monitor placement progress</small></div>
+                    <div className="public-product__metric"><span>People</span><strong><UsersRound size={16} /> Shared oversight</strong><small>Students and supervisors</small></div>
                   </div>
-                  <span className='landing-rounded-full-1'>
-                    Active
-                  </span>
-                </div>
-
-                <div className='landing-mt-5-1'>
-                  {[
-                    { label: 'Weekly logs', value: '4 / 6' },
-                    { label: 'Hours logged', value: '130' },
-                    { label: 'Midterm score', value: '4.25' },
-                  ].map((item) => (
-                    <div key={item.label} className='landing-rounded-xl-1'>
-                      <p className='landing-text-10px-1'>{item.label}</p>
-                      <p className='landing-mt-15-1'>{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className='landing-mt-4-1'>
-                  {[
-                    { title: 'Week 4 log needs revision', detail: 'Site supervisor · 3 days ago', dot: 'landing-dot-amber-1' },
-                    { title: 'Midterm evaluation submitted', detail: 'Faculty · 20 days ago', dot: 'landing-dot-emerald-1' },
-                    { title: 'Faculty check-in logged', detail: 'Dr. Alan Reyes · 18 days ago', dot: 'landing-dot-indigo-1' },
-                  ].map((row) => (
-                    <div key={row.title} className='landing-flex-7'>
-                      <span className={cn('landing-h-2-1', row.dot)} />
-                      <div className='landing-min-w-0-1'>
-                        <p className='landing-truncate-1'>{row.title}</p>
-                        <p className='landing-text-11px-2'>{row.detail}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="public-product__lower">
+                    <div className="public-product__panel"><div className="public-product__panel-head"><strong>Placement workflow</strong><span>VIEW ALL</span></div>{['Application review','Placement confirmation','Weekly reporting','Final evaluation'].map((item,i)=><div className="public-product__step" key={item}><span className={i < 2 ? 'public-product__step-icon done' : 'public-product__step-icon'}>{i < 2 ? <Check size={12} /> : i+1}</span><span>{item}</span><small>{i < 2 ? 'In progress' : 'Upcoming'}</small></div>)}</div>
+                    <div className="public-product__panel public-product__panel--side"><div className="public-product__panel-head"><strong>Workspace pulse</strong><ChartNoAxesCombined size={15} /></div><div className="public-product__bars"><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/></div><small>Progress at a glance</small><div className="public-product__legend"><span/> Applications <span/> Placements</div></div>
+                  </div>
                 </div>
               </div>
             </div>
+            <div className="public-float public-float--one"><span><FileCheck2 size={17}/></span><div><strong>Reports organised</strong><small>Weekly activity and reviews</small></div></div>
+            <div className="public-float public-float--two"><span><ShieldCheck size={17}/></span><div><strong>One shared process</strong><small>Clear roles and responsibilities</small></div></div>
           </div>
         </div>
+        <div className="public-hero__base"><span>BUILT AROUND THE INTERNSHIP JOURNEY</span><div><i/> Discover <i/> Coordinate <i/> Supervise <i/> Evaluate</div></div>
       </section>
 
-      {/* ── Stats bar ────────────────────────────────────────────── */}
-      <section className='landing-border-b-1'>
-        <div className='landing-mx-auto-4'>
-          {stats.map((stat) => (
-            <div key={stat.label} className='landing-text-center-1'>
-              <p className='landing-text-3xl-1'>{stat.value}</p>
-              <p className='landing-mt-1-2'>{stat.label}</p>
+      <section className="public-platform" id="platform">
+        <div className="public-section-heading">
+          <span className="public-eyebrow">THE PLATFORM</span>
+          <h2>One process. Every stakeholder.<br/><em>A clearer way to work.</em></h2>
+          <p>SIMS connects the operational work behind internships so information and responsibilities are easier to follow.</p>
+        </div>
+        <div className="public-feature-layout">
+          <article className="public-feature-card public-feature-card--large">
+            <div className="public-feature-card__icon"><Network size={22}/></div>
+            <span className="public-feature-card__label">CONNECTED OPERATIONS</span>
+            <h3>Bring the whole placement journey together.</h3>
+            <p>Keep applications, placements, weekly reporting and evaluations connected instead of spreading the process across disconnected tools.</p>
+            <div className="public-flow">
+              {stages.map((stage,i)=><div className="public-flow__node" key={stage.number}><span>{stage.number}</span><strong>{stage.title}</strong>{i < stages.length-1 ? <ArrowRight size={15}/> : null}</div>)}
             </div>
-          ))}
+          </article>
+          <article className="public-feature-card public-feature-card--dark">
+            <div className="public-feature-card__icon"><ShieldCheck size={22}/></div>
+            <span className="public-feature-card__label">CONTROLLED ACCESS</span>
+            <h3>Relevant workspaces for every role.</h3>
+            <p>Students, faculty, coordinators and company teams work with role-appropriate tools and information.</p>
+            <div className="public-role-stack"><span><GraduationCap size={16}/> Student workspace</span><span><Building2 size={16}/> University workspace</span><span><BriefcaseBusiness size={16}/> Employer workspace</span></div>
+          </article>
+          <article className="public-feature-card public-feature-card--wide">
+            <div><div className="public-feature-card__icon"><ChartNoAxesCombined size={22}/></div><span className="public-feature-card__label">PROGRESS AND VISIBILITY</span><h3>See where work stands.</h3><p>Bring status, activity and assessment information into a more coherent view for the people responsible for moving placements forward.</p></div>
+            <div className="public-visibility"><div><small>APPLICATIONS</small><strong>Review</strong><span>Application status and decisions</span></div><div><small>PLACEMENTS</small><strong>Progress</strong><span>Supervision and weekly activity</span></div><div><small>EVALUATIONS</small><strong>Outcomes</strong><span>Feedback and assessment records</span></div></div>
+          </article>
         </div>
       </section>
 
-      {/* ── Features (roles) ─────────────────────────────────────── */}
-      <section id="features" className='landing-mx-auto-5'>
-        <div className='landing-mx-auto-6'>
-          <p className='landing-text-xs-1'>Built for everyone</p>
-          <h2 className='landing-mt-3-1'>
-            One platform, every stakeholder
-          </h2>
-          <p className='landing-mt-4-2'>
-            Whether you're a student looking for your first role, a university managing hundreds of placements,
-            or a company searching for fresh talent — SIMS brings it all together.
-          </p>
-        </div>
-
-        <div className='landing-mt-16-1'>
-          {roles.map((role) => (
-            <div
-              key={role.title}
-              className='group landing-relative-5'
-            >
-              <div className={cn('landing-inline-flex-3', role.bg, role.text)}>
-                <role.icon className='landing-h-6-1' />
-              </div>
-              <h3 className='landing-mt-5-2'>{role.title}</h3>
-              <p className='landing-mt-2-1'>{role.body}</p>
-              <div className={cn('landing-absolute-3', role.color)} />
-            </div>
-          ))}
-        </div>
+      <section className="public-workflow" id="workflow">
+        <div className="public-workflow__intro"><span className="public-eyebrow">HOW IT WORKS</span><h2>From opportunity<br/>to <em>outcome.</em></h2><p>A structured journey that helps each participant understand what happens next and what they are responsible for.</p><Link to={primaryHref} className="public-text-link">{session ? 'Continue to SIMS' : 'Start with SIMS'} <ArrowRight size={16}/></Link></div>
+        <div className="public-stage-list">{stages.map(stage=><article className="public-stage" key={stage.number}><span className="public-stage__number">{stage.number}</span><span className="public-stage__icon"><stage.icon size={21}/></span><div><h3>{stage.title}</h3><p>{stage.copy}</p></div><ArrowUpRight className="public-stage__arrow" size={19}/></article>)}</div>
       </section>
 
-      {/* ── How it works ─────────────────────────────────────────── */}
-      <section id="how-it-works" className='landing-bg-slate-50-1'>
-        <div className='landing-mx-auto-5'>
-          <div className='landing-mx-auto-6'>
-            <p className='landing-text-xs-1'>Simple process</p>
-            <h2 className='landing-mt-3-1'>
-              From posting to final grade
-            </h2>
-            <p className='landing-mt-4-2'>
-              The entire internship lifecycle in four clear steps. No manual hand-offs, no lost paperwork.
-            </p>
-          </div>
-
-          <div className='landing-relative-6'>
-            {/* Connecting line (desktop) */}
-            <div className='landing-pointer-events-none-4' />
-
-            {steps.map((step) => (
-              <div key={step.step} className='landing-relative-7'>
-                <div className='landing-relative-8'>
-                  <div className='landing-absolute-4' />
-                  <step.icon className='landing-relative-9' />
-                  <span className='landing-absolute-5'>
-                    {step.step}
-                  </span>
-                </div>
-                <h3 className='landing-mt-5-3'>{step.title}</h3>
-                <p className='landing-mt-2-1'>{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+      <section className="public-audiences" id="stakeholders">
+        <div className="public-section-heading public-section-heading--left"><span className="public-eyebrow">WHO SIMS SERVES</span><h2>Designed around the people<br/>who make placements work.</h2><p>Each group has a different responsibility. SIMS gives those responsibilities a shared place to happen.</p></div>
+        <div className="public-audience-grid">{audiences.map((item,i)=><article className="public-audience" key={item.title}><div className="public-audience__top"><span className="public-audience__icon"><item.icon size={23}/></span><span>0{i+1}</span></div><h3>{item.title}</h3><p>{item.copy}</p><ul>{item.points.map(point=><li key={point}><Check size={15}/>{point}</li>)}</ul></article>)}</div>
       </section>
 
-      {/* ── Platform capabilities ───────────────────────────────── */}
-      <section id="capabilities" className="sims-landing-section">
-        <div className="sims-landing-container">
-          <div className="sims-landing-heading">
-            <span className="sims-landing-eyebrow">A connected workspace</span>
-            <h2>Everything the internship journey needs.</h2>
-            <p>Keep every stage, document and decision connected — from the first application to the final evaluation.</p>
-          </div>
-          <div className="sims-capability-grid">
-            {[
-              { icon: Briefcase, title: 'Opportunity management', body: 'Publish internship opportunities, manage listings and keep role information organised.' },
-              { icon: ClipboardCheck, title: 'Application tracking', body: 'Review applications, follow decisions and keep each applicant’s progress visible.' },
-              { icon: CalendarCheck, title: 'Placement coordination', body: 'Manage confirmed placements, key dates, supervisors and placement progress.' },
-              { icon: FileText, title: 'Daily and weekly reports', body: 'Give students a structured place to record work, reflect on learning and submit reports.' },
-              { icon: Users, title: 'Supervisor collaboration', body: 'Connect students, site supervisors, faculty supervisors and coordinators around the same placement.' },
-              { icon: BarChart3, title: 'Analytics and reporting', body: 'Turn placement activity and submitted evaluations into clearer programme oversight.' },
-              { icon: Bell, title: 'Notifications and updates', body: 'Keep important application, placement and review activity visible to the right people.' },
-              { icon: Workflow, title: 'Connected administration', body: 'Bring people, organisations, access and operational workflows into one managed system.' },
-            ].map((item) => (
-              <article className="sims-capability-card" key={item.title}>
-                <span className="sims-capability-icon"><item.icon size={21} /></span>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
+      <section className="public-cta">
+        <div className="public-cta__ornament"><Sparkles size={28}/></div>
+        <span className="public-eyebrow">A MORE CONNECTED INTERNSHIP PROCESS</span>
+        <h2>Give every placement<br/><em>a clearer path forward.</em></h2>
+        <p>Bring your internship operations into one organised workspace with SIMS.</p>
+        <div className="public-cta__actions"><Link to={primaryHref}><Button size="lg">{session ? 'Open your workspace' : 'Get started with SIMS'} <ArrowRight size={17}/></Button></Link><Link to="/login" className="public-text-link">Already have an account? Sign in</Link></div>
       </section>
 
-      {/* ── Accountability and security ─────────────────────────── */}
-      <section id="security" className="sims-landing-section sims-landing-security">
-        <div className="sims-landing-container sims-security-layout">
-          <div className="sims-landing-heading sims-security-heading">
-            <span className="sims-landing-eyebrow">Built for accountability</span>
-            <h2>Clear responsibilities. Better oversight.</h2>
-            <p>Internship management involves several people and important decisions. SIMS gives each role a structured place in the process.</p>
-          </div>
-          <div className="sims-security-list">
-            {[
-              ['Role-aware workspaces', 'Students, supervisors, coordinators and company teams work within role-appropriate areas.'],
-              ['Structured reviews', 'Reports and evaluations follow a defined review process instead of scattered messages.'],
-              ['Centralised records', 'Keep application, placement and progress information together for easier follow-up.'],
-              ['Administrative oversight', 'Platform administration tools support user management, activity visibility and system operations.'],
-            ].map(([title, body]) => (
-              <div className="sims-security-item" key={title}>
-                <span><ShieldCheck size={19} /></span>
-                <div><h3>{title}</h3><p>{body}</p></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Frequently asked questions ──────────────────────────── */}
-      <section id="faq" className="sims-landing-section">
-        <div className="sims-landing-container">
-          <div className="sims-landing-heading">
-            <span className="sims-landing-eyebrow">Questions, answered</span>
-            <h2>Get to know SIMS.</h2>
-            <p>A quick overview of who the platform is for and how the workflow fits together.</p>
-          </div>
-          <div className="sims-faq-grid">
-            {[
-              ['Who can use SIMS?', 'SIMS is designed for students, university coordinators, faculty supervisors, company administrators and site supervisors involved in internship programmes.'],
-              ['Can students track their internship progress?', 'Yes. Students can follow applications and placements, submit required reports and keep track of feedback and evaluation activity available to them.'],
-              ['How are internship reports reviewed?', 'Students submit their reports through the platform. The relevant supervisors and faculty can review submissions and provide feedback as part of the internship workflow.'],
-              ['Can companies manage opportunities?', 'Company teams can manage internship postings, review applicants and participate in supervising and evaluating interns.'],
-              ['Where do I start?', 'If your account has already been created, sign in. New users can use the account registration flow to get started where registration is available.'],
-            ].map(([question, answer]) => (
-              <details className="sims-faq-item" key={question}>
-                <summary><span>{question}</span><CircleHelp size={18} /></summary>
-                <p>{answer}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA ──────────────────────────────────────────────────── */}
-      <section className='landing-relative-10'>
-        <div className='landing-pointer-events-none-5' />
-        <div className='landing-pointer-events-none-6' />
-
-        <div className='landing-relative-11'>
-          <div className='landing-mx-auto-7'>
-            <Zap className='landing-h-7-1' />
-          </div>
-          <h2 className='landing-mt-6-2'>
-            Ready to simplify internship management?
-          </h2>
-          <p className='landing-mx-auto-8'>
-            Bring internship opportunities, placement coordination, reporting and evaluation into one organised workflow.
-          </p>
-          <div className='landing-mt-10-1'>
-            <Link to={session ? '/dashboard' : '/signup'}>
-              <Button size="lg" className='landing-bg-indigo-500-2'>
-                {session ? 'Open dashboard' : 'Get started free'}
-                <ArrowRight className='landing-h-4-1' />
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button size="lg" variant="ghost" className='landing-border-1'>
-                Sign in to your account
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Footer ───────────────────────────────────────────────── */}
-      <footer className='landing-border-t-1'>
-        <div className='landing-mx-auto-9'>
-          <div className='landing-flex-1'>
-            <div className='landing-flex-10'>
-              <GraduationCap className='landing-h-4-1' />
-            </div>
-            <span className='landing-text-sm-1'>{APP_NAME}</span>
-          </div>
-          <p className='landing-text-xs-2'>
-            © {new Date().getFullYear()} {APP_NAME}. Student Internship Management System. All rights reserved.
-          </p>
-          <div className='landing-flex-11'>
-            <Link to="/login" className='landing-text-slate-500-1'>Sign in</Link>
-            <Link to="/signup" className='landing-text-slate-500-1'>Create account</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <footer className="public-footer"><div className="public-footer__main"><Link to="/" className="public-brand"><span className="public-brand__mark"><GraduationCap size={22}/></span><span className="public-brand__name">{APP_NAME}<small>Student internship management</small></span></Link><p>A shared workspace for internship opportunities, coordination, supervision and evaluation.</p><div className="public-footer__links"><a href="#platform">Platform</a><a href="#workflow">How it works</a><a href="#stakeholders">Stakeholders</a><Link to="/login">Sign in</Link></div></div><div className="public-footer__bottom"><span>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</span><span>Student Internship Management System</span></div></footer>
+    </main>
   );
 }

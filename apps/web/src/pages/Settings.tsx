@@ -153,7 +153,7 @@ export function SettingsPage() {
       </header>
 
       <div className="settings-layout">
-        <main className="settings-main">
+        <section className="settings-main">
           <section className="settings-card" aria-labelledby="settings-notifications-title">
             <div className="settings-card-head">
               <div className="settings-icon"><Bell size={20} /></div>
@@ -192,7 +192,7 @@ export function SettingsPage() {
             </div>
             {securityError ? <div style={{ marginTop: 14 }}><Alert tone="danger">{securityError}</Alert></div> : null}
           </section>
-        </main>
+        </section>
 
         <aside className="settings-aside">
           <section className="settings-aside-card settings-profile">

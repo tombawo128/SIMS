@@ -15,7 +15,6 @@ import {
   CardHeader,
   Field,
   Input,
-  PageHeader,
   Select,
   Spinner,
   useToast,
@@ -156,8 +155,11 @@ export function ProfilePage() {
   };
 
   return (
-    <div>
-      <PageHeader title="Profile" description="Manage your personal details, CV, and password." />
+    <section className="profile-page">
+      <section className="page-hero profile-hero">
+        <div className="profile-hero__identity"><Avatar name={profile.full_name} /><div><span className="page-hero__eyebrow">ACCOUNT CENTRE</span><h1>{profile.full_name}</h1><p>{profile.email} · {tenant}</p></div></div>
+        <div className="profile-hero__meta"><Badge tone="blue">{ROLE_LABELS[profile.role]}</Badge><span>Personal account</span></div>
+      </section>
 
       <div className='profile-grid-1'>
         <div className='profile-space-y-6-1'>
@@ -378,6 +380,6 @@ export function ProfilePage() {
           ) : null}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

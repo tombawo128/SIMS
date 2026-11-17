@@ -39,7 +39,6 @@ import {
   EmptyState,
   Field,
   Modal,
-  PageHeader,
   Spinner,
   Textarea,
   useToast,
@@ -160,7 +159,7 @@ export function PostingDetail() {
   };
 
   return (
-    <div>
+    <section className="posting-detail-page">
       <Link
         to="/postings"
         className='posting-detail-mb-4-1'
@@ -168,28 +167,12 @@ export function PostingDetail() {
         <ArrowLeft className='posting-detail-h-35-1' /> All opportunities
       </Link>
 
-      <PageHeader
-        title={data.title}
-        description={`${data.company?.name ?? 'Company'} · ${POSTING_TYPE_LABELS[data.type]}`}
-        actions={
-          canManage ? (
-            <>
-              <Link to={`/manage/postings/${data.id}/edit`}>
-                <Button variant="secondary">
-                  <Pencil className='posting-detail-h-4-1' /> Edit posting
-                </Button>
-              </Link>
-              <Link to="/applications">
-                <Button>Review applicants</Button>
-              </Link>
-            </>
-          ) : canApply ? (
-            <Button onClick={() => setOpen(true)}>
-              <Send className='posting-detail-h-4-1' /> Apply now
-            </Button>
-          ) : undefined
-        }
-      />
+      <section className="page-hero posting-detail-hero">
+        <div><span className="page-hero__eyebrow">OPPORTUNITY DETAILS</span><h1>{data.title}</h1><p>{data.company?.name ?? 'Company'} · {POSTING_TYPE_LABELS[data.type]} · {data.is_remote ? 'Remote' : data.location || 'Location flexible'}</p><div className="posting-detail-hero__tags"><Badge tone="blue">{POSTING_TYPE_LABELS[data.type]}</Badge><Badge tone={closed ? 'amber' : 'blue'}>{closed ? 'Applications closed' : 'Open opportunity'}</Badge></div></div>
+        <div className="posting-detail-hero__actions">
+          {canManage ? <><Link to={`/manage/postings/${data.id}/edit`}><Button variant="secondary"><Pencil className='posting-detail-h-4-1' /> Edit posting</Button></Link><Link to="/applications"><Button>Review applicants</Button></Link></> : canApply ? <Button onClick={() => setOpen(true)}><Send className='posting-detail-h-4-1' /> Apply now</Button> : null}
+        </div>
+      </section>
 
       {applications.isError && isStudent ? (
         <div className='posting-detail-mb-5-1'>
@@ -434,7 +417,7 @@ export function PostingDetail() {
           ) : null}
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 

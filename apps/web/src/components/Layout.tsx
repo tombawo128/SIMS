@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Bell,
   Briefcase,
   Building2,
   ClipboardList,
-  Code2,
   FileText,
   GraduationCap,
   Settings,
@@ -17,6 +16,7 @@ import {
   Archive,
   UsersRound,
   X,
+  ChevronRight,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { APP_NAME, NAV_BY_ROLE, ROLE_LABELS, formatDateTime, type NavIcon } from '@sims/shared';
@@ -87,16 +87,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           );
         })}
-        {profile.role === 'platform_admin' ? (
-          <NavLink
-            to="/admin/integrations"
-            onClick={onNavigate}
-            className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}
-          >
-            <Code2 className='nav-link__icon' />
-            Integration Centre
-          </NavLink>
-        ) : null}
         {profile.role === 'platform_admin' ? (
           <NavLink
             to="/recycle-bin"
@@ -248,29 +238,47 @@ function NotificationBell() {
 export function Layout() {
   const { profile } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
 
   if (!profile) return null;
 
+  const routeLabels: Record<string, string> = {
+    '/dashboard': 'Overview',
+    '/postings': 'Opportunities',
+    '/applications': 'Applications',
+    '/placements': 'Placements',
+    '/people': 'People',
+    '/analytics': 'Workspace analytics',
+    '/profile': 'My profile',
+    '/settings': 'Settings',
+    '/notifications': 'Notifications',
+    '/users': 'Platform users',
+    '/tenants': 'Organisations',
+    '/recycle-bin': 'Recycle bin',
+    '/admin/analytics': 'Platform analytics',
+    '/admin/management': 'Administration',
+    '/admin/broadcasts': 'Broadcasts',
+    '/admin/activity-logs': 'Activity logs',
+    '/admin/system-alerts': 'System alerts',
+    '/manage/postings': 'Manage opportunities',
+  };
+  const currentLabel = routeLabels[location.pathname]
+    ?? (location.pathname.startsWith('/postings/') ? 'Opportunity details'
+      : location.pathname.startsWith('/placements/') ? 'Placement details'
+        : location.pathname.includes('/edit') || location.pathname.endsWith('/new') ? 'Opportunity editor'
+          : 'Workspace');
+
   return (
-    <div className='app-shell'>
-      <aside className='app-sidebar'>
+    <div className='app-shell workspace-shell'>
+      <aside className='app-sidebar workspace-sidebar' aria-label="Primary navigation">
         <SidebarContent />
       </aside>
 
       {mobileOpen ? (
         <div className='mobile-nav'>
-          <div
-            className='mobile-nav__backdrop'
-            onClick={() => setMobileOpen(false)}
-            aria-hidden
-          />
-          <aside className='mobile-nav__panel'>
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              className='mobile-nav__close'
-              aria-label="Close navigation"
-            >
+          <button type="button" className='mobile-nav__backdrop' onClick={() => setMobileOpen(false)} aria-label="Close navigation" />
+          <aside className='mobile-nav__panel' aria-label="Mobile navigation">
+            <button type="button" onClick={() => setMobileOpen(false)} className='mobile-nav__close' aria-label="Close navigation">
               <X className='icon-lg' />
             </button>
             <SidebarContent onNavigate={() => setMobileOpen(false)} />
@@ -278,41 +286,41 @@ export function Layout() {
         </div>
       ) : null}
 
-      <div className='app-content'>
-        <header className='app-header'>
-          <div className='app-header__inner'>
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              className='app-header__menu'
-              aria-label="Open navigation"
-            >
+      <div className='app-content workspace-content'>
+        <header className='app-header workspace-topbar'>
+          <div className='workspace-topbar__left'>
+            <button type="button" onClick={() => setMobileOpen(true)} className='app-header__menu' aria-label="Open navigation">
               <Menu className='icon' />
             </button>
-
-            <div className='layout-fill'>
-              <p className='app-header__tenant'>
-                {profile.university?.name ?? profile.company?.name ?? 'Platform'}
-              </p>
+            <div className='workspace-breadcrumb'>
+              <span>{profile.university?.name ?? profile.company?.name ?? 'SIMS Platform'}</span>
+              <span className='workspace-breadcrumb__divider'>/</span>
+              <strong>{currentLabel}</strong>
             </div>
-
+          </div>
+          <div className='workspace-topbar__right'>
+            <div className='workspace-topbar__context'>
+              <span className='workspace-topbar__context-dot' />
+              <span>{ROLE_LABELS[profile.role]}</span>
+            </div>
             <NotificationBell />
-
-            <Link
-              to="/profile"
-              className='app-header__profile'
-            >
+            <Link to="/profile" className='workspace-account'>
               <Avatar name={profile.full_name} className='avatar--sm' />
-              <span className='app-header__profile-name'>
-                {profile.full_name}
-              </span>
+              <span><strong>{profile.full_name}</strong><small>Account</small></span>
+              <ChevronRight size={15} />
             </Link>
           </div>
         </header>
 
-        <main className='app-main'>
-          <Outlet />
+        <main className='app-main workspace-main'>
+          <div className='workspace-main__inner'>
+            <Outlet />
+          </div>
         </main>
+        <footer className='workspace-footer'>
+          <span>{APP_NAME}</span>
+          <span>Internship management workspace</span>
+        </footer>
       </div>
     </div>
   );

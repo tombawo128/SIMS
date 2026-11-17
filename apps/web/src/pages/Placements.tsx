@@ -16,7 +16,6 @@ import {
   Card,
   EmptyState,
   Input,
-  PageHeader,
   Spinner,
   Table,
   Tabs,
@@ -82,24 +81,13 @@ export function Placements() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title={isStudent ? 'My placement' : 'Placements'}
-        description={
-          isStudent
-            ? 'Your internship details, supervisors, logs, and evaluations.'
-            : 'Every placement you can access, with supervisors and grades.'
-        }
-        actions={
-          isCoordinator ? (
-            <Button variant="secondary" onClick={exportCsv} disabled={!items.length}>
-              <Download className='placements-h-4-1' /> Export CSV
-            </Button>
-          ) : undefined
-        }
-      />
+    <section className="placements-page">
+      <section className="page-hero page-hero--placements">
+        <div><span className="page-hero__eyebrow">PLACEMENT MANAGEMENT</span><h1>{isStudent ? 'Your internship journey' : 'Placement overview'}</h1><p>{isStudent ? 'Your placement details, supervisors, weekly logs and evaluations in one view.' : 'Follow active placements, supervision assignments and assessment progress.'}</p></div>
+        <div className="page-hero__aside"><strong>{items.length}</strong><span>{items.length === 1 ? 'placement record' : 'placement records'}</span><small>{counts.active ?? 0} currently active</small>{isCoordinator ? <Button size="sm" variant="secondary" onClick={exportCsv} disabled={!items.length}><Download size={15}/> Export records</Button> : null}</div>
+      </section>
 
-      <div className='placements-mb-4-1'>
+      <div className='placements-mb-4-1 placements-toolbar'>
         <Tabs
           options={TABS.map((option) => ({ key: option.key, label: option.label, count: counts[option.key] ?? 0 }))}
           value={tab}
@@ -137,7 +125,7 @@ export function Placements() {
           }
         />
       ) : isStudent ? (
-        <div className='placements-grid-1'>
+        <div className='placements-grid-1 placements-student-grid'>
           {filtered.map((placement) => (
             <Link
               key={placement.id}
@@ -239,6 +227,6 @@ export function Placements() {
           </Table>
         </Card>
       )}
-    </div>
+    </section>
   );
 }

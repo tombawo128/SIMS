@@ -26,7 +26,6 @@ import {
   EmptyState,
   Field,
   Input,
-  PageHeader,
   Select,
   Spinner,
 } from '@/components/ui';
@@ -54,18 +53,14 @@ export function Postings() {
   const items = postings.data ?? [];
 
   return (
-    <div>
-      <PageHeader
-        title="Opportunities"
-        description={
-          profile?.role === 'student'
-            ? 'Internships, graduate roles, and part-time work from partner companies.'
-            : 'Published opportunities visible to your workspace.'
-        }
-      />
+    <section className="opportunities-page">
+      <section className="page-hero page-hero--opportunities">
+        <div><span className="page-hero__eyebrow">CAREER OPPORTUNITIES</span><h1>Find your next opportunity.</h1><p>{profile?.role === 'student' ? 'Explore internships, graduate roles and part-time work from partner companies.' : 'Explore published opportunities available to your workspace.'}</p></div>
+        <div className="page-hero__aside"><strong>{items.length}</strong><span>matching opportunities</span><small>Updated from your workspace filters</small></div>
+      </section>
 
       {profile?.role === 'student' && !profile.university_id ? <Alert tone="warning" title="University not linked">Your student account is not linked to a university, so university-restricted opportunities cannot be shown. Contact your platform administrator to correct your account.</Alert> : null}
-      <Card className='postings-mb-6-1'>
+      <Card className='postings-mb-6-1 opportunities-filters'>
         <div className='postings-mb-3-1'>
           <SlidersHorizontal className='postings-h-4-1' />
           Filter opportunities
@@ -137,7 +132,7 @@ export function Postings() {
           <p className='postings-mb-3-2'>
             {items.length} opportunit{items.length === 1 ? 'y' : 'ies'}
           </p>
-          <div className='postings-grid-2'>
+          <div className='postings-grid-2 opportunities-grid'>
             {items.map((posting) => {
               const closed = isDeadlinePassed(posting.deadline);
               return (
@@ -216,6 +211,6 @@ export function Postings() {
           </Link>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

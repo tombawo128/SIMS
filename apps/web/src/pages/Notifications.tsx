@@ -13,7 +13,6 @@ import {
   Button,
   Card,
   EmptyState,
-  PageHeader,
   Spinner,
   Tabs,
   useToast,
@@ -34,23 +33,11 @@ export function Notifications() {
   const visible = tab === 'unread' ? unread : items;
 
   return (
-    <div>
-      <PageHeader
-        title="Notifications"
-        description="Application updates, log reviews, evaluations, and placement changes."
-        actions={
-          unread.length ? (
-            <Button
-              variant="secondary"
-              onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })}
-              loading={markAll.isPending}
-              disabled={markAll.isPending}
-            >
-              <CheckCheck className='notifications-h-4-1' /> Mark all read
-            </Button>
-          ) : undefined
-        }
-      />
+    <section className="notifications-page">
+      <section className="page-hero notifications-hero">
+        <div><span className="page-hero__eyebrow">YOUR ACTIVITY</span><h1>Notifications</h1><p>Important updates from applications, placements, weekly reports and evaluations.</p></div>
+        <div className="page-hero__aside"><strong>{unread.length}</strong><span>unread updates</span><small>{items.length} total notifications</small>{unread.length ? <Button size="sm" variant="secondary" onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })} loading={markAll.isPending} disabled={markAll.isPending}><CheckCheck size={15}/> Mark all read</Button> : null}</div>
+      </section>
 
       <Tabs
         className='notifications-mb-4-1'
@@ -114,6 +101,6 @@ export function Notifications() {
           </div>
         </Card>
       )}
-    </div>
+    </section>
   );
 }

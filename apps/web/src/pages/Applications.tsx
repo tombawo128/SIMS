@@ -32,7 +32,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Select,
   Spinner,
   Table,
@@ -190,24 +189,11 @@ export function Applications() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title={isStudent ? 'My applications' : 'Applications'}
-        description={
-          isStudent
-            ? 'Track every application from submission to decision.'
-            : isCoordinator
-              ? 'Applications submitted by students at your university.'
-              : 'Review candidates who applied to your company.'
-        }
-        actions={
-          isCoordinator ? (
-            <Button variant="secondary" onClick={exportCsv} disabled={!items.length}>
-              <Download className='applications-h-4-1' /> Export CSV
-            </Button>
-          ) : undefined
-        }
-      />
+    <section className="applications-page">
+      <section className="page-hero page-hero--applications">
+        <div><span className="page-hero__eyebrow">APPLICATION WORKSPACE</span><h1>{isStudent ? 'Your applications' : 'Application review'}</h1><p>{isStudent ? 'Follow your submissions and see where each opportunity stands.' : isCoordinator ? 'Review applications submitted by students at your university.' : 'Assess candidates and move applications through your hiring process.'}</p></div>
+        <div className="page-hero__aside"><strong>{items.length}</strong><span>{items.length === 1 ? 'application' : 'applications'}</span><small>{counts.submitted ?? 0} awaiting first review</small>{isCoordinator ? <Button size="sm" variant="secondary" onClick={exportCsv} disabled={!items.length}><Download size={15}/> Export CSV</Button> : null}</div>
+      </section>
 
       <Tabs
         className='applications-mb-5-1'
@@ -537,7 +523,7 @@ export function Applications() {
           </Field>
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 

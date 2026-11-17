@@ -59,7 +59,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Select,
   Spinner,
   Tabs,
@@ -385,7 +384,7 @@ export function PlacementDetail() {
   ];
 
   return (
-    <div>
+    <section className="placement-detail-page">
       <Link
         to="/placements"
         className='placement-detail-mb-4-1'
@@ -393,33 +392,10 @@ export function PlacementDetail() {
         <ArrowLeft className='placement-detail-h-35-1' /> All placements
       </Link>
 
-      <PageHeader
-        title={placement.posting?.title ?? 'Placement'}
-        description={`${placement.student?.full_name ?? 'Student'} · ${placement.company?.name ?? 'Company'}`}
-        actions={
-          <>
-            <StatusBadge status={placement.status} label={PLACEMENT_STATUS_LABELS[placement.status]} />
-            {isCoordinator ? (
-              <Button variant="secondary" onClick={() => { setFacultyId(facultyOptions[0]?.id ?? ''); setActionError(''); setAssignOpen(true); }}>
-                <UserCheck className='placement-detail-h-4-1' /> {placement.faculty_supervisor_id ? 'Change faculty supervisor' : 'Assign faculty'}
-              </Button>
-            ) : null}
-            {canGrade && placement.final_grade === null ? (
-              <Button
-                variant="secondary"
-                disabled={!gradeReady}
-                onClick={() => {
-                  setGradeNotes(placement.grade_notes ?? '');
-                  setActionError('');
-                  setGradeOpen(true);
-                }}
-              >
-                <GraduationCap className='placement-detail-h-4-1' /> Record grade
-              </Button>
-            ) : null}
-          </>
-        }
-      />
+      <section className="page-hero placement-detail-hero">
+        <div><span className="page-hero__eyebrow">PLACEMENT RECORD / {PLACEMENT_STATUS_LABELS[placement.status].toUpperCase()}</span><h1>{placement.posting?.title ?? 'Placement'}</h1><p>{placement.student?.full_name ?? 'Student'} · {placement.company?.name ?? 'Company'} · {placement.university?.name ?? 'University'}</p></div>
+        <div className="placement-detail-hero__actions"><StatusBadge status={placement.status} label={PLACEMENT_STATUS_LABELS[placement.status]} />{isCoordinator ? <Button variant="secondary" onClick={() => { setFacultyId(facultyOptions[0]?.id ?? ''); setActionError(''); setAssignOpen(true); }}><UserCheck className='placement-detail-h-4-1' /> {placement.faculty_supervisor_id ? 'Change faculty supervisor' : 'Assign faculty'}</Button> : null}{canGrade && placement.final_grade === null ? <Button variant="secondary" disabled={!gradeReady} onClick={() => { setGradeNotes(placement.grade_notes ?? ''); setActionError(''); setGradeOpen(true); }}><GraduationCap className='placement-detail-h-4-1' /> Record grade</Button> : null}</div>
+      </section>
 
       <div className='placement-detail-mb-6-1'>
         <SummaryCard
@@ -1141,7 +1117,7 @@ export function PlacementDetail() {
           </Field>
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 
