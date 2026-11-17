@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(115);
+select plan(125);
 
 -- Switch the JWT subject inside the current transaction.
 create or replace function public.test_as(p_uid uuid)
@@ -1200,6 +1200,80 @@ select is(
   ),
   false,
   'the report owner cannot delete a report stored in another student folder'
+);
+
+
+-- ---------------------------------------------------------------------------
+-- Privileged integration data remains service-role-only
+-- ---------------------------------------------------------------------------
+select is(
+  has_schema_privilege('anon', 'public', 'CREATE'),
+  false,
+  'anonymous users cannot create objects in the exposed public schema'
+);
+
+select is(
+  has_schema_privilege('authenticated', 'public', 'CREATE'),
+  false,
+  'authenticated users cannot create objects in the exposed public schema'
+);
+
+select is(
+  has_table_privilege('anon', 'public.integration_connections', 'select'),
+  false,
+  'anonymous users cannot read integration connections directly'
+);
+
+select is(
+  has_table_privilege('authenticated', 'public.integration_connections', 'select'),
+  false,
+  'authenticated users cannot read integration connections directly'
+);
+
+select is(
+  has_table_privilege('anon', 'public.integration_api_keys', 'select'),
+  false,
+  'anonymous users cannot read integration API credentials directly'
+);
+
+select is(
+  has_table_privilege('authenticated', 'public.integration_api_keys', 'select'),
+  false,
+  'authenticated users cannot read integration API credentials directly'
+);
+
+select is(
+  has_table_privilege('service_role', 'public.integration_connections', 'select')
+  and has_table_privilege('service_role', 'public.integration_api_keys', 'select'),
+  true,
+  'trusted service role can access integration connections and credentials'
+);
+
+select is(
+  (select count(*) from pg_proc p
+   join pg_namespace n on n.oid = p.pronamespace
+   where n.nspname = 'public'
+     and p.prosecdef
+     and coalesce(array_to_string(p.proconfig, ','), '') not like '%search_path=%'),
+  0::bigint,
+  'every public SECURITY DEFINER function has a pinned search_path'
+);
+
+select is(
+  (select count(*) from pg_proc p
+   join pg_namespace n on n.oid = p.pronamespace
+   where n.nspname = 'public'
+     and p.prosecdef
+     and p.proname <> 'admin_signup_available'
+     and has_function_privilege('anon', p.oid, 'execute')),
+  0::bigint,
+  'anonymous users cannot execute privileged SECURITY DEFINER functions'
+);
+
+select is(
+  has_table_privilege('service_role', 'public.provision_tickets', 'delete'),
+  true,
+  'trusted service role can consume and expire provisioning tickets'
 );
 
 reset role;
