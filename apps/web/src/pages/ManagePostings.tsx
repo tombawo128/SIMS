@@ -94,18 +94,11 @@ export function ManagePostings() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Our postings"
-        description="Create drafts, publish to universities, and close roles when hiring is complete."
-        actions={
-          <Link to="/manage/postings/new">
-            <Button>
-              <Plus className='manage-postings-h-4-1' /> New posting
-            </Button>
-          </Link>
-        }
-      />
+    <main className="manage-opportunities-page">
+      <section className="page-hero page-hero--manage">
+        <div><span className="page-hero__eyebrow">EMPLOYER WORKSPACE</span><h1>Manage your opportunities.</h1><p>Create, publish and maintain the roles your organisation shares with students.</p></div>
+        <div className="page-hero__aside"><strong>{items.length}</strong><span>opportunities in your workspace</span><small>Drafts, published and closed roles</small><Link to="/manage/postings/new"><Button><Plus size={16}/> Create opportunity</Button></Link></div>
+      </section>
 
       <div className='manage-postings-mb-4-1'>
         <Tabs
@@ -247,6 +240,6 @@ export function ManagePostings() {
         </Card>
         </>
       )}
-    </div>
+    </main>
   );
 }
