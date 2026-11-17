@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 import { Activity, AlertCircle, Archive, ArrowUpRight, CheckCircle2, CircleHelp, Database, FileSearch, Fingerprint, LifeBuoy, LockKeyhole, RefreshCw, ShieldCheck, ShieldAlert, Server, Settings2, Ticket, TriangleAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge, Button, Card, CardHeader, EmptyState, Spinner, Table, Th, Td, Alert } from '@/components/ui';
@@ -6,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 
 const when = (value: string) => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 
-function AdminModuleHeader({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) {
+function AdminModuleHeader({ title, description, icon }: { title: string; description: string; icon: ReactNode }) {
   return <section className='page-hero admin-page-hero admin-module-hero'><div><span className='page-hero__eyebrow'>SIMS ADMINISTRATION</span><h1>{title}</h1><p>{description}</p></div><span className='admin-module-hero__icon'>{icon}</span></section>;
 }
 
