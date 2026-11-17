@@ -1,0 +1,205 @@
+/* SIMS full-platform visual system — Egyptian Blue / Stone Blue / White.
+   Loaded last so every route, including public/auth/admin surfaces, shares one language. */
+:root {
+  --sims-egyptian: #1034A6;
+  --sims-egyptian-deep: #0B287F;
+  --sims-egyptian-soft: #EAF0FC;
+  --sims-stone: #6A829F;
+  --sims-stone-deep: #526A86;
+  --sims-stone-soft: #EDF2F7;
+  --sims-white: #FFFFFF;
+  --sims-ink: #17263D;
+  --sims-muted: #68788E;
+  --sims-line: #DCE4EF;
+  --sims-canvas: #F5F7FB;
+  --sims-shadow: 0 12px 32px rgba(25, 48, 84, .07);
+  --color-indigo-50: #EAF0FC;
+  --color-indigo-100: #D8E3FA;
+  --color-indigo-200: #B8CBF3;
+  --color-indigo-300: #8EA9E7;
+  --color-indigo-400: #5478CF;
+  --color-indigo-500: #1034A6;
+  --color-indigo-600: #1034A6;
+  --color-indigo-700: #0B287F;
+  --color-indigo-800: #092267;
+  --color-indigo-900: #081D55;
+  --color-indigo-950: #06143D;
+  --color-violet-50: #EAF0FC;
+  --color-violet-100: #D8E3FA;
+  --color-violet-200: #B8CBF3;
+  --color-violet-300: #8EA9E7;
+  --color-violet-400: #5478CF;
+  --color-violet-500: #1034A6;
+  --color-violet-600: #1034A6;
+  --color-violet-700: #0B287F;
+  --color-purple-400: #5478CF;
+  --color-purple-500: #1034A6;
+  --color-blue-50: #EAF0FC;
+  --color-blue-200: #B8CBF3;
+  --color-blue-500: #1034A6;
+  --color-blue-700: #0B287F;
+  --color-blue-900: #081D55;
+  --radius-lg: .65rem;
+  --radius-xl: .8rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.25rem;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--sims-canvas); color: var(--sims-ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+::selection { background: #D8E3FA; color: #081D55; }
+:focus-visible { outline: 3px solid rgba(16,52,166,.38); outline-offset: 2px; }
+
+/* Authenticated application frame */
+.app-shell { min-height: 100vh; background: var(--sims-canvas); }
+.app-sidebar { width: 272px; background: linear-gradient(180deg,#0B287F 0%,#0A246F 55%,#081D55 100%); box-shadow: 8px 0 28px rgba(8,29,85,.10); }
+.sidebar { background: transparent; }
+.sidebar__brand { min-height: 88px; padding: 22px 22px 18px; gap: 13px; }
+.sidebar__logo { width: 42px; height: 42px; border-radius: 13px; background: rgba(255,255,255,.14); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+.sidebar__app-name { color: #fff; font-size: 15px; font-weight: 750; letter-spacing: -.025em; }
+.sidebar__app-tagline { color: #C6D3F2; font-size: 11px; }
+.sidebar__tenant { margin: 8px 16px 20px; padding: 13px 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; background: rgba(255,255,255,.08); }
+.sidebar__tenant-name { color: #fff; font-size: 12px; font-weight: 650; }
+.sidebar__tenant-role { margin-top: 4px; color: #B9C9EE; font-size: 10px; }
+.sidebar__nav { padding: 0 12px; gap: 5px; }
+.nav-link { min-height: 43px; padding: 10px 13px; border-radius: 10px; gap: 12px; font-size: 12px; font-weight: 570; transition: background .18s ease,color .18s ease,transform .18s ease; }
+.nav-link__icon { width: 17px; height: 17px; color: #AFC2F0; stroke-width: 1.8; }
+.nav-link--inactive { color: #D5DFF5; }
+.nav-link--inactive:hover { color: #fff; background: rgba(255,255,255,.11); transform: translateX(2px); }
+.nav-link--active { color: #0B287F; background: #fff; box-shadow: 0 5px 16px rgba(4,19,61,.2); font-weight: 720; }
+.nav-link--active .nav-link__icon { color: var(--sims-egyptian); }
+.sidebar__footer { padding: 14px 13px 18px; border-top: 1px solid rgba(255,255,255,.14); }
+.sidebar__user-name { color: #fff; font-size: 11px; }
+.sidebar__user-email { color: #B9C9EE; font-size: 10px; }
+.sidebar__signout { color: #C9D5F1; border-radius: 8px; }
+.sidebar__signout:hover { color: #fff; background: rgba(255,255,255,.12); }
+.mobile-nav__panel { width: min(304px,88vw); background: #0B287F; }
+.mobile-nav__close { color: #fff; }
+.app-content { min-width: 0; }
+.app-header { border-color: var(--sims-line); background: rgba(255,255,255,.94); box-shadow: 0 2px 12px rgba(25,48,84,.035); }
+.app-header__inner { height: 70px; }
+.app-header__tenant { color: var(--sims-stone); font-size: 10px; font-weight: 750; letter-spacing: .12em; }
+.app-header__profile { color: var(--sims-ink); font-size: 12px; font-weight: 650; }
+.app-header__menu,.bell__button { border-color: var(--sims-line); border-radius: 10px; color: var(--sims-stone-deep); }
+.bell__button:hover,.app-header__menu:hover { background: var(--sims-egyptian-soft); color: var(--sims-egyptian); }
+.bell__badge { background: var(--sims-egyptian); }
+.app-main { width: 100%; max-width: 1680px; margin: 0 auto; padding: 30px clamp(18px,3vw,44px) 48px; }
+.page-header { margin-bottom: 26px; align-items: flex-end; }
+.page-header__title { color: var(--sims-ink); font-size: clamp(23px,2vw,29px); font-weight: 760; letter-spacing: -.045em; }
+.page-header__description { max-width: 680px; margin-top: 7px; color: var(--sims-muted); font-size: 13px; line-height: 1.65; }
+.page-header__actions { gap: 9px; }
+
+/* Shared surfaces, typography and data components */
+.card,.ui-card,.stat-card { border: 1px solid var(--sims-line); border-radius: 14px; background: #fff; box-shadow: 0 3px 14px rgba(25,48,84,.045); }
+.card { overflow: hidden; }
+.card__header { padding: 18px 21px; border-color: #EAF0F6; }
+.heading-sm { color: var(--sims-ink); font-size: 14px; font-weight: 720; letter-spacing: -.015em; }
+.card__description { color: var(--sims-muted); font-size: 12px; line-height: 1.6; }
+.btn { min-height: 38px; border-radius: 9px; font-size: 12px; font-weight: 680; transition: transform .16s ease,background .16s ease,box-shadow .16s ease; }
+.btn--primary { background: var(--sims-egyptian); box-shadow: 0 4px 10px rgba(16,52,166,.18); }
+.btn--primary:hover { background: var(--sims-egyptian-deep); transform: translateY(-1px); }
+.btn--secondary,.btn--outline { border-color: #D5DFEA; color: var(--sims-stone-deep); background: #fff; }
+.btn--secondary:hover,.btn--outline:hover { border-color: #A9B9CD; color: var(--sims-egyptian); background: var(--sims-stone-soft); }
+.btn--ghost { color: var(--sims-stone-deep); }
+.btn--ghost:hover { color: var(--sims-egyptian); background: var(--sims-egyptian-soft); }
+.input,.textarea,.select { min-height: 42px; border: 1px solid #D5DFEA; border-radius: 9px; background: #fff; color: var(--sims-ink); font-size: 12px; box-shadow: inset 0 1px 2px rgba(25,48,84,.025); }
+.input:focus,.textarea:focus,.select:focus { border-color: var(--sims-egyptian); box-shadow: 0 0 0 3px rgba(16,52,166,.10); }
+.input::placeholder,.textarea::placeholder { color: #9AA8B9; }
+.label { margin-bottom: 7px; color: #40536D; font-size: 11px; font-weight: 680; }
+.badge { border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .01em; }
+.badge--blue { color: #1034A6; background: #EAF0FC; }
+.table-wrap { border-color: var(--sims-line); border-radius: 12px; background: #fff; }
+.table { color: #42546D; font-size: 12px; }
+.th { padding: 12px 15px; color: #72839A; background: #F4F7FB; font-size: 9px; letter-spacing: .1em; }
+.td { padding: 13px 15px; border-top: 1px solid #EDF1F6; }
+.table tbody tr:hover { background: #F7F9FC; }
+.stat-card { padding: 18px; }
+.stat-card__value { color: var(--sims-ink); font-weight: 760; letter-spacing: -.045em; }
+.stat-card__label { color: var(--sims-stone-deep); font-size: 11px; font-weight: 650; }
+.stat-card__hint { color: #8493A7; font-size: 10px; }
+.empty-state { border-radius: 12px; color: var(--sims-muted); }
+hr { border-color: var(--sims-line); }
+
+/* Page rhythm and common page patterns */
+.admin-console,.analytics-page,.recycle-v2,.integration-centre { gap: 22px; }
+.admin-console > .card,.analytics-page > .card { min-width: 0; }
+.admin-console__split { gap: 18px; }
+.admin-console__form { gap: 16px; }
+.admin-console__note-list p { color: #52657D; line-height: 1.65; }
+.analytics-page__overview { border: 1px solid #173D9C; border-radius: 16px; background: linear-gradient(115deg,#0B287F,#1034A6 62%,#3559B9); box-shadow: 0 12px 28px rgba(16,52,166,.16); }
+.analytics-page__overview h2 { color: #fff; }
+.analytics-page__overview p,.analytics-page__overview-meta { color: #E0E8FC; }
+.analytics-page__workflow-icon { color: var(--sims-egyptian); background: var(--sims-egyptian-soft); }
+.analytics-page__legend--students,.analytics-page__fill--students { background: #1034A6; }
+.analytics-page__legend--university,.analytics-page__fill--university { background: #6A829F; }
+.analytics-page__legend--company,.analytics-page__fill--company { background: #8EA9C5; }
+.analytics-page__legend--admins,.analytics-page__fill--admins { background: #C4D0DE; }
+.recycle-v2__summary { border: 1px solid #173D9C; border-radius: 16px; background: linear-gradient(115deg,#0B287F,#1034A6 70%,#3559B9); box-shadow: 0 12px 28px rgba(16,52,166,.15); }
+.recycle-v2__metric-icon,.recycle-v2__record-icon--user,.recycle-v2__record-icon--university,.recycle-v2__record-icon--company { color: var(--sims-egyptian); background: var(--sims-egyptian-soft); }
+.recycle-v2__notice { border-color: #DCE5F2; background: #F3F6FB; color: #52657D; }
+
+/* Integration Centre — replace the former green/black visual treatment */
+.integration-centre { --ic-ink:#17263D; --ic-muted:#68788E; --ic-line:#DCE4EF; --ic-green:#1034A6; --ic-lime:#DCE6FA; color: var(--sims-ink); }
+.integration-centre .integration-hero { border-color: #0B287F; border-radius: 16px; background: radial-gradient(ellipse at 84% 15%,#5478CF 0,transparent 34%),linear-gradient(115deg,#081D55 0%,#0B287F 54%,#1034A6 100%); box-shadow: 0 14px 34px rgba(16,52,166,.17); }
+.integration-centre .integration-hero:after { background: linear-gradient(140deg,#FFFFFF18,transparent 70%); }
+.integration-eyebrow { color: #C7D6F7; }
+.integration-hero p { color: #DCE5FA; }
+.integration-hero__meta { color: #EAF0FC; }
+.integration-dot { background: #fff; box-shadow: 0 0 0 4px #ffffff22; }
+.integration-node--main { background: #fff; color: var(--sims-egyptian); }
+.integration-node { color: #E4ECFF; }
+.integration-nav { border-color: #DCE4EF; border-radius: 14px; background: #fff; box-shadow: 0 6px 22px rgba(25,48,84,.06); }
+.integration-nav__label { color: #8998AA; }
+.integration-nav__item { color: #52657D; border-radius: 9px; }
+.integration-nav__item:hover { color: var(--sims-egyptian); background: #F1F5FC; }
+.integration-nav__item.is-active { color: #fff; background: var(--sims-egyptian); box-shadow: 0 5px 14px rgba(16,52,166,.17); }
+.integration-nav__help { border-color: var(--sims-line); color: var(--sims-ink); }
+.integration-nav__help span { color: var(--sims-muted); }
+.integration-nav__help svg { color: var(--sims-egyptian); }
+.integration-section-heading h2 { color: var(--sims-ink); }
+.integration-stats article { border-color: var(--sims-line); border-radius: 13px; box-shadow: 0 4px 16px rgba(25,48,84,.045); }
+.integration-stats article:before { background: var(--sims-egyptian); }
+.integration-stat-icon { border-color: #DCE5F5; background: #EAF0FC; color: var(--sims-egyptian); }
+.integration-centre .ui-card { border-color: var(--sims-line); border-radius: 14px; box-shadow: 0 4px 16px rgba(25,48,84,.045); }
+.integration-centre button:focus-visible,.integration-centre a:focus-visible { outline-color: var(--sims-egyptian); }
+
+/* Coloured Lucide icon language — icons remain functional, never decorative emoji */
+.nav-link__icon { color: #C3D2F4; }
+.nav-link--active .nav-link__icon { color: var(--sims-egyptian); }
+.page-header__actions svg,.card__actions svg,.btn svg { flex: none; }
+.admin-console svg,.analytics-page svg,.recycle-v2 svg,.integration-centre svg { stroke-width: 1.8; }
+.admin-console .card__header svg,.analytics-page .card__header svg { color: var(--sims-stone); }
+.app-header svg { color: var(--sims-stone-deep); }
+
+/* Responsive behaviour: tables scroll inside their own surface; content never clips */
+@media (max-width: 1023px) {
+  .app-main { padding: 24px 20px 38px; }
+  .integration-layout { grid-template-columns: 1fr; }
+  .integration-nav { position: static; display: flex; flex-wrap: wrap; gap: 5px; }
+  .integration-nav__label,.integration-nav__help { display: none; }
+  .integration-nav__item { flex: 1 1 145px; }
+}
+@media (max-width: 720px) {
+  .app-header__inner { height: 62px; }
+  .app-main { padding: 19px 14px 30px; }
+  .page-header { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+  .page-header__title { font-size: 23px; }
+  .page-header__actions { width: 100%; }
+  .page-header__actions > * { max-width: 100%; }
+  .admin-console__split,.analytics-page__detail-grid { grid-template-columns: 1fr; }
+  .analytics-page__metrics,.analytics-page__workflow-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .integration-hero { padding: 26px 22px !important; }
+  .integration-hero__art { display: none; }
+  .integration-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .integration-card-grid { grid-template-columns: 1fr; }
+  .card__header { padding: 15px 16px; }
+  .table-wrap { max-width: 100%; }
+}
+@media (max-width: 480px) {
+  .app-main { padding-inline: 11px; }
+  .analytics-page__metrics,.analytics-page__workflow-grid,.recycle-v2__metrics { grid-template-columns: 1fr; }
+  .integration-stats { grid-template-columns: 1fr; }
+  .btn { min-height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
