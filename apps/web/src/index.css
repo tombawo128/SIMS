@@ -27,3 +27,6 @@
 @import './styles/pages/admin-polish.css';
 
 @import './styles/pages/integration-centre.css';
+
+/* Platform-wide Egyptian Blue redesign overrides — must load after all page styles. */
+@import './styles/full-platform-redesign.css';
