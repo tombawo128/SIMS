@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, AlertTriangle, BarChart3, BellRing, Megaphone, RefreshCw, Send, ShieldCheck } from 'lucide-react';
+import { Activity, AlertTriangle, Briefcase, Building2, Clock3, FileText, GraduationCap, Megaphone, RefreshCw, Send, ShieldCheck, Users } from 'lucide-react';
 import { PageHeader, Card, CardHeader, Button, Input, Textarea, Select, Field, Alert, Badge, EmptyState, Spinner, StatCard, Table, Th, Td, useToast } from '@/components/ui';
 import { GeneralAdmins } from '@/components/GeneralAdmins';
 import { supabase } from '@/lib/supabase';
@@ -61,21 +61,21 @@ export function Broadcasts() {
       setForm({ title: '', body: '', audience: 'all', link: '' });
       setErrorText('');
       void queryClient.invalidateQueries({ queryKey: ['admin-broadcasts'] });
-      toast({ title: 'Broadcast sent', description: result.recipients_count + ' active users received the message.', tone: 'success' });
+      toast({ title: 'Announcement published', description: result.recipients_count + ' active users received the message.', tone: 'success' });
     },
     onError: (error: Error) => setErrorText(error.message),
   });
 
   return (
     <div className='admin-console'>
-      <PageHeader title='Broadcasts' description='Send platform-wide announcements and review previous messages.' />
+      <PageHeader title='System-wide Announcements' description='Publish official announcements to all active users or a selected role.' />
       <div className='admin-console__split'>
         <Card>
-          <CardHeader title='Compose a broadcast' description='Messages appear in recipients’ SIMS notifications.' />
+          <CardHeader title='Compose an announcement' description='Announcements are delivered through recipients’ SIMS notification centre.' />
           <div className='admin-console__form'>
-            {errorText ? <Alert tone='danger' title='Broadcast was not sent'>{errorText}</Alert> : null}
+            {errorText ? <Alert tone='danger' title='Announcement was not published'>{errorText}</Alert> : null}
             <Field label='Message title' required>
-              <Input maxLength={160} value={form.title} onChange={e => setForm(v => ({ ...v, title: e.target.value }))} placeholder='Important platform update' />
+              <Input maxLength={160} value={form.title} onChange={e => setForm(v => ({ ...v, title: e.target.value }))} placeholder='Important university or platform update' />
             </Field>
             <Field label='Message' required hint='Up to 5,000 characters.'>
               <Textarea rows={6} maxLength={5000} value={form.body} onChange={e => setForm(v => ({ ...v, body: e.target.value }))} placeholder='Write the announcement for users…' />
@@ -92,23 +92,23 @@ export function Broadcasts() {
             <div className='admin-console__form-footer'>
               <span className='admin-console__muted'>{form.body.length}/5000 characters</span>
               <Button onClick={() => publish.mutate()} loading={publish.isPending} disabled={!form.title.trim() || !form.body.trim()}>
-                <Send size={16} /> Send broadcast
+                <Send size={16} /> Publish announcement
               </Button>
             </div>
           </div>
         </Card>
         <Card>
-          <CardHeader title='Sending rules' />
+          <CardHeader title='Announcement delivery' />
           <div className='admin-console__note-list'>
             <p><Badge tone='emerald'>Active accounts</Badge> Only active accounts in the selected audience receive the message.</p>
             <p><Badge tone='blue'>In-app delivery</Badge> The message is delivered through the existing SIMS notification centre.</p>
-            <p><Badge tone='slate'>Audit trail</Badge> Each broadcast is recorded with its recipient count and sender.</p>
+            <p><Badge tone='slate'>Audit trail</Badge> Each announcement is recorded with its recipient count and sender.</p>
           </div>
         </Card>
       </div>
       <Card>
-        <CardHeader title='Broadcast history' description='Most recent 50 broadcasts.' actions={<Button size='sm' variant='secondary' onClick={() => void history.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
-        {history.isLoading ? <div className='admin-console__loading'><Spinner /></div> : history.isError ? <Alert tone='danger'>Could not load broadcast history: {(history.error as Error).message}</Alert> : !history.data?.length ? <EmptyState title='No broadcasts yet' description='Messages you send will appear here.' /> : (
+        <CardHeader title='Announcement history' description='Most recent 50 announcements.' actions={<Button size='sm' variant='secondary' onClick={() => void history.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
+        {history.isLoading ? <div className='admin-console__loading'><Spinner /></div> : history.isError ? <Alert tone='danger'>Could not load broadcast history: {(history.error as Error).message}</Alert> : !history.data?.length ? <EmptyState title='No announcements yet' description='Announcements you publish will appear here.' /> : (
           <Table>
             <thead><tr><Th>Message</Th><Th>Audience</Th><Th>Recipients</Th><Th>Sent</Th></tr></thead>
             <tbody>{history.data.map(item => <tr key={item.id}><Td><strong>{item.title}</strong><p className='admin-console__cell-sub'>{item.body}</p></Td><Td>{item.audience_role ? roles.find(r => r.value === item.audience_role)?.label ?? item.audience_role : 'All active users'}</Td><Td>{count(item.recipients_count)}</Td><Td>{dateTime(item.created_at)}</Td></tr>)}</tbody>
@@ -174,7 +174,7 @@ export function SystemAlerts() {
       setForm({ title: '', message: '', severity: 'info', source: 'admin' });
       setErrorText('');
       void queryClient.invalidateQueries({ queryKey: ['platform-system-alerts'] });
-      toast({ title: 'System alert created', tone: 'success' });
+      toast({ title: 'Internal system alert created', tone: 'success' });
     },
     onError: (error: Error) => setErrorText(error.message),
   });
@@ -185,23 +185,23 @@ export function SystemAlerts() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['platform-system-alerts'] });
-      toast({ title: 'Alert marked as resolved', tone: 'success' });
+      toast({ title: 'Internal alert marked as resolved', tone: 'success' });
     },
-    onError: (error: Error) => toast({ title: 'Could not resolve alert', description: error.message, tone: 'error' }),
+    onError: (error: Error) => toast({ title: 'Could not resolve internal alert', description: error.message, tone: 'error' }),
   });
   const openCount = (alerts.data ?? []).filter(alert => !alert.resolved_at).length;
   const tone = (severity: string) => severity === 'critical' ? 'rose' : severity === 'warning' ? 'amber' : 'blue';
 
   return (
     <div className='admin-console'>
-      <PageHeader title='System Alerts' description='Create operational notices and track issues that need administrator attention.' />
+      <PageHeader title='Internal System Alerts' description='Track internal operational, security, and technical issues for platform administrators only.' />
       <div className='admin-console__split'>
         <Card>
-          <CardHeader title='Create an alert' description='Alerts are visible to platform administrators.' />
+          <CardHeader title='Create an internal alert' description='Internal alerts are restricted to platform administrators and are not sent to general users.' />
           <div className='admin-console__form'>
             {errorText ? <Alert tone='danger'>{errorText}</Alert> : null}
             <Field label='Alert title' required><Input maxLength={180} value={form.title} onChange={e => setForm(v => ({ ...v, title: e.target.value }))} placeholder='Scheduled maintenance' /></Field>
-            <Field label='Details' required><Textarea rows={5} maxLength={5000} value={form.message} onChange={e => setForm(v => ({ ...v, message: e.target.value }))} placeholder='Describe the issue or system notice…' /></Field>
+            <Field label='Details' required><Textarea rows={5} maxLength={5000} value={form.message} onChange={e => setForm(v => ({ ...v, message: e.target.value }))} placeholder='Describe the internal operational or technical issue…' /></Field>
             <div className='admin-console__form-grid'>
               <Field label='Severity'><Select value={form.severity} onChange={e => setForm(v => ({ ...v, severity: e.target.value }))}><option value='info'>Informational</option><option value='warning'>Warning</option><option value='critical'>Critical</option></Select></Field>
               <Field label='Source'><Input value={form.source} onChange={e => setForm(v => ({ ...v, source: e.target.value }))} /></Field>
@@ -210,7 +210,7 @@ export function SystemAlerts() {
           </div>
         </Card>
         <Card>
-          <CardHeader title='Alert status' />
+          <CardHeader title='Internal alert status' />
           <div className='admin-console__alert-summary'>
             <div><strong>{openCount}</strong><span>Open</span></div>
             <div><strong>{(alerts.data ?? []).length - openCount}</strong><span>Resolved</span></div>
@@ -219,8 +219,8 @@ export function SystemAlerts() {
         </Card>
       </div>
       <Card>
-        <CardHeader title='Alert register' description='Latest 100 system alerts.' actions={<Button size='sm' variant='secondary' onClick={() => void alerts.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
-        {alerts.isLoading ? <div className='admin-console__loading'><Spinner /></div> : alerts.isError ? <Alert tone='danger'>{(alerts.error as Error).message}</Alert> : !alerts.data?.length ? <EmptyState icon={<AlertTriangle />} title='No system alerts' description='New alerts will appear here.' /> : (
+        <CardHeader title='Internal alert register' description='Latest 100 internal system alerts.' actions={<Button size='sm' variant='secondary' onClick={() => void alerts.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
+        {alerts.isLoading ? <div className='admin-console__loading'><Spinner /></div> : alerts.isError ? <Alert tone='danger'>{(alerts.error as Error).message}</Alert> : !alerts.data?.length ? <EmptyState icon={<AlertTriangle />} title='No internal alerts' description='New internal system alerts will appear here.' /> : (
           <div className='admin-console__alert-list'>{alerts.data.map(alert => <article className='admin-console__alert-item' key={alert.id}>
             <div className='admin-console__alert-main'><div className='admin-console__alert-heading'><strong>{alert.title}</strong><Badge tone={tone(alert.severity) as 'rose' | 'amber' | 'blue'}>{alert.severity}</Badge><Badge tone={alert.resolved_at ? 'emerald' : 'amber'}>{alert.resolved_at ? 'Resolved' : 'Open'}</Badge></div><p>{alert.message}</p><span className='admin-console__cell-sub'>{alert.source} · {dateTime(alert.created_at)}{alert.resolved_at ? ' · Resolved ' + dateTime(alert.resolved_at) : ''}</span></div>
             {!alert.resolved_at ? <Button size='sm' variant='secondary' onClick={() => resolveAlert.mutate(alert.id)} loading={resolveAlert.isPending}>Resolve</Button> : null}
@@ -246,23 +246,37 @@ export function Analytics() {
   });
   const stats = analytics.data ?? {};
   const userBreakdown = useMemo(() => [
-    { label: 'Students', value: stats.students ?? 0, tone: 'students' },
-    { label: 'University staff', value: stats.university_staff ?? 0, tone: 'university' },
-    { label: 'Company staff', value: stats.company_staff ?? 0, tone: 'company' },
-    { label: 'Platform admins', value: stats.platform_admins ?? 0, tone: 'admins' },
+    { label: 'Students', value: stats.students ?? 0, tone: 'students', icon: <Users size={17} />, detail: 'Student accounts' },
+    { label: 'University staff', value: stats.university_staff ?? 0, tone: 'university', icon: <GraduationCap size={17} />, detail: 'Coordinators and faculty' },
+    { label: 'Company staff', value: stats.company_staff ?? 0, tone: 'company', icon: <Building2 size={17} />, detail: 'Company and site teams' },
+    { label: 'Platform admins', value: stats.platform_admins ?? 0, tone: 'admins', icon: <ShieldCheck size={17} />, detail: 'Platform administrators' },
   ], [stats]);
   const totalRoleUsers = userBreakdown.reduce((sum, item) => sum + Number(item.value), 0);
+  const total = stats.users_total ?? 0;
   const active = stats.active_users ?? 0;
   const pending = stats.pending_users ?? 0;
-  const total = stats.users_total ?? 0;
   const other = Math.max(0, total - active - pending);
+  const unclassified = Math.max(0, total - totalRoleUsers);
   const organizationTotal = (stats.universities ?? 0) + (stats.companies ?? 0);
+  const percent = (value: number, denominator: number) => denominator > 0 ? Math.round((value / denominator) * 100) : 0;
+  const roleSegments = [
+    ...userBreakdown.map((item) => ({ tone: item.tone, share: percent(Number(item.value), totalRoleUsers) })),
+    ...(unclassified ? [{ tone: 'other', share: percent(unclassified, total) }] : []),
+  ];
+  let roleOffset = 0;
+  const roleGradient = roleSegments.length
+    ? 'conic-gradient(' + roleSegments.map((item) => {
+        const start = roleOffset;
+        roleOffset += item.share;
+        return 'var(--analytics-' + item.tone + ') ' + start + '% ' + roleOffset + '%';
+      }).join(', ') + ')'
+    : 'conic-gradient(#e8edf3 0% 100%)';
 
   return (
     <div className='admin-console analytics-page'>
       <PageHeader
         title='Platform analytics'
-        description='A clear view of user growth, organizations, and internship activity across SIMS.'
+        description='A live operational view of SIMS accounts, organizations, and internship activity.'
         actions={<Button size='sm' variant='secondary' onClick={() => void analytics.refetch()} loading={analytics.isFetching}><RefreshCw size={14} /> Refresh data</Button>}
       />
       {analytics.isLoading ? <div className='admin-console__loading'><Spinner /></div> : analytics.isError ? (
@@ -270,67 +284,96 @@ export function Analytics() {
       ) : (
         <>
           <section className='analytics-page__overview'>
-            <div>
-              <span className='analytics-page__eyebrow'>PLATFORM OVERVIEW</span>
-              <h2>SIMS at a glance</h2>
-              <p>Current database totals across all active platform workflows.</p>
+            <div className='analytics-page__overview-copy'>
+              <span className='analytics-page__eyebrow'>SYSTEM SNAPSHOT</span>
+              <h2>SIMS, in focus.</h2>
+              <p>Platform-wide totals from the live database. Figures update when this report is refreshed.</p>
             </div>
-            <div className='analytics-page__overview-meta'>
-              <span className='analytics-page__live-dot' />
-              Live database snapshot
-            </div>
+            <div className='analytics-page__overview-meta'><span className='analytics-page__live-dot' /> Live database data</div>
           </section>
 
           <section className='analytics-page__metrics' aria-label='Platform key metrics'>
-            <StatCard label='Total users' value={count(total)} icon={<Activity />} hint='Registered accounts' />
-            <StatCard label='Active users' value={count(active)} icon={<ShieldCheck />} hint={total ? Math.round((active / total) * 100) + '% of all users' : 'No user records'} />
-            <StatCard label='Pending approvals' value={count(pending)} icon={<BellRing />} hint='Awaiting administrator review' />
-            <StatCard label='Organizations' value={count(organizationTotal)} icon={<BarChart3 />} hint={count(stats.universities) + ' universities · ' + count(stats.companies) + ' companies'} />
+            <StatCard className='analytics-page__metric--users' label='Total users' value={count(total)} icon={<Users size={20} />} hint='All registered accounts' />
+            <StatCard className='analytics-page__metric--active' label='Active users' value={count(active)} icon={<ShieldCheck size={20} />} hint={percent(active, total) + '% of all accounts'} />
+            <StatCard className='analytics-page__metric--pending' label='Pending approvals' value={count(pending)} icon={<Clock3 size={20} />} hint='Awaiting administrator review' />
+            <StatCard className='analytics-page__metric--orgs' label='Organizations' value={count(organizationTotal)} icon={<Building2 size={20} />} hint={count(stats.universities) + ' universities · ' + count(stats.companies) + ' companies'} />
           </section>
 
           <section className='analytics-page__section-heading'>
-            <div><h2>Internship activity</h2><p>Key workflow totals recorded in the platform.</p></div>
+            <div><span className='analytics-page__section-kicker'>WORKFLOW</span><h2>Internship activity</h2><p>Recorded activity across the core SIMS workflow.</p></div>
           </section>
-          <section className='analytics-page__workflow-grid'>
-            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Megaphone size={18} /></span><div><span>Job postings</span><strong>{count(stats.job_postings)}</strong><small>Opportunities published</small></div></article>
-            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Activity size={18} /></span><div><span>Applications</span><strong>{count(stats.applications)}</strong><small>Student applications submitted</small></div></article>
-            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><ShieldCheck size={18} /></span><div><span>Placements</span><strong>{count(stats.placements)}</strong><small>Internship placements recorded</small></div></article>
-            <article className='analytics-page__workflow-card'><span className='analytics-page__workflow-icon'><Send size={18} /></span><div><span>Broadcasts sent</span><strong>{count(stats.broadcasts)}</strong><small>Platform announcements</small></div></article>
+          <section className='analytics-page__workflow-grid' aria-label='Internship activity metrics'>
+            <article className='analytics-page__workflow-card analytics-page__workflow-card--postings'><span className='analytics-page__workflow-icon'><Megaphone size={19} /></span><div><span>Job postings</span><strong>{count(stats.job_postings)}</strong><small>Opportunities published</small></div></article>
+            <article className='analytics-page__workflow-card analytics-page__workflow-card--applications'><span className='analytics-page__workflow-icon'><FileText size={19} /></span><div><span>Applications</span><strong>{count(stats.applications)}</strong><small>Student applications submitted</small></div></article>
+            <article className='analytics-page__workflow-card analytics-page__workflow-card--placements'><span className='analytics-page__workflow-icon'><Briefcase size={19} /></span><div><span>Placements</span><strong>{count(stats.placements)}</strong><small>Internship placements recorded</small></div></article>
+            <article className='analytics-page__workflow-card analytics-page__workflow-card--announcements'><span className='analytics-page__workflow-icon'><Send size={19} /></span><div><span>Announcements</span><strong>{count(stats.broadcasts)}</strong><small>Platform announcements sent</small></div></article>
           </section>
 
           <section className='analytics-page__detail-grid'>
             <Card>
-              <CardHeader title='User composition' description='Breakdown by account role.' />
-              <div className='analytics-page__composition'>
-                {userBreakdown.map(item => {
-                  const value = Number(item.value);
-                  const share = totalRoleUsers ? Math.round((value / totalRoleUsers) * 100) : 0;
-                  return (
-                    <div className='analytics-page__role' key={item.label}>
-                      <div className='analytics-page__role-heading'><span><i className={'analytics-page__legend analytics-page__legend--' + item.tone} />{item.label}</span><strong>{count(value)} <small>{share}%</small></strong></div>
-                      <div className='analytics-page__track'><span className={'analytics-page__fill analytics-page__fill--' + item.tone} style={{ width: share + '%' }} /></div>
+              <CardHeader title='Account groups' description='Color-coded breakdown by SIMS account role.' />
+              <div className='analytics-page__composition analytics-page__composition--redesigned'>
+                <div className='analytics-page__donut-wrap'>
+                  <div className='analytics-page__donut' style={{ background: roleGradient }}>
+                    <div className='analytics-page__donut-center'><strong>{count(totalRoleUsers)}</strong><span>Role accounts</span></div>
+                  </div>
+                  <p>Role distribution</p>
+                </div>
+                <div className='analytics-page__role-list'>
+                  {userBreakdown.map((item) => {
+                    const value = Number(item.value);
+                    const share = percent(value, totalRoleUsers);
+                    return (
+                      <div className={'analytics-page__role analytics-page__role--' + item.tone} key={item.label}>
+                        <div className='analytics-page__role-heading'>
+                          <span className='analytics-page__role-label'><i className={'analytics-page__legend analytics-page__legend--' + item.tone} />{item.icon}{item.label}</span>
+                          <strong>{count(value)} <small>{share}%</small></strong>
+                        </div>
+                        <div className='analytics-page__track'><span className={'analytics-page__fill analytics-page__fill--' + item.tone} style={{ width: share + '%' }} /></div>
+                        <small className='analytics-page__role-detail'>{item.detail}</small>
+                      </div>
+                    );
+                  })}
+                  {unclassified > 0 ? (
+                    <div className='analytics-page__role analytics-page__role--other'>
+                      <div className='analytics-page__role-heading'><span className='analytics-page__role-label'><i className='analytics-page__legend analytics-page__legend--other' />Other / unclassified</span><strong>{count(unclassified)} <small>{percent(unclassified, total)}%</small></strong></div>
+                      <div className='analytics-page__track'><span className='analytics-page__fill analytics-page__fill--other' style={{ width: percent(unclassified, total) + '%' }} /></div>
                     </div>
-                  );
-                })}
-                {!totalRoleUsers ? <p className='analytics-page__empty-note'>Role counts will appear when user records are available.</p> : null}
+                  ) : null}
+                  {!totalRoleUsers ? <p className='analytics-page__empty-note'>Role counts will appear when user records are available.</p> : null}
+                </div>
               </div>
-              <div className='analytics-page__card-foot'>Role totals are based on the current analytics response.</div>
+              <div className='analytics-page__card-foot'>Colors identify account roles consistently across this report.</div>
             </Card>
 
             <Card>
-              <CardHeader title='Account status' description='Current user approval and access state.' />
-              <div className='analytics-page__status'>
-                <div className='analytics-page__status-total'><strong>{count(total)}</strong><span>Total accounts</span></div>
+              <CardHeader title='Account status' description='Current approval and access state.' />
+              <div className='analytics-page__status analytics-page__status--redesigned'>
+                <div className='analytics-page__status-total'><span>Total accounts</span><strong>{count(total)}</strong><small>Across all roles</small></div>
                 <div className='analytics-page__status-list'>
                   <div><span><i className='analytics-page__status-dot analytics-page__status-dot--active' />Active</span><strong>{count(active)}</strong></div>
                   <div><span><i className='analytics-page__status-dot analytics-page__status-dot--pending' />Pending</span><strong>{count(pending)}</strong></div>
                   <div><span><i className='analytics-page__status-dot analytics-page__status-dot--other' />Other / archived</span><strong>{count(other)}</strong></div>
                 </div>
+                <div className='analytics-page__status-track' aria-label='Account status distribution'>
+                  <span className='analytics-page__status-segment--active' style={{ width: percent(active, total) + '%' }} />
+                  <span className='analytics-page__status-segment--pending' style={{ width: percent(pending, total) + '%' }} />
+                  <span className='analytics-page__status-segment--other' style={{ width: percent(other, total) + '%' }} />
+                </div>
               </div>
               <div className='analytics-page__card-foot'>Status values reflect the latest database snapshot.</div>
             </Card>
           </section>
-          <p className='analytics-page__footnote'>Figures are returned by the SIMS analytics database function. No estimated or sample values are shown.</p>
+
+          <section className='analytics-page__organizations'>
+            <div className='analytics-page__section-heading'><div><span className='analytics-page__section-kicker'>NETWORK</span><h2>Organization network</h2><p>Registered institutions and employers on SIMS.</p></div></div>
+            <div className='analytics-page__organization-grid'>
+              <article className='analytics-page__organization-card analytics-page__organization-card--university'><span><GraduationCap size={20} /></span><div><small>Universities</small><strong>{count(stats.universities)}</strong><p>Academic institutions</p></div></article>
+              <article className='analytics-page__organization-card analytics-page__organization-card--company'><span><Building2 size={20} /></span><div><small>Companies</small><strong>{count(stats.companies)}</strong><p>Employer organizations</p></div></article>
+            </div>
+          </section>
+
+          <p className='analytics-page__footnote'>All figures are returned by the SIMS analytics database function. No estimated or sample values are displayed.</p>
         </>
       )}
     </div>

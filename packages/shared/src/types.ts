@@ -157,6 +157,22 @@ export interface WeeklyLog {
   reviewed_by: string | null;
   created_at: string;
   updated_at: string;
+  rating_scores?: Record<string, number> | null;
+  rating_overall?: number | null;
+  rating_comment?: string | null;
+  rated_by?: string | null;
+  rated_at?: string | null;
+}
+
+export interface FacultySupervisorRequest {
+  id: string;
+  placement_id: string;
+  student_id: string;
+  university_id: string;
+  status: 'pending' | 'assigned' | 'cancelled';
+  assigned_faculty_id: string | null;
+  requested_at: string;
+  assigned_at: string | null;
 }
 
 export interface Evaluation {

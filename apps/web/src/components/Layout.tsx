@@ -8,6 +8,7 @@ import {
   Code2,
   FileText,
   GraduationCap,
+  Settings,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -38,6 +39,7 @@ const iconMap: Record<NavIcon, LucideIcon> = {
   building: Building2,
   user: UserRound,
   school: GraduationCap,
+  settings: Settings,
 };
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

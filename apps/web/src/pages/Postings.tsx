@@ -19,6 +19,7 @@ import type { PostingType } from '@sims/shared';
 import { usePostings } from '@/hooks/usePostings';
 import { useAuth } from '@/context/AuthContext';
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -44,6 +45,7 @@ export function Postings() {
   const [location, setLocation] = useState('');
   const [remoteOnly, setRemoteOnly] = useState(false);
 
+  const hasActiveFilters = Boolean(search.trim() || type || location.trim() || remoteOnly);
   const filters = useMemo(
     () => ({ search, type, location, remoteOnly }),
     [search, type, location, remoteOnly],
@@ -62,6 +64,7 @@ export function Postings() {
         }
       />
 
+      {profile?.role === 'student' && !profile.university_id ? <Alert tone="warning" title="University not linked">Your student account is not linked to a university, so university-restricted opportunities cannot be shown. Contact your platform administrator to correct your account.</Alert> : null}
       <Card className='postings-mb-6-1'>
         <div className='postings-mb-3-1'>
           <SlidersHorizontal className='postings-h-4-1' />
@@ -126,8 +129,8 @@ export function Postings() {
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='postings-h-5-1' />}
-          title="No opportunities match those filters"
-          description="Try clearing the search or widening the filters."
+          title={profile?.role === 'student' && !hasActiveFilters ? 'No published opportunities for your university yet' : 'No opportunities match those filters'}
+          description={profile?.role === 'student' && !hasActiveFilters ? 'Company opportunities appear here after a company publishes a posting and makes it available to your university. Check back when new internships are published.' : 'Try clearing the search or widening the filters.'}
         />
       ) : (
         <>

@@ -119,11 +119,18 @@ export function DailyReportsPanel({
   const maxReportDate = today < endDate ? today : endDate;
   const currentWeek = weekForDate(reportDate, startDate);
   const weekStatus = weeklyLogs.find((log) => log.week_number === currentWeek)?.status;
+  const currentWeekEntries = reports.filter((report) => report.week_number === currentWeek);
+  const isEditingExistingDay = currentWeekEntries.some((report) => report.report_date === reportDate);
+  const canAddAnotherDay = isEditingExistingDay || currentWeekEntries.length < 5;
   const canEditWeek = !['submitted', 'approved'].includes(weekStatus ?? '');
   const save = async () => {
     setErrorText('');
     if (!reportDate || reportDate < startDate || reportDate > endDate || reportDate > today || beforePlacementStart || !tasks.trim() || Number(hours) < 0 || Number(hours) > 24 || !Number.isFinite(Number(hours))) {
       setErrorText('Choose a report date within the placement period and not in the future, enter 0–24 hours, and describe the work completed.');
+      return;
+    }
+    if (!canAddAnotherDay) {
+      setErrorText('A maximum of 5 daily entries is allowed per internship week.');
       return;
     }
     try { await saveReport.mutateAsync(); } catch (error) { setErrorText(errorMessage(error)); }
@@ -161,10 +168,11 @@ export function DailyReportsPanel({
               <Textarea id="daily-report-outcomes" rows={2} value={outcomes} onChange={(event) => setOutcomes(event.target.value)} placeholder="What did you learn or practice?" />
             </Field>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek || beforePlacementStart}><Plus size={16} /> Save daily report</Button>
+              <Button onClick={save} loading={saveReport.isPending} disabled={!canEditWeek || beforePlacementStart || !canAddAnotherDay}><Plus size={16} /> Save daily report</Button>
               {editingId ? <Button variant="secondary" onClick={() => { setEditingId(null); setHours('8'); setTasks(''); setOutcomes(''); setErrorText(''); }}>Cancel edit</Button> : null}
             </div>
             {beforePlacementStart ? <Alert tone="info">Daily reports can be recorded from the placement start date.</Alert> : null}
+            {!canAddAnotherDay ? <Alert tone="warning">This week already has 5 daily reports. Edit an existing day instead of adding another.</Alert> : null}
             {!canEditWeek ? <Alert tone="info">This week has already been submitted. You cannot change its daily entries.</Alert> : null}
           </div>
         </Card>
@@ -176,18 +184,25 @@ export function DailyReportsPanel({
         const status = weeklyLogs.find((log) => log.week_number === week)?.status ?? 'draft';
         const totalHours = entries.reduce((sum, entry) => sum + Number(entry.hours), 0);
         const locked = ['submitted', 'approved'].includes(status);
+        const weekEndDate = new Date(`${startDate}T00:00:00Z`);
+        weekEndDate.setUTCDate(weekEndDate.getUTCDate() + week * 7 - 1);
+        const weekEnd = weekEndDate.toISOString().slice(0, 10) > endDate ? endDate : weekEndDate.toISOString().slice(0, 10);
+        const canSubmitWeek = weekEnd <= today && entries.length >= 3 && entries.length <= 5;
         return (
           <Card key={week}>
             <CardHeader
               title={`Week ${week} · ${totalHours} hours`}
-              description={`${entries.length} daily entr${entries.length === 1 ? 'y' : 'ies'} · ${status.replace('_', ' ')}`}
+              description={`${entries.length} of 3–5 required days · ${totalHours} hours · ${status.replace('_', ' ')}`}
               actions={isStudent && !locked ? (
-                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending}>
+                <Button size="sm" onClick={() => { setErrorText(''); submitWeek.mutate(week, { onError: (error) => setErrorText(errorMessage(error)) }); }} loading={submitWeek.isPending} disabled={submitWeek.isPending || !canSubmitWeek}>
                   <Send size={15} /> Submit week
                 </Button>
               ) : <StatusBadge status={status} label={status.replace('_', ' ')} />}
             />
             {errorText ? <div style={{ padding: 12 }}><Alert tone="danger">{errorText}</Alert></div> : null}
+            {isStudent && !locked && entries.length < 3 ? <div style={{ padding: '0 16px 12px' }}><Alert tone="warning">Add at least 3 different daily reports before submitting this week. You currently have {entries.length}.</Alert></div> : null}
+            {isStudent && !locked && entries.length > 5 ? <div style={{ padding: '0 16px 12px' }}><Alert tone="danger">A week cannot contain more than 5 daily reports.</Alert></div> : null}
+            {isStudent && !locked && !canSubmitWeek && entries.length >= 3 && entries.length <= 5 ? <div style={{ padding: '0 16px 12px' }}><Alert tone="info">You can submit this report after the week ends on {formatDate(weekEnd)}.</Alert></div> : null}
             <div style={{ display: 'grid', gap: 0 }}>
               {entries.map((entry) => (
                 <div key={entry.id} style={{ padding: 16, borderTop: '1px solid #e2e8f0', display: 'grid', gap: 8 }}>

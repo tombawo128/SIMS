@@ -30,6 +30,7 @@ export function Signup() {
     universityId: '',
     studentId: '',
     program: '',
+    department: '',
     year: '3',
   });
 
@@ -105,6 +106,11 @@ export function Signup() {
       return;
     }
 
+    if (!form.department.trim()) {
+      setError('Enter your department or faculty.');
+      return;
+    }
+
     if (!form.universityId) {
       setError('Select your university.');
       return;
@@ -120,6 +126,7 @@ export function Signup() {
         universityId: form.universityId,
         studentId: form.studentId.trim(),
         program: form.program.trim(),
+        department: form.department.trim(),
         year: Number(form.year),
       });
 
@@ -429,6 +436,16 @@ export function Signup() {
                     update('program', event.target.value)
                   }
                   placeholder="Computer Science"
+                />
+              </Field>
+
+              <Field label="Department / Faculty" htmlFor="department">
+                <Input
+                  id="department"
+                  value={form.department}
+                  onChange={(event) => update('department', event.target.value)}
+                  placeholder="Business Information, Computer Science, etc."
+                  required
                 />
               </Field>
 

@@ -5,6 +5,7 @@ import type {
   DocumentRecord,
   Evaluation,
   EvaluationType,
+  FacultySupervisorRequest,
   Placement,
   WeeklyLog,
 } from '@sims/shared';
@@ -18,6 +19,7 @@ export interface PlacementDetail extends Placement {
   evaluations: Evaluation[];
   check_ins: CheckIn[];
   documents: DocumentRecord[];
+  faculty_supervisor_requests: FacultySupervisorRequest[];
 }
 
 function invalidatePlacementData(queryClient: ReturnType<typeof useQueryClient>, placementId?: string) {
@@ -84,7 +86,7 @@ export function usePlacement(id: string | undefined) {
       const { data, error } = await supabase
         .from('placements')
         .select(
-          `${PLACEMENT_SELECT}, weekly_logs(*), evaluations(*), check_ins(*), documents(*, owner:profiles!documents_owner_id_fkey(id,full_name))`,
+          `${PLACEMENT_SELECT}, weekly_logs(*), evaluations(*), check_ins(*), documents(*, owner:profiles!documents_owner_id_fkey(id,full_name)), faculty_supervisor_requests(*)`,
         )
         .eq('id', id)
         .single();
@@ -149,6 +151,41 @@ export function useReviewWeeklyLog() {
   });
 }
 
+
+export function useRequestFacultySupervisor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (placementId: string) => {
+      const { data, error } = await supabase.rpc('request_faculty_supervisor', {
+        p_placement_id: placementId,
+      });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: (_data, placementId) => invalidatePlacementData(queryClient, placementId),
+  });
+}
+
+export function useRateWeeklyLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      logId: string;
+      placementId: string;
+      rubric: Record<string, number>;
+      comment: string;
+    }) => {
+      const { error } = await supabase.rpc('rate_weekly_log', {
+        p_log_id: input.logId,
+        p_rubric: input.rubric,
+        p_comment: input.comment,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_data, input) => invalidatePlacementData(queryClient, input.placementId),
+  });
+}
+
 export function useSubmitEvaluation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -210,13 +247,13 @@ export function useAssignFaculty() {
 export function useRecordGrade() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { placementId: string; grade: number; notes: string }) => {
-      const { error } = await supabase.rpc('record_grade', {
+    mutationFn: async (input: { placementId: string; notes: string }) => {
+      const { data, error } = await supabase.rpc('record_grade', {
         p_placement_id: input.placementId,
-        p_grade: input.grade,
         p_notes: input.notes,
       });
       if (error) throw error;
+      return data as number;
     },
     onSuccess: () => invalidatePlacementData(queryClient),
   });

@@ -142,7 +142,8 @@ export type NavIcon =
   | 'team'
   | 'building'
   | 'user'
-  | 'school';
+  | 'school'
+  | 'settings';
 
 export interface NavItem {
   label: string;
@@ -155,9 +156,10 @@ const OPPORTUNITIES: NavItem = { label: 'Opportunities', to: '/postings', icon: 
 const APPLICATIONS: NavItem = { label: 'Applications', to: '/applications', icon: 'file-text' };
 const PLACEMENTS: NavItem = { label: 'Placements', to: '/placements', icon: 'placements' };
 const PROFILE: NavItem = { label: 'Profile', to: '/profile', icon: 'user' };
+const SETTINGS: NavItem = { label: 'Settings', to: '/settings', icon: 'settings' };
 
 export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
-  student: [DASHBOARD, OPPORTUNITIES, { ...APPLICATIONS, label: 'My Applications' }, { ...PLACEMENTS, label: 'My Placement' }, PROFILE],
+  student: [DASHBOARD, OPPORTUNITIES, { ...APPLICATIONS, label: 'My Applications' }, { ...PLACEMENTS, label: 'My Placement' }, PROFILE, SETTINGS],
   faculty_supervisor: [
     DASHBOARD,
     OPPORTUNITIES,
@@ -165,6 +167,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     APPLICATIONS,
     PLACEMENTS,
     PROFILE,
+    SETTINGS,
   ],
   coordinator: [
     DASHBOARD,
@@ -174,6 +177,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     PLACEMENTS,
     { label: 'Analytics', to: '/analytics', icon: 'dashboard' },
     PROFILE,
+    SETTINGS,
   ],
   site_supervisor: [
     DASHBOARD,
@@ -181,6 +185,7 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     APPLICATIONS,
     PLACEMENTS,
     PROFILE,
+    SETTINGS,
   ],
   company_admin: [
     DASHBOARD,
@@ -190,17 +195,19 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'Team', to: '/people', icon: 'team' },
     { label: 'Analytics', to: '/analytics', icon: 'dashboard' },
     PROFILE,
+    SETTINGS,
   ],
   platform_admin: [
     DASHBOARD,
     { label: 'Users', to: '/users', icon: 'users' },
     { label: 'Universities & Companies', to: '/tenants', icon: 'school' },
-    { label: 'Broadcasts', to: '/admin/broadcasts', icon: 'file-text' },
+    { label: 'System-wide Announcements', to: '/admin/broadcasts', icon: 'file-text' },
     { label: 'Activity Logs', to: '/admin/activity-logs', icon: 'placements' },
-    { label: 'System Alerts', to: '/admin/system-alerts', icon: 'briefcase' },
+    { label: 'Internal System Alerts', to: '/admin/system-alerts', icon: 'briefcase' },
     { label: 'Admin Management', to: '/admin/management', icon: 'team' },
     { label: 'Analytics', to: '/admin/analytics', icon: 'dashboard' },
     PROFILE,
+    SETTINGS,
   ],
 };
 

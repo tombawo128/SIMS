@@ -26,6 +26,7 @@ interface SignUpStudentInput {
   universityId: string;
   studentId: string;
   program: string;
+  department: string;
   year: number;
 }
 
@@ -241,6 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             university_id: input.universityId,
             student_id: input.studentId,
             program: input.program,
+            department: input.department,
             year: input.year,
           },
         },

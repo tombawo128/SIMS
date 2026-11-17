@@ -4,7 +4,7 @@ import { corsHeaders } from '../_shared/cors.ts';
 const ALLOWED_SCOPES = ['organisation:read', 'opportunities:read', 'applications:read', 'placements:read'];
 type Action = 'list' | 'create_connection' | 'create_api_key' | 'revoke_api_key' | 'set_connection_status';
 function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 }
 function randomKey() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
@@ -44,11 +44,17 @@ Deno.serve(async (req: Request) => {
       .select('id,name,organization_type,university_id,company_id,status,created_at')
       .order('created_at', { ascending: false });
     if (error) return json({ error: 'Could not load integration connections' }, 500);
-    const [{ data: universities }, { data: companies }, { data: keys }] = await Promise.all([
+    const [universitiesResult, companiesResult, keysResult] = await Promise.all([
       admin.from('universities').select('id,name').is('deleted_at', null),
       admin.from('companies').select('id,name').is('deleted_at', null),
       admin.from('integration_api_keys').select('id,integration_id,name,key_prefix,scopes,expires_at,last_used_at,revoked_at,created_at').order('created_at', { ascending: false }),
     ]);
+    if (universitiesResult.error || companiesResult.error || keysResult.error) {
+      return json({ error: 'Could not load complete integration administration data' }, 500);
+    }
+    const universities = universitiesResult.data;
+    const companies = companiesResult.data;
+    const keys = keysResult.data;
     const orgNames = new Map<string, string>();
     (universities ?? []).forEach(item => orgNames.set(item.id, item.name));
     (companies ?? []).forEach(item => orgNames.set(item.id, item.name));
@@ -81,7 +87,11 @@ Deno.serve(async (req: Request) => {
     };
     const { data, error } = await admin.from('integration_connections').insert(insert)
       .select('id,name,organization_type,university_id,company_id,status,created_at').single();
-    if (error) return json({ error: error.code === '23505' ? 'A connection with this name already exists for this organisation' : 'Could not register the integration connection' }, 409);
+    if (error) {
+      return error.code === '23505'
+        ? json({ error: 'A connection with this name already exists for this organisation' }, 409)
+        : json({ error: 'Could not register the integration connection' }, 500);
+    }
     await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_connection', entity_id: data.id, action: 'created', metadata: { organization_type: kind, organization_id: orgId, name } });
     return json({ connection: data }, 201);
   }
