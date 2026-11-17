@@ -23,7 +23,7 @@ function MetricBar({ label, value, max, suffix = '' }: { label: string; value: n
       <div style={{ height: 9, borderRadius: 99, background: '#e2e8f0', overflow: 'hidden' }}>
         <div style={{ width: `${width}%`, height: '100%', borderRadius: 99, background: '#2563eb' }} />
       </div>
-    </main>
+    </div>
   );
 }
 
