@@ -205,7 +205,7 @@ export function WorkspaceAnalytics() {
       </Card>
 
       {isUniversity ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 }}>
+        <div className="analytics-workspace__metrics-grid">
           <StatCard label="Total students" value={universityStats.data?.students ?? 0} icon={<Users size={19} />} hint="All registered students at your university" />
           <StatCard label="Faculty supervisors" value={universityStats.data?.faculty ?? 0} icon={<GraduationCap size={19} />} />
           <StatCard label="Filtered placements" value={filteredPlacements.length} icon={<Briefcase size={19} />} />
@@ -227,7 +227,7 @@ export function WorkspaceAnalytics() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
+      <div className="analytics-workspace__reports-grid">
         <Card>
           <CardHeader title="Final grade performance" description="Official grades recorded by assigned university faculty supervisors. Company users have read-only access." />
           <div style={{ padding: 16, display: 'grid', gap: 16 }}>
