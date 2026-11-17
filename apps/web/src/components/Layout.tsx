@@ -5,7 +5,6 @@ import {
   Briefcase,
   Building2,
   ClipboardList,
-  Code2,
   FileText,
   GraduationCap,
   Settings,
@@ -88,16 +87,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           );
         })}
-        {profile.role === 'platform_admin' ? (
-          <NavLink
-            to="/admin/integrations"
-            onClick={onNavigate}
-            className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}
-          >
-            <Code2 className='nav-link__icon' />
-            Integration Centre
-          </NavLink>
-        ) : null}
         {profile.role === 'platform_admin' ? (
           <NavLink
             to="/recycle-bin"
@@ -266,7 +255,6 @@ export function Layout() {
     '/users': 'Platform users',
     '/tenants': 'Organisations',
     '/recycle-bin': 'Recycle bin',
-    '/admin/integrations': 'Integration centre',
     '/admin/analytics': 'Platform analytics',
     '/admin/management': 'Administration',
     '/admin/broadcasts': 'Broadcasts',
