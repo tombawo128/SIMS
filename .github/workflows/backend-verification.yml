@@ -45,6 +45,13 @@ jobs:
       - name: Run database tests
         run: supabase test db
 
+      - name: Exercise Storage API with isolated seeded users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          export API_URL ANON_KEY
+          node scripts/storage-api-smoke.mjs
+
   edge-functions:
     name: Type-check Edge Functions
     runs-on: ubuntu-latest
