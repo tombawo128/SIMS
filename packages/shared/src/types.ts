@@ -47,6 +47,13 @@ export interface Company {
   created_at: string;
 }
 
+export interface NotificationPreferences {
+  in_app_notifications: boolean;
+  application_updates: boolean;
+  supervision_updates: boolean;
+  system_announcements: boolean;
+}
+
 export interface Profile {
   id: string;
   role: UserRole;
@@ -58,6 +65,7 @@ export interface Profile {
   department: string | null;
   avatar_url: string | null;
   account_status: AccountStatus;
+  notification_preferences: NotificationPreferences;
   created_at: string;
   university?: Pick<University, 'id' | 'name'> | null;
   company?: Pick<Company, 'id' | 'name'> | null;
