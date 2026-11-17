@@ -25,7 +25,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Spinner,
   StatCard,
   Tabs,
@@ -226,22 +225,11 @@ export function Tenants() {
   const loading = tab === 'university' ? universities.isLoading : companies.isLoading;
 
   return (
-    <div>
-      <PageHeader
-        title="Universities & companies"
-        description={
-          tab === 'admins'
-            ? 'Create and remove the general administrators who oversee the whole platform.'
-            : 'Manage tenant workspaces, suspend access, and invite tenant administrators.'
-        }
-        actions={
-          tab === 'admins' ? undefined : (
-            <Button onClick={openCreate}>
-              <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'Add new university' : 'Add new company'}
-            </Button>
-          )
-        }
-      />
+    <main className="tenants-page">
+      <section className="page-hero">
+        <div><span className="page-hero__eyebrow">PLATFORM ADMINISTRATION</span><h1>Organisations and tenants.</h1><p>{tab === 'admins' ? 'Manage platform administrators and privileged access.' : 'Create and manage university and company workspaces across SIMS.'}</p></div>
+        <div className="page-hero__aside"><strong>{list.length}</strong><span>{tab === 'admins' ? 'administrators' : tab === 'university' ? 'university workspaces' : 'company workspaces'}</span><small>Currently selected category</small>{tab !== 'admins' ? <Button onClick={openCreate}><Plus size={15}/> {tab === 'university' ? 'Add university' : 'Add company'}</Button> : null}</div>
+      </section>
 
       <div className='tenants-mb-6-1'>
         <StatCard
@@ -538,6 +526,6 @@ export function Tenants() {
           </Alert>
         </div>
       </Modal>
-    </div>
+    </main>
   );
 }
