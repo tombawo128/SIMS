@@ -6,7 +6,7 @@ import {
   ExternalLink, Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
   RefreshCw, ShieldCheck, Webhook, Workflow,
 } from 'lucide-react';
-import { PageHeader, Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
+import { Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
 
 type Section = 'overview' | 'api' | 'webhooks' | 'sso' | 'embed' | 'logs';
 type IntegrationConnection = {
