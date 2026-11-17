@@ -131,7 +131,7 @@ The production function bodies and relevant grants inspected for these workflows
 - Test real storage upload/download/delete with separate student and non-owner accounts in a non-production environment. Production currently has no report objects to safely use for a live delete test.
 - Complete authenticated live smoke tests for invitation creation, admin-only integration management, account lifecycle actions, and the disabled signup endpoint. Do not use the Vercel preview for write tests because it shares production Supabase credentials.
 - Vercel's previous deployment rate limit has cleared and a SIMS Preview deployment is Ready. A full browser workflow smoke test is still outstanding.
-- PR #4 remains open and unmerged. No production frontend deployment has been performed.
+- PR #4 (Backend hardening) was merged into `main` on 2026-11-15 as merge commit `5882a95699bcc7a5779fad1e15eed0a2418f30cf`. No production frontend deployment has been performed.
 
 ## Safety record
 
