@@ -293,22 +293,18 @@ export function Layout() {
               <Menu className='icon' />
             </button>
             <div className='workspace-breadcrumb'>
-              <span>{profile.university?.name ?? profile.company?.name ?? 'SIMS Platform'}</span>
+              <span>{ROLE_LABELS[profile.role]}</span>
               <span className='workspace-breadcrumb__divider'>/</span>
               <strong>{currentLabel}</strong>
             </div>
           </div>
           <div className='workspace-topbar__right'>
-            <div className='workspace-topbar__context'>
-              <span className='workspace-topbar__context-dot' />
-              <span>{ROLE_LABELS[profile.role]}</span>
-            </div>
-            <NotificationBell />
             <Link to="/profile" className='workspace-account'>
               <Avatar name={profile.full_name} className='avatar--sm' />
               <span><strong>{profile.full_name}</strong><small>Account</small></span>
               <ChevronRight size={15} />
             </Link>
+            <NotificationBell />
           </div>
         </header>
 
