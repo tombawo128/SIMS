@@ -33,13 +33,16 @@ export function AuthShell({ title, subtitle, wide = false, children }: AuthShell
         </Link>
 
         <div className="sims-auth__aside-body">
+          <span className="sims-auth__aside-kicker">THE SIMS PLATFORM</span>
           <h2 className="sims-auth__aside-title">
-            Internships and placements, managed in one place.
+            A clearer way to manage the entire internship journey.
           </h2>
           <p className="sims-auth__aside-text">
-            Students, universities and companies work from the same records, from the first
-            application to the final grade.
+            One connected workspace for opportunities, applications, placements, weekly reporting and evaluation.
           </p>
+          <div className="sims-auth__aside-flow" aria-label="Internship workflow">
+            <span><b>01</b> Discover</span><i /><span><b>02</b> Place</span><i /><span><b>03</b> Review</span><i /><span><b>04</b> Evaluate</span>
+          </div>
 
           <ul className="sims-auth__aside-list">
             {points.map((point) => (
