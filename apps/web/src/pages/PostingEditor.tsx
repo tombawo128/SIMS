@@ -181,7 +181,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
   };
 
   return (
-    <main className="posting-editor-page">
+    <section className="posting-editor-page">
       <Link
         to="/manage/postings"
         className='posting-editor-mb-4-1'
@@ -381,6 +381,6 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
           </Card>
         </div>
       </form>
-    </main>
+    </section>
   );
 }
