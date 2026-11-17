@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { Activity, AlertCircle, Archive, ArrowUpRight, CheckCircle2, CircleHelp, Database, FileSearch, Fingerprint, LifeBuoy, LockKeyhole, RefreshCw, ShieldCheck, ShieldAlert, Server, Settings2, Ticket, TriangleAlert } from 'lucide-react';
+import { Activity, AlertCircle, Archive, ArrowUpRight, CheckCircle2, CircleHelp, Database, FileSearch, Fingerprint, LifeBuoy, LockKeyhole, RefreshCw, ShieldCheck, ShieldAlert, Server, Ticket, TriangleAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge, Button, Card, CardHeader, EmptyState, Spinner, Table, Th, Td, Alert } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
