@@ -14,7 +14,6 @@ import {
   EmptyState,
   Field,
   Input,
-  PageHeader,
   Select,
   Spinner,
   Textarea,
@@ -182,7 +181,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
   };
 
   return (
-    <div>
+    <main className="posting-editor-page">
       <Link
         to="/manage/postings"
         className='posting-editor-mb-4-1'
@@ -190,10 +189,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
         <ArrowLeft className='posting-editor-h-35-1' /> Our postings
       </Link>
 
-      <PageHeader
-        title={editing ? 'Edit posting' : 'New posting'}
-        description="Draft the role, choose who can see it, and publish when ready."
-      />
+      <section className="page-hero posting-editor-hero"><div><span className="page-hero__eyebrow">EMPLOYER WORKSPACE / OPPORTUNITIES</span><h1>{editing ? 'Refine your opportunity' : 'Create a new opportunity'}</h1><p>Define the role, set visibility and choose when it is ready to publish.</p></div><div className="page-hero__aside"><strong>{editing ? 'EDIT' : 'NEW'}</strong><span>{editing ? 'Update posting details' : 'Draft a role'}</span><small>Changes are saved through the existing workflow</small></div></section>
 
       <form onSubmit={handleSubmit} className='posting-editor-grid-1'>
         <div className='posting-editor-space-y-6-1'>
@@ -385,6 +381,6 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
           </Card>
         </div>
       </form>
-    </div>
+    </main>
   );
 }
