@@ -279,11 +279,14 @@ export function Dashboard() {
 
   return (
     <div>
-      <PageHeader
-        title={`Welcome, ${firstName}`}
-        description={roleDescription[role ?? 'student']}
-        actions={primaryAction}
-      />
+      <section className="dashboard-overview">
+        <div className="dashboard-overview__copy">
+          <span className="dashboard-overview__eyebrow">YOUR SIMS WORKSPACE</span>
+          <h1 className="dashboard-overview__title">Good to see you, {firstName}.</h1>
+          <p className="dashboard-overview__description">{roleDescription[role ?? 'student']}</p>
+        </div>
+        <div className="dashboard-overview__actions">{primaryAction}</div>
+      </section>
 
       {role === 'faculty_supervisor' ? (
         <div className='dashboard-mb-6-1'>
@@ -336,7 +339,7 @@ export function Dashboard() {
         ))}
       </div>
 
-      <div className='dashboard-mt-6-1'>
+      <div className='dashboard-mt-6-1 dashboard-main-grid'>
         <div className='dashboard-space-y-6-1'>
           {role === 'student' ? (
             <>
