@@ -155,7 +155,7 @@ export function ProfilePage() {
   };
 
   return (
-    <main className="profile-page">
+    <section className="profile-page">
       <section className="page-hero profile-hero">
         <div className="profile-hero__identity"><Avatar name={profile.full_name} /><div><span className="page-hero__eyebrow">ACCOUNT CENTRE</span><h1>{profile.full_name}</h1><p>{profile.email} · {tenant}</p></div></div>
         <div className="profile-hero__meta"><Badge tone="blue">{ROLE_LABELS[profile.role]}</Badge><span>Personal account</span></div>
@@ -380,6 +380,6 @@ export function ProfilePage() {
           ) : null}
         </div>
       </div>
-    </main>
+    </section>
   );
 }
