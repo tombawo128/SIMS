@@ -139,7 +139,7 @@ export function RecycleBin() {
   ];
 
   return (
-    <main className="recycle-v2">
+    <section className="recycle-v2">
       <PageHeader
         title="Recycle Bin"
         description="Review archived records, track what has been removed, and restore items when needed."
@@ -345,6 +345,6 @@ export function RecycleBin() {
           </div>
         </div>
       </Modal>
-    </main>
+    </section>
   );
 }
