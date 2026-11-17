@@ -203,3 +203,62 @@ hr { border-color: var(--sims-line); }
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Route-specific refinements */
+.sims-auth { background: #F5F7FB; }
+.sims-auth__aside { position: relative; overflow: hidden; background: linear-gradient(145deg,#081D55 0%,#0B287F 54%,#1034A6 100%); }
+.sims-auth__aside:after { position:absolute; right:-150px; bottom:-190px; width:520px; height:520px; border:1px solid rgba(255,255,255,.13); border-radius:50%; content:""; box-shadow:0 0 0 45px rgba(255,255,255,.035),0 0 0 90px rgba(255,255,255,.025); pointer-events:none; }
+.sims-auth__aside-body,.sims-auth__aside-brand,.sims-auth__aside-foot { position:relative; z-index:1; }
+.sims-auth__aside-logo { border-radius:13px; color:var(--sims-egyptian); box-shadow:0 8px 20px rgba(3,17,57,.16); }
+.sims-auth__aside-title { max-width:560px; font-size:clamp(32px,3.3vw,48px); line-height:1.08; letter-spacing:-.05em; }
+.sims-auth__aside-text { color:#D3DFF8; font-size:14px; }
+.sims-auth__aside-list { border-color:rgba(255,255,255,.18); }
+.sims-auth__aside-item { border-color:rgba(255,255,255,.14); color:#E7EDFC; }
+.sims-auth__aside-check { color:#C7D6F7; }
+.sims-auth__bar { background:var(--sims-egyptian-deep); }
+.sims-auth__card { border-color:var(--sims-line); border-radius:16px; box-shadow:var(--sims-shadow); }
+.sims-auth__title { color:var(--sims-ink); font-size:27px; letter-spacing:-.04em; }
+.sims-auth__subtitle { color:var(--sims-muted); font-size:13px; }
+.sims-auth__back { color:var(--sims-stone); }
+.sims-auth__back:hover { color:var(--sims-egyptian); }
+
+/* Landing page */
+.landing-min-h-screen-1 { background:#fff; }
+.landing-text-indigo-600-1,.landing-text-violet-600-1 { color:var(--sims-egyptian); }
+.landing-bg-indigo-50-1,.landing-bg-violet-50-1 { background:var(--sims-egyptian-soft); }
+.landing-gradient-indigo-1,.landing-gradient-violet-1 { --tw-gradient-from:#1034A6; --tw-gradient-to:#6A829F; }
+.landing-gradient-emerald-1 { --tw-gradient-from:#6A829F; --tw-gradient-to:#1034A6; }
+.landing-dot-indigo-1 { background:#1034A6; }
+
+/* People, tenant and platform-user workspaces */
+.users { gap:20px; }
+.users-stats { gap:14px; }
+.users-stats .stat-card { border-radius:13px; }
+.users-stat--pending .stat-card__icon { color:#8A641E; background:#F8F1E3; }
+.users-stat--active .stat-card__icon { color:#1F765B; background:#E8F4EF; }
+.users-stat--restricted .stat-card__icon { color:#A34550; background:#F9ECEE; }
+.users-pending-banner { border-color:#D8E3F3; border-radius:12px; background:#F1F5FC; }
+.users-pending-banner__icon { color:var(--sims-egyptian); background:#E0E9FA; }
+.users-pending-banner__text,.users-pending-banner__cta { color:#244477; }
+.users-panel { border:1px solid var(--sims-line); border-radius:14px; background:#fff; box-shadow:0 4px 16px rgba(25,48,84,.045); }
+.users-search__icon { color:var(--sims-stone); }
+.users-bulkbar { border-color:#B8CBF3; background:#EAF0FC; }
+.users-bulkbar__count { color:#0B287F; }
+.users-row--selected,.users-row--selected:hover { background:#EEF3FC; }
+.users-identity__chevron { color:#9AAAC0; }
+.users-org,.users-date { color:#62758D; }
+.tenants-grid-1 > *, .tenants-grid-2 > * { min-width:0; }
+.tenants-flex-2 { border:1px solid var(--sims-line); border-radius:14px; background:#fff; box-shadow:0 4px 16px rgba(25,48,84,.045); }
+.tenants-flex-5 { border-radius:11px; background:#EAF0FC; color:var(--sims-egyptian); }
+.tenants-truncate-1 { color:var(--sims-ink); }
+.tenants-truncate-2,.tenants-mt-3-1 { color:var(--sims-muted); }
+.notifications-list,.notifications-page { gap:14px; }
+.profile-grid-1 > *, .profile-grid-2 > * { min-width:0; }
+.profile-rounded-xl-1 { border-color:var(--sims-line); border-radius:13px; }
+.recycle-v2__summary { gap:22px; }
+.recycle-v2__workspace { border-color:var(--sims-line); border-radius:14px; box-shadow:0 4px 16px rgba(25,48,84,.045); }
+.recycle-v2__workspace-head { background:#fff; }
+.recycle-v2__table thead { background:#F4F7FB; }
+.recycle-v2__table th { color:#71839A; }
+.recycle-v2__table td { border-color:#EDF1F6; }
