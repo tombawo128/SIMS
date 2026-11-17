@@ -25,7 +25,7 @@ async function signIn(user) {
 
 const owner = await signIn(users[0]);
 const other = await signIn(users[1]);
-const objectPath = `${owner.user.id}/ci-storage-smoke-${process.env.GITHUB_RUN_ID ?? "local"}.txt`;
+const objectPath = `${owner.user.id}/ci-storage-smoke-${process.env.GITHUB_RUN_ID ?? "local"}.png`;
 const objectUrl = `/storage/v1/object/post-images/${objectPath}`;
 const headers = (token, extra = {}) => ({
   apikey: anonKey,
@@ -35,13 +35,14 @@ const headers = (token, extra = {}) => ({
 
 let uploaded = false;
 try {
+  const imageBytes = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/pV8AAAAASUVORK5CYII=", "base64");
   const upload = await request(objectUrl, {
     method: "POST",
     headers: headers(owner.access_token, {
-      "content-type": "text/plain",
+      "content-type": "image/png",
       "x-upsert": "false",
     }),
-    body: "SIMS isolated Storage API smoke test",
+    body: imageBytes,
   });
   if (!upload.response.ok) {
     throw new Error(`Owner upload failed (${upload.response.status}): ${upload.body}`);
@@ -59,11 +60,12 @@ try {
   }
   console.log("PASS: another authenticated user cannot delete the owner's file");
 
-  const download = await request(`/storage/v1/object/authenticated/post-images/${objectPath}`, {
+  const downloadResponse = await fetch(new URL(`/storage/v1/object/authenticated/post-images/${objectPath}`, apiUrl), {
     headers: headers(owner.access_token),
   });
-  if (!download.response.ok || download.body !== "SIMS isolated Storage API smoke test") {
-    throw new Error(`Owner download failed or content mismatched (${download.response.status}): ${download.body}`);
+  const downloadedBytes = Buffer.from(await downloadResponse.arrayBuffer());
+  if (!downloadResponse.ok || !downloadedBytes.equals(imageBytes)) {
+    throw new Error(`Owner download failed or content mismatched (${downloadResponse.status})`);
   }
   console.log("PASS: owner can download the uploaded object");
 
