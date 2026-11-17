@@ -6,7 +6,7 @@ import { Button } from '@/components/ui';
 export function NotFound() {
   const { session } = useAuth();
   return (
-    <main className='not-found-page'>
+    <section className='not-found-page'>
       <div className='not-found-flex-2'>
         <Compass className='not-found-h-7-1' />
       </div>
@@ -17,6 +17,6 @@ export function NotFound() {
       <Link to={session ? '/dashboard' : '/'} className='not-found-mt-6-1'>
         <Button>{session ? 'Go to dashboard' : 'Back to home'}</Button>
       </Link>
-    </main>
+    </section>
   );
 }
