@@ -187,7 +187,7 @@ export function WorkspaceAnalytics() {
   );
 
   return (
-    <main className="analytics-workspace">
+    <section className="analytics-workspace">
       <section className="page-hero">
         <div><span className="page-hero__eyebrow">PERFORMANCE AND REPORTING</span><h1>{isUniversity ? 'University insights' : 'Company insights'}.</h1><p>{isUniversity ? 'Understand department performance, supervision workload, reporting compliance and official grades.' : 'Monitor your internship pipeline, student performance, reporting compliance and placement outcomes.'}</p></div>
         <div className="page-hero__aside"><strong>{filteredPlacements.length}</strong><span>placements in current view</span><small>Metrics respond to the filters below</small></div>
@@ -305,6 +305,6 @@ export function WorkspaceAnalytics() {
           </div>
         )}
       </Card>
-    </main>
+    </section>
   );
 }
