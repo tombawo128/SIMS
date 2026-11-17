@@ -159,7 +159,7 @@ export function PostingDetail() {
   };
 
   return (
-    <main className="posting-detail-page">
+    <section className="posting-detail-page">
       <Link
         to="/postings"
         className='posting-detail-mb-4-1'
@@ -417,7 +417,7 @@ export function PostingDetail() {
           ) : null}
         </div>
       </Modal>
-    </main>
+    </section>
   );
 }
 
