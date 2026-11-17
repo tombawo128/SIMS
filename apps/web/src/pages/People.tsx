@@ -140,7 +140,7 @@ export function People() {
   };
 
   return (
-    <main className="people-page">
+    <section className="people-page">
       <section className="page-hero page-hero--people">
         <div><span className="page-hero__eyebrow">PEOPLE AND SUPERVISION</span><h1>{isCoordinator ? 'Your university community' : isCompanyAdmin ? 'Your company team' : 'Students under your supervision'}</h1><p>{isCoordinator ? 'Manage the people involved in placements across your university.' : isCompanyAdmin ? 'Keep your supervisors and company team organised.' : 'Access the students assigned to your faculty supervision.'}</p></div>
         <div className="page-hero__aside"><strong>{isCoordinator ? everyone.length : isCompanyAdmin ? (team.data ?? []).length : facultyStudents.length}</strong><span>{isCoordinator ? 'university members' : isCompanyAdmin ? 'team members' : 'assigned students'}</span><small>People connected to your workspace</small></div>
@@ -475,7 +475,7 @@ export function People() {
           )}
         </div>
       </Modal>
-    </main>
+    </section>
   );
 }
 
