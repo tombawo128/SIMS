@@ -25,7 +25,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Spinner,
   Table,
   Tabs,
@@ -148,35 +147,8 @@ export function People() {
       </section>
       <div className="people-page__actions">
         {isCoordinator ? <><Button variant="secondary" onClick={exportStudents} disabled={!students.length}><Download className='people-h-4-1' /> Export students</Button><Button onClick={() => openInvite('faculty_supervisor')}><UserPlus className='people-h-4-1' /> Invite faculty</Button></> : isCompanyAdmin ? <Button onClick={() => openInvite('site_supervisor')}><UserPlus className='people-h-4-1' /> Invite site supervisor</Button> : null}
-      </div>
-      {false ? <PageHeader
-        title={isCoordinator ? 'Students & faculty' : isCompanyAdmin ? 'Company team' : 'My students'}
-        description={
-          isCoordinator
-            ? 'Everyone enrolled or supervising at your university.'
-            : isCompanyAdmin
-              ? 'Site supervisors and admins who can review applications and supervise interns.'
-              : 'Students assigned to you through active placements.'
-        }
-        actions={
-          isCoordinator ? (
-            <>
-              <Button variant="secondary" onClick={exportStudents} disabled={!students.length}>
-                <Download className='people-h-4-1' /> Export students
-              </Button>
-              <Button onClick={() => openInvite('faculty_supervisor')}>
-                <UserPlus className='people-h-4-1' /> Invite faculty
-              </Button>
-            </>
-          ) : isCompanyAdmin ? (
-            <Button onClick={() => openInvite('site_supervisor')}>
-              <UserPlus className='people-h-4-1' /> Invite site supervisor
-            </Button>
-          ) : undefined
-        }
-      /> : null}
-
-      {isCoordinator ? (
+      </div> 
+{isCoordinator ? (
         <Tabs
           className='people-mb-4-1'
           options={tabs.map((item) => ({ key: item.key, label: item.label, count: item.count }))}
