@@ -446,3 +446,61 @@
 .integration-centre .integration-layout{grid-template-columns:235px minmax(0,1fr)}
 @media(max-width:1023px){.integration-centre .integration-hero{grid-template-columns:1fr}.integration-centre .integration-hero__art{display:none}.integration-centre .integration-layout{grid-template-columns:1fr}}
 @media(max-width:650px){.admin-page-hero__actions{width:100%;justify-content:flex-start}.admin-console .admin-console__form{padding:15px}}
+
+
+/* Integration Centre: compact, balanced configuration workspace */
+.integration-centre{color:#172B4D}
+.integration-centre .integration-section-heading{margin:0 0 17px}
+.integration-centre .integration-section-heading h2{color:#102A62;letter-spacing:-.045em}
+.integration-centre .integration-stats{gap:12px;margin-bottom:17px}
+.integration-centre .integration-stats article{position:relative;min-height:104px;padding:17px 17px 15px 62px;border:1px solid #DCE4F0;border-top:3px solid #1034A6;border-radius:13px;background:#fff;box-shadow:0 5px 18px #152D5010}
+.integration-centre .integration-stat-icon{position:absolute;left:16px;top:20px;display:grid;place-items:center;width:34px;height:34px;border:1px solid #D8E2F3;border-radius:10px;background:#EDF2FC;color:#1034A6}
+.integration-centre .integration-stats article strong{display:block;color:#102A62;font-size:25px;line-height:1.05;letter-spacing:-.05em}
+.integration-centre .integration-stats article small{display:block;margin-top:5px;color:#344A68;font-size:10px;font-weight:750}
+.integration-centre .integration-stats article em{display:block;margin-top:4px;color:#8290A4;font-size:9px;font-style:normal}
+.integration-centre .integration-overview-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;gap:14px;margin-bottom:15px}
+.integration-centre .integration-overview-grid>.card{min-width:0;border:1px solid #DCE4F0;border-radius:14px;background:#fff;box-shadow:0 5px 18px #152D500A}
+.integration-centre .integration-overview-grid .card__header{padding:18px 20px 14px;border-bottom:1px solid #E9EEF5}
+.integration-centre .integration-overview-grid .card__header h3{color:#152D50;font-size:14px;letter-spacing:-.025em}
+.integration-centre .integration-overview-grid .card__header p{margin-top:5px;color:#718198;font-size:10px;line-height:1.6}
+.integration-centre .integration-form--register{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding:17px 20px 19px}
+.integration-centre .integration-form--register label{display:flex;min-width:0;flex-direction:column;gap:7px;color:#3D526E;font-size:10px;font-weight:750}
+.integration-centre .integration-form--register input,.integration-centre .integration-form--register select{width:100%;min-height:42px;padding:0 12px;border:1px solid #D7E0ED;border-radius:8px;background:#FBFCFE;color:#172B4D;font-size:11px;outline:none}
+.integration-centre .integration-form--register input:focus,.integration-centre .integration-form--register select:focus{border-color:#5476C5;box-shadow:0 0 0 3px #1034A614}
+.integration-centre .integration-form__wide{grid-column:1/-1}
+.integration-centre .integration-form--register .integration-form__actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px;padding-top:13px;border-top:1px solid #EDF1F6}
+.integration-centre .integration-form__actions>span{color:#8190A3;font-size:9px;line-height:1.5}
+.integration-centre .integration-form__actions button{background:#1034A6;border-color:#1034A6;color:#fff}
+.integration-centre .integration-form__actions button:hover{background:#0B287F}
+.integration-centre .integration-connection-list{padding:7px 17px 12px}
+.integration-centre .integration-systems-empty{display:flex;min-height:190px;align-items:center;justify-content:center;flex-direction:column;padding:25px 22px;text-align:center}
+.integration-centre .integration-systems-empty>span{display:grid;width:42px;height:42px;place-items:center;border:1px solid #DCE5F3;border-radius:12px;background:#EDF2FC;color:#1034A6}
+.integration-centre .integration-systems-empty strong{margin-top:12px;color:#1B3152;font-size:12px}
+.integration-centre .integration-systems-empty p{max-width:300px;margin:6px 0 0;color:#7C8BA0;font-size:10px;line-height:1.7}
+.integration-centre .integration-systems-state{padding:25px 20px;color:#718198;font-size:11px}
+.integration-centre .integration-connection-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:13px 3px;border-bottom:1px solid #EDF1F6}
+.integration-centre .integration-connection-row:last-child{border-bottom:0}
+.integration-centre .integration-connection-row>div:first-child{min-width:0}
+.integration-centre .integration-connection-row strong{display:block;overflow:hidden;color:#1B3152;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.integration-centre .integration-connection-row small{display:block;margin-top:4px;color:#8491A3;font-size:9px}
+.integration-centre .integration-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.integration-centre .integration-card-grid>.card{border:1px solid #DCE4F0;border-radius:12px;background:#fff;box-shadow:0 4px 15px #152D5008}
+.integration-centre .integration-feature>span{background:#EDF2FC!important;color:#1034A6!important;border-color:#DCE5F3!important}
+.integration-centre .integration-feature h3{color:#1B3152}
+.integration-centre .integration-feature p{color:#718198}
+.integration-centre .integration-feature button{color:#1034A6}
+.integration-centre .integration-steps>div{border-color:#E8EDF4}
+.integration-centre .integration-steps>div>b{background:#EDF2FC;color:#1034A6}
+.integration-centre .integration-nav__item.is-active{background:#EAF0FC;color:#1034A6;border-left-color:#1034A6}
+.integration-centre .integration-nav__item{color:#52647C}
+.integration-centre .integration-nav__item:hover{background:#F1F5FC;color:#1034A6}
+.integration-centre .integration-nav__help{border-color:#E3EAF3}
+.integration-centre .integration-nav__help svg{color:#6A829F}
+.integration-centre .integration-nav__help strong{color:#344A68}
+.integration-centre .integration-nav__help span{color:#8190A3}
+.integration-centre .integration-eyebrow{color:#6A829F}
+.integration-centre .integration-hero{background:linear-gradient(112deg,#0B287F 0%,#1034A6 62%,#4967B1 100%);border-color:#173B91}
+.integration-centre .integration-hero__meta>span{color:#D9E4F8}
+.integration-centre .integration-hero__meta .integration-dot{background:#B8C9EE;box-shadow:0 0 0 4px #FFFFFF18}
+@media(max-width:1100px){.integration-centre .integration-overview-grid{grid-template-columns:1fr}.integration-centre .integration-systems-empty{min-height:145px}}
+@media(max-width:650px){.integration-centre .integration-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.integration-centre .integration-overview-grid{grid-template-columns:1fr}.integration-centre .integration-form--register{grid-template-columns:1fr;padding:15px}.integration-centre .integration-form__wide{grid-column:auto}.integration-centre .integration-form--register .integration-form__actions{align-items:stretch;flex-direction:column}.integration-centre .integration-form__actions button{width:100%}.integration-centre .integration-card-grid{grid-template-columns:1fr}.integration-centre .integration-connection-row{grid-template-columns:minmax(0,1fr) auto}.integration-centre .integration-connection-row>button{grid-column:1/-1;justify-self:start}}
