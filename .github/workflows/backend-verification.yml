@@ -45,6 +45,12 @@ jobs:
       - name: Run database tests
         run: supabase test db
 
+      - name: Normalize nullable Auth token fields for seeded CI users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f scripts/ci/normalize-auth-seed.sql
+
       - name: Exercise Storage API with isolated seeded users
         run: |
           set -euo pipefail
