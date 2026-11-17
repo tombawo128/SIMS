@@ -53,7 +53,7 @@ export function Postings() {
   const items = postings.data ?? [];
 
   return (
-    <main className="opportunities-page">
+    <section className="opportunities-page">
       <section className="page-hero page-hero--opportunities">
         <div><span className="page-hero__eyebrow">CAREER OPPORTUNITIES</span><h1>Find your next opportunity.</h1><p>{profile?.role === 'student' ? 'Explore internships, graduate roles and part-time work from partner companies.' : 'Explore published opportunities available to your workspace.'}</p></div>
         <div className="page-hero__aside"><strong>{items.length}</strong><span>matching opportunities</span><small>Updated from your workspace filters</small></div>
@@ -211,6 +211,6 @@ export function Postings() {
           </Link>
         </div>
       ) : null}
-    </main>
+    </section>
   );
 }
