@@ -81,7 +81,7 @@ export function Placements() {
   };
 
   return (
-    <main className="placements-page">
+    <section className="placements-page">
       <section className="page-hero page-hero--placements">
         <div><span className="page-hero__eyebrow">PLACEMENT MANAGEMENT</span><h1>{isStudent ? 'Your internship journey' : 'Placement overview'}</h1><p>{isStudent ? 'Your placement details, supervisors, weekly logs and evaluations in one view.' : 'Follow active placements, supervision assignments and assessment progress.'}</p></div>
         <div className="page-hero__aside"><strong>{items.length}</strong><span>{items.length === 1 ? 'placement record' : 'placement records'}</span><small>{counts.active ?? 0} currently active</small>{isCoordinator ? <Button size="sm" variant="secondary" onClick={exportCsv} disabled={!items.length}><Download size={15}/> Export records</Button> : null}</div>
@@ -227,6 +227,6 @@ export function Placements() {
           </Table>
         </Card>
       )}
-    </main>
+    </section>
   );
 }
