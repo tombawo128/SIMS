@@ -7,7 +7,7 @@ import { usePlacements } from '@/hooks/usePlacements';
 import { useApplications } from '@/hooks/useApplications';
 import { useCompanyStats, useUniversityStats } from '@/hooks/useDashboardStats';
 import { supabase } from '@/lib/supabase';
-import { Alert, Button, Card, CardHeader, EmptyState, PageHeader, Spinner, StatCard } from '@/components/ui';
+import { Alert, Button, Card, CardHeader, EmptyState, Spinner, StatCard } from '@/components/ui';
 
 type WeeklyReport = { id: string; placement_id: string; week_number: number; status: string; submitted_at: string | null };
 type DailyReport = { id: string; placement_id: string; report_date: string; week_number: number; status: string };
@@ -305,6 +305,6 @@ export function WorkspaceAnalytics() {
           </div>
         )}
       </Card>
-    </div>
+    </main>
   );
 }
