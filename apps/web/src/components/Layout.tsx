@@ -50,16 +50,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className='sidebar'>
-      <div className='sidebar__brand'>
-        <div className='sidebar__logo'>
-          <GraduationCap className='icon-lg' />
-        </div>
-        <div>
-          <p className='sidebar__app-name'>{APP_NAME}</p>
-          <p className='sidebar__app-tagline'>Internships & opportunities</p>
-        </div>
-      </div>
-
       <div className='sidebar__tenant'>
         <p className='sidebar__tenant-name'>{tenant}</p>
         <p className='sidebar__tenant-role'>{ROLE_LABELS[profile.role]}</p>
