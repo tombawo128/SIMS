@@ -168,7 +168,7 @@ export function PostingDetail() {
       </Link>
 
       <section className="page-hero posting-detail-hero">
-        <div><span className="page-hero__eyebrow">OPPORTUNITY DETAILS</span><h1>{data.title}</h1><p>{data.company?.name ?? 'Company'} · {POSTING_TYPE_LABELS[data.type]} · {data.is_remote ? 'Remote' : data.location || 'Location flexible'}</p><div className="posting-detail-hero__tags"><Badge tone="blue">{POSTING_TYPE_LABELS[data.type]}</Badge><Badge tone={closed ? 'amber' : 'green'}>{closed ? 'Applications closed' : 'Open opportunity'}</Badge></div></div>
+        <div><span className="page-hero__eyebrow">OPPORTUNITY DETAILS</span><h1>{data.title}</h1><p>{data.company?.name ?? 'Company'} · {POSTING_TYPE_LABELS[data.type]} · {data.is_remote ? 'Remote' : data.location || 'Location flexible'}</p><div className="posting-detail-hero__tags"><Badge tone="blue">{POSTING_TYPE_LABELS[data.type]}</Badge><Badge tone={closed ? 'amber' : 'blue'}>{closed ? 'Applications closed' : 'Open opportunity'}</Badge></div></div>
         <div className="posting-detail-hero__actions">
           {canManage ? <><Link to={`/manage/postings/${data.id}/edit`}><Button variant="secondary"><Pencil className='posting-detail-h-4-1' /> Edit posting</Button></Link><Link to="/applications"><Button>Review applicants</Button></Link></> : canApply ? <Button onClick={() => setOpen(true)}><Send className='posting-detail-h-4-1' /> Apply now</Button> : null}
         </div>
