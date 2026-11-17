@@ -390,3 +390,44 @@
 .recycle-v2 .recycle-v2__workspace{overflow:hidden}
 @media(max-width:1000px){.tenants-page .tenants-mb-6-1,.users-page .users-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-console .admin-console__split{grid-template-columns:1fr}}
 @media(max-width:650px){.tenants-page .tenants-mb-6-1,.users-page .users-stats{grid-template-columns:1fr}.admin-console .page-header{padding:18px}.integration-centre .integration-hero{padding:24px}}
+
+
+/* Settings: convert the account-centre cards into a structured settings workspace */
+.settings-page{max-width:1320px!important;padding-bottom:42px!important}
+.settings-hero{min-height:190px;padding:32px 36px!important;margin-bottom:19px!important;border-radius:15px!important;background:linear-gradient(112deg,#0A225F 0%,#1034A6 68%,#5874BD 100%)!important;border-color:#173B91!important;box-shadow:0 14px 30px #1034A626}
+.settings-hero:after{width:370px!important;height:370px!important;right:6%!important;top:-250px!important;border:1px solid #FFFFFF24;background:transparent!important;box-shadow:0 0 0 38px #FFFFFF08,0 0 0 82px #FFFFFF05}
+.settings-eyebrow{color:#C8D7F3!important;font-size:9px!important;letter-spacing:.16em!important}
+.settings-hero h1{color:#fff!important;font-size:31px!important;letter-spacing:-.05em!important}
+.settings-hero p{color:#D8E2F6!important;font-size:12px!important}
+.settings-hero-mark{width:60px!important;height:60px!important;border-radius:15px!important;border-color:#FFFFFF3B!important;background:#FFFFFF18!important;color:#fff!important}
+.settings-layout{grid-template-columns:minmax(0,1fr) 310px!important;gap:17px!important}
+.settings-main{gap:16px!important}
+.settings-card,.settings-aside-card{border-color:#E0E6EF!important;border-radius:13px!important;box-shadow:0 4px 17px #1B355909!important}
+.settings-card{padding:21px!important}
+.settings-card-head{padding-bottom:15px;margin-bottom:17px!important;border-bottom:1px solid #EDF1F5}
+.settings-icon{border-radius:10px!important;background:#EAF0FC!important;color:#1034A6!important}
+.settings-card-head h2{font-size:14px!important;letter-spacing:-.02em}
+.settings-card-head p{font-size:11px!important}
+.settings-master{border-color:#DCE5F2!important;border-radius:11px!important;background:#F3F6FB!important}
+.settings-master-symbol{background:#E3EBFA!important;color:#1034A6!important}
+.settings-row-icon.blue{background:#EAF0FC!important;color:#1034A6!important}
+.settings-row-icon.violet{background:#EDF1F7!important;color:#526A86!important}
+.settings-row-icon.amber{background:#F7F1E6!important;color:#9A712F!important}
+.settings-switch input:checked+span{background:#1034A6!important}
+.settings-switch input:focus-visible+span{outline-color:#1034A640!important}
+.settings-profile{padding:20px!important}
+.settings-avatar{border-radius:13px!important;background:#EAF0FC!important;color:#1034A6!important}
+.settings-role{background:#EAF0FC!important;color:#1034A6!important}
+.settings-meta-item svg{color:#6A829F!important}
+.settings-profile-link{color:#1034A6!important}
+.settings-aside-card{padding:17px!important}
+.settings-help-title{color:#243750!important}
+.settings-aside-card p{font-size:11px!important}
+@media(max-width:900px){.settings-layout{grid-template-columns:1fr!important}.settings-aside{grid-template-columns:repeat(2,minmax(0,1fr))!important}.settings-profile{grid-row:auto!important}}
+@media(max-width:620px){.settings-hero{padding:23px 20px!important;min-height:0}.settings-hero h1{font-size:25px!important}.settings-aside{grid-template-columns:1fr!important}.settings-card{padding:17px!important}}
+/* Purposeful not-found state */
+.not-found-page{min-height:calc(100vh - 160px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:55px 22px;text-align:center}
+.not-found-page>div:first-child{width:74px;height:74px;display:grid;place-items:center;border-radius:20px;background:#EAF0FC;color:#1034A6}
+.not-found-page h1{margin:24px 0 0;color:#1A2C44;font-size:34px;letter-spacing:-.055em}
+.not-found-page p{max-width:450px;margin:10px 0 0;color:#718096;font-size:13px;line-height:1.8}
+.not-found-page>a{margin-top:23px}
