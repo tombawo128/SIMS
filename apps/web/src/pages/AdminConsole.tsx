@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Activity, AlertTriangle, Briefcase, Building2, Clock3, FileText, GraduationCap, Megaphone, Network, RefreshCw, Send, ShieldCheck, Users } from 'lucide-react';
-import { Card, CardHeader, Button, Input, Textarea, Select, Field, Alert, Badge, EmptyState, Spinner, StatCard, Table, Th, Td, useToast } from '@/components/ui';
+import { Card, CardHeader, Button, Input, Textarea, Select, Field, Alert, Badge, EmptyState, Spinner, Table, Th, Td, useToast } from '@/components/ui';
 import { GeneralAdmins } from '@/components/GeneralAdmins';
 import { supabase } from '@/lib/supabase';
 
