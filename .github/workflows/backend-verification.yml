@@ -3,6 +3,7 @@ name: Backend verification
 on:
   push:
     branches:
+      - main
       - backend-hardening
   pull_request:
     branches:
