@@ -23,7 +23,7 @@ function MetricBar({ label, value, max, suffix = '' }: { label: string; value: n
       <div style={{ height: 9, borderRadius: 99, background: '#e2e8f0', overflow: 'hidden' }}>
         <div style={{ width: `${width}%`, height: '100%', borderRadius: 99, background: '#2563eb' }} />
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -187,14 +187,14 @@ export function WorkspaceAnalytics() {
   );
 
   return (
-    <div style={{ display: 'grid', gap: 20 }}>
-      <PageHeader
-        title={isUniversity ? 'University analytics' : 'Company analytics'}
-        description={isUniversity ? 'Department performance, supervisor workload, reporting compliance, applications, and official grades.' : 'Internship pipeline, student performance, reporting compliance, and university-issued final grades.'}
-      />
+    <main className="analytics-workspace">
+      <section className="page-hero">
+        <div><span className="page-hero__eyebrow">PERFORMANCE AND REPORTING</span><h1>{isUniversity ? 'University insights' : 'Company insights'}.</h1><p>{isUniversity ? 'Understand department performance, supervision workload, reporting compliance and official grades.' : 'Monitor your internship pipeline, student performance, reporting compliance and placement outcomes.'}</p></div>
+        <div className="page-hero__aside"><strong>{filteredPlacements.length}</strong><span>placements in current view</span><small>Metrics respond to the filters below</small></div>
+      </section>
 
-      <Card>
-        <CardHeader title="Report filters" description="Filter placement-based reports by creation date, student department, and programme." />
+      <Card className="analytics-filter-panel">
+        <CardHeader title="Refine your report" description="Filter placement-based reports by creation date, student department, and programme." />
         <div style={{ padding: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12 }}>
           <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>From date<input type="date" value={startDate} max={endDate || undefined} onChange={(e) => setStartDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
           <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>To date<input type="date" value={endDate} min={startDate || undefined} onChange={(e) => setEndDate(e.target.value)} style={{ padding: 9, border: '1px solid #cbd5e1', borderRadius: 8 }} /></label>
