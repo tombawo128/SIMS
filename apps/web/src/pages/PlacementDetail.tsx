@@ -384,7 +384,7 @@ export function PlacementDetail() {
   ];
 
   return (
-    <main className="placement-detail-page">
+    <section className="placement-detail-page">
       <Link
         to="/placements"
         className='placement-detail-mb-4-1'
@@ -1117,7 +1117,7 @@ export function PlacementDetail() {
           </Field>
         </div>
       </Modal>
-    </main>
+    </section>
   );
 }
 
