@@ -5,6 +5,7 @@ import {
   Pencil,
   Plus,
   Power,
+  Search,
   Trash2,
   UserPlus,
 } from 'lucide-react';
@@ -73,6 +74,7 @@ export function Tenants() {
   const deleteTenant = useDeleteTenant();
 
   const [tab, setTab] = useState<Kind>('university');
+  const [searchTerm, setSearchTerm] = useState('');
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<University | Company | null>(null);
   const [form, setForm] = useState<TenantFormState>(EMPTY_FORM);
@@ -222,6 +224,10 @@ export function Tenants() {
   };
 
   const list = tab === 'university' ? universityList : companyList;
+  const filteredList = useMemo(() => {
+    const query = searchTerm.trim().toLocaleLowerCase();
+    return query ? list.filter((tenant) => tenant.name.toLocaleLowerCase().includes(query)) : list;
+  }, [list, searchTerm]);
   const loading = tab === 'university' ? universities.isLoading : companies.isLoading;
 
   return (
@@ -293,8 +299,16 @@ export function Tenants() {
           }
         />
       ) : (
+        <>
+        <div className='tenants-search'>
+          <Search size={18} aria-hidden="true" />
+          <Input aria-label={tab === 'university' ? 'Search universities by name' : 'Search companies by name'} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder={tab === 'university' ? 'Search universities by name…' : 'Search companies by name…'} />
+          {searchTerm ? <Button size="sm" variant="ghost" onClick={() => setSearchTerm('')}>Clear</Button> : null}
+          <span>{filteredList.length} of {list.length}</span>
+        </div>
+        {filteredList.length === 0 ? <EmptyState title={'No ' + (tab === 'university' ? 'universities' : 'companies') + ' found'} description={'No organisation name matches “' + searchTerm.trim() + '”. Try another name.'} /> : (
         <div className='tenants-grid-1'>
-          {list.map((tenant) => (
+          {filteredList.map((tenant) => (
             <Card key={tenant.id} className='tenants-flex-2'>
               <div className='tenants-flex-3'>
                 <div className='tenants-flex-4'>
@@ -347,6 +361,8 @@ export function Tenants() {
             </Card>
           ))}
         </div>
+        )}
+        </>
       )}
 
       <Modal

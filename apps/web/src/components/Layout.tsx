@@ -17,6 +17,9 @@ import {
   UsersRound,
   X,
   ChevronRight,
+  Database,
+  LifeBuoy,
+  LockKeyhole,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { APP_NAME, NAV_BY_ROLE, ROLE_LABELS, formatDateTime, type NavIcon } from '@sims/shared';
@@ -78,6 +81,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           );
         })}
         {profile.role === 'platform_admin' ? (
+          <>
+          <NavLink to="/admin/compliance" onClick={onNavigate} className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}>
+            <Database className='nav-link__icon' /> Compliance & data
+          </NavLink>
+          <NavLink to="/admin/support" onClick={onNavigate} className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}>
+            <LifeBuoy className='nav-link__icon' /> Support & moderation
+          </NavLink>
+          <NavLink to="/admin/security" onClick={onNavigate} className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}>
+            <LockKeyhole className='nav-link__icon' /> Security & authentication
+          </NavLink>
           <NavLink
             to="/recycle-bin"
             onClick={onNavigate}
@@ -86,6 +99,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <Archive className='nav-link__icon' />
             Recycle Bin
           </NavLink>
+          </>
         ) : null}
       </nav>
 
@@ -250,6 +264,9 @@ export function Layout() {
     '/admin/broadcasts': 'Broadcasts',
     '/admin/activity-logs': 'Activity logs',
     '/admin/system-alerts': 'System alerts',
+    '/admin/compliance': 'Compliance & data management',
+    '/admin/support': 'Support & moderation',
+    '/admin/security': 'Security & authentication',
     '/manage/postings': 'Manage opportunities',
   };
   const currentLabel = routeLabels[location.pathname]

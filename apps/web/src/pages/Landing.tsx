@@ -157,6 +157,40 @@ export function Landing() {
         <div className="public-audience-grid">{audiences.map((item,i)=><article className="public-audience" key={item.title}><div className="public-audience__top"><span className="public-audience__icon"><item.icon size={23}/></span><span>0{i+1}</span></div><h3>{item.title}</h3><p>{item.copy}</p><ul>{item.points.map(point=><li key={point}><Check size={15}/>{point}</li>)}</ul></article>)}</div>
       </section>
 
+      <section className="sims-landing-section">
+        <div className="sims-landing-container">
+          <div className="sims-landing-heading"><span className="sims-landing-eyebrow">BUILT FOR REAL OPERATIONS</span><h2>Everything needed to manage the placement lifecycle.</h2><p>Bring the day-to-day tasks behind internships into a single, structured workspace.</p></div>
+          <div className="sims-capability-grid">
+            <article className="sims-capability-card"><span className="sims-capability-icon"><ClipboardCheck size={21}/></span><h3>Application management</h3><p>Follow submitted applications, review decisions and keep the next action visible to the right people.</p></article>
+            <article className="sims-capability-card"><span className="sims-capability-icon"><CalendarDays size={21}/></span><h3>Placement tracking</h3><p>Keep placement records, timelines and supervision responsibilities connected throughout the internship.</p></article>
+            <article className="sims-capability-card"><span className="sims-capability-icon"><FileCheck2 size={21}/></span><h3>Reports and evaluations</h3><p>Record weekly progress, supervisor feedback and assessment outcomes in one organised workflow.</p></article>
+            <article className="sims-capability-card"><span className="sims-capability-icon"><ChartNoAxesCombined size={21}/></span><h3>Operational insights</h3><p>Give authorised teams visibility into participation, workload and placement activity.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section className="sims-landing-section sims-landing-security">
+        <div className="sims-landing-container sims-security-layout">
+          <div className="sims-landing-heading sims-security-heading"><span className="sims-landing-eyebrow">ACCOUNTABILITY BY DESIGN</span><h2>Clear access. Clear ownership.</h2><p>Internship information is handled through role-based workspaces, helping each participant focus on the records and actions relevant to their responsibilities.</p></div>
+          <div className="sims-security-list">
+            <article className="sims-security-item"><span><LockKeyhole size={19}/></span><div><h3>Role-based access</h3><p>Students, university teams, company teams and platform administrators have distinct workspace permissions.</p></div></article>
+            <article className="sims-security-item"><span><ShieldCheck size={19}/></span><div><h3>Structured oversight</h3><p>Placement activity and key decisions remain organised for the people responsible for supervision and coordination.</p></div></article>
+            <article className="sims-security-item"><span><BellRing size={19}/></span><div><h3>Centralised updates</h3><p>Keep important platform announcements and workflow notifications in one place.</p></div></article>
+          </div>
+        </div>
+      </section>
+
+      <section className="sims-landing-section">
+        <div className="sims-landing-container">
+          <div className="sims-landing-heading"><span className="sims-landing-eyebrow">QUICK ANSWERS</span><h2>Getting started with SIMS.</h2><p>A few things to know before using the platform.</p></div>
+          <div className="sims-faq-grid">
+            <details className="sims-faq-item"><summary>Who can use SIMS?<ChevronRight size={17}/></summary><p>Students, university coordinators, faculty supervisors, company administrators, site supervisors and authorised platform administrators.</p></details>
+            <details className="sims-faq-item"><summary>Can students apply for opportunities?<ChevronRight size={17}/></summary><p>Yes. Students can explore available internship opportunities and follow their application status through their workspace.</p></details>
+            <details className="sims-faq-item"><summary>How is internship progress recorded?<ChevronRight size={17}/></summary><p>Students record their activity through reporting workflows, while supervisors review progress and contribute feedback.</p></details>
+            <details className="sims-faq-item"><summary>How do I access my organisation workspace?<ChevronRight size={17}/></summary><p>Sign in with the account provided by your university or company administrator. Your role determines the workspace available to you.</p></details>
+          </div>
+        </div>
+      </section>
       <section className="public-cta">
         <div className="public-cta__ornament"><Sparkles size={28}/></div>
         <span className="public-eyebrow">A MORE CONNECTED INTERNSHIP PROCESS</span>
