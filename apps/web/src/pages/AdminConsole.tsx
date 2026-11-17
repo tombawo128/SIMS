@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Activity, AlertTriangle, Briefcase, Building2, Clock3, FileText, GraduationCap, Megaphone, RefreshCw, Send, ShieldCheck, Users } from 'lucide-react';
-import { PageHeader, Card, CardHeader, Button, Input, Textarea, Select, Field, Alert, Badge, EmptyState, Spinner, StatCard, Table, Th, Td, useToast } from '@/components/ui';
+import { Card, CardHeader, Button, Input, Textarea, Select, Field, Alert, Badge, EmptyState, Spinner, StatCard, Table, Th, Td, useToast } from '@/components/ui';
 import { GeneralAdmins } from '@/components/GeneralAdmins';
 import { supabase } from '@/lib/supabase';
 
@@ -31,6 +31,10 @@ const dateTime = (value: string) => new Intl.DateTimeFormat(undefined, {
   dateStyle: 'medium', timeStyle: 'short',
 }).format(new Date(value));
 const count = (value?: number) => (value ?? 0).toLocaleString();
+
+function AdminHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
+  return <section className='page-hero admin-page-hero'><div><span className='page-hero__eyebrow'>SIMS ADMINISTRATION</span><h1>{title}</h1><p>{description}</p></div>{actions ? <div className='admin-page-hero__actions'>{actions}</div> : null}</section>;
+}
 
 export function Broadcasts() {
   const queryClient = useQueryClient();
@@ -68,7 +72,7 @@ export function Broadcasts() {
 
   return (
     <div className='admin-console'>
-      <PageHeader title='System-wide Announcements' description='Publish official announcements to all active users or a selected role.' />
+      <AdminHeader title='System-wide announcements' description='Publish official announcements to all active users or a selected role.' />
       <div className='admin-console__split'>
         <Card>
           <CardHeader title='Compose an announcement' description='Announcements are delivered through recipients’ SIMS notification centre.' />
@@ -132,7 +136,7 @@ export function ActivityLogs() {
   });
   return (
     <div className='admin-console'>
-      <PageHeader title='Activity Logs' description='Review administrative and platform activity recorded by SIMS.' actions={<Button variant='secondary' size='sm' onClick={() => void logs.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
+      <AdminHeader title='Activity logs' description='Review administrative and platform activity recorded by SIMS.' actions={<Button variant='secondary' size='sm' onClick={() => void logs.refetch()}><RefreshCw size={14} /> Refresh</Button>} />
       <Card>
         <CardHeader title='Recent activity' description='Latest 200 audit events, newest first.' />
         {logs.isLoading ? <div className='admin-console__loading'><Spinner /></div> : logs.isError ? <Alert tone='danger' title='Could not load activity logs'>{(logs.error as Error).message}</Alert> : !logs.data?.length ? <EmptyState icon={<Activity />} title='No activity recorded' description='Administrative actions will appear here as they occur.' /> : (
@@ -194,7 +198,7 @@ export function SystemAlerts() {
 
   return (
     <div className='admin-console'>
-      <PageHeader title='Internal System Alerts' description='Track internal operational, security, and technical issues for platform administrators only.' />
+      <AdminHeader title='Internal system alerts' description='Track operational, security and technical issues for platform administrators.' />
       <div className='admin-console__split'>
         <Card>
           <CardHeader title='Create an internal alert' description='Internal alerts are restricted to platform administrators and are not sent to general users.' />
@@ -232,7 +236,7 @@ export function SystemAlerts() {
 }
 
 export function AdminManagement() {
-  return <div className='admin-console'><PageHeader title='Admin Management' description='Manage platform-wide administrator accounts and access.' /><GeneralAdmins /></div>;
+  return <div className='admin-console'><AdminHeader title='Administrator access' description='Manage platform-wide administrator accounts and access.' /><GeneralAdmins /></div>;
 }
 
 export function Analytics() {
@@ -274,9 +278,9 @@ export function Analytics() {
 
   return (
     <div className='admin-console analytics-page'>
-      <PageHeader
+      <AdminHeader
         title='Platform analytics'
-        description='A live operational view of SIMS accounts, organizations, and internship activity.'
+        description='A live operational view of SIMS accounts, organisations and internship activity.'
         actions={<Button size='sm' variant='secondary' onClick={() => void analytics.refetch()} loading={analytics.isFetching}><RefreshCw size={14} /> Refresh data</Button>}
       />
       {analytics.isLoading ? <div className='admin-console__loading'><Spinner /></div> : analytics.isError ? (
