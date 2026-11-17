@@ -93,7 +93,7 @@ export function ManagePostings() {
   };
 
   return (
-    <main className="manage-opportunities-page">
+    <section className="manage-opportunities-page">
       <section className="page-hero page-hero--manage">
         <div><span className="page-hero__eyebrow">EMPLOYER WORKSPACE</span><h1>Manage your opportunities.</h1><p>Create, publish and maintain the roles your organisation shares with students.</p></div>
         <div className="page-hero__aside"><strong>{items.length}</strong><span>opportunities in your workspace</span><small>Drafts, published and closed roles</small><Link to="/manage/postings/new"><Button><Plus size={16}/> Create opportunity</Button></Link></div>
@@ -239,6 +239,6 @@ export function ManagePostings() {
         </Card>
         </>
       )}
-    </main>
+    </section>
   );
 }
