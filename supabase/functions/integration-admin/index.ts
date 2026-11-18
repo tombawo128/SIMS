@@ -8,7 +8,7 @@ const ALLOWED_WEBHOOK_EVENTS = [
   'weekly_report.reviewed', 'evaluation.completed',
 ];
 type Action = 'list' | 'create_connection' | 'create_api_key' | 'revoke_api_key' | 'set_connection_status'
-  | 'list_webhooks' | 'create_webhook' | 'set_webhook_status'
+  | 'list_webhooks' | 'create_webhook' | 'set_webhook_status' | 'process_webhooks'
   | 'list_sso_configs' | 'save_sso_config' | 'set_sso_status'
   | 'list_embeds' | 'create_embed' | 'set_embed_status';
 function json(body: unknown, status = 200) {
@@ -147,6 +147,24 @@ Deno.serve(async (req: Request) => {
       })),
       api_keys: keys ?? [],
     });
+  }
+
+  if (body.action === 'process_webhooks') {
+    const workerSecret = Deno.env.get('INTEGRATION_WEBHOOK_WORKER_SECRET');
+    if (!workerSecret) return json({ error: 'Webhook delivery worker is not configured' }, 503);
+    const workerResponse = await fetch(`${url}/functions/v1/integration-webhook-worker`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+        'x-sims-worker-secret': workerSecret,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ limit: 10 }),
+    });
+    const result = await workerResponse.json().catch(() => ({}));
+    if (!workerResponse.ok) return json({ error: result.error ?? 'Webhook delivery worker failed' }, workerResponse.status);
+    return json({ delivery: result });
   }
 
   if (body.action === 'list_webhooks') {
