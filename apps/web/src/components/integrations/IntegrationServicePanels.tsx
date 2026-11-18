@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, Check, Copy, ExternalLink, Plus, RefreshCw, ShieldCheck, Webhook, LockKeyhole, Code2 } from 'lucide-react';
+import { Activity, Copy, ExternalLink, Plus, RefreshCw, Webhook, LockKeyhole, Code2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, useToast } from '@/components/ui';
 
