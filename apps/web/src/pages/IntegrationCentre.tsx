@@ -101,7 +101,7 @@ export function IntegrationCentre() {
     queryFn: async () => {
       const { data, error } = await supabase.from('audit_logs')
         .select('id,actor_id,entity,entity_id,action,metadata,created_at')
-        .in('entity', ['integration_connection', 'integration_api_key'])
+        .in('entity', ['integration_connection', 'integration_api_key', 'integration_api_request'])
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -404,8 +404,13 @@ export function IntegrationCentre() {
                         <span className="integration-activity-row__icon"><Activity size={16} /></span>
                         <div className="integration-activity-row__body">
                           <strong>{event.action.replaceAll('_', ' ')}</strong>
-                          <span>{event.entity.replaceAll('_', ' ')}{event.entity_id ? ` · ${event.entity_id}` : ''}</span>
-                          <small>{new Date(event.created_at).toLocaleString()} · {event.actor_id ? `Actor ${event.actor_id}` : 'System event'}</small>
+                          <span>
+                            {event.entity.replaceAll('_', ' ')}
+                            {typeof event.metadata.path === 'string' ? ` · ${event.metadata.path}` : ''}
+                            {typeof event.metadata.status_code === 'number' ? ` · HTTP ${event.metadata.status_code}` : ''}
+                            {event.entity_id ? ` · ${event.entity_id}` : ''}
+                          </span>
+                          <small>{new Date(event.created_at).toLocaleString()} · {event.actor_id ? `Actor ${event.actor_id}` : 'System or API event'}</small>
                         </div>
                       </article>
                     ))}
