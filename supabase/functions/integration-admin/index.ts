@@ -28,7 +28,8 @@ async function sha256(value: string) {
 function base64Url(bytes: Uint8Array) {
   let binary = '';
   bytes.forEach(byte => binary += String.fromCharCode(byte));
-  return btoa(binary).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/g, '');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+
 }
 
 async function encryptIntegrationSecret(value: string) {
@@ -77,7 +78,7 @@ async function assertSafeWebhookUrl(value: string) {
     || !host.includes('.') || host === 'localhost'
     || host.endsWith('.localhost') || host.endsWith('.local')
     || host.endsWith('.internal') || host.endsWith('.test')
-    || /^\\d{1,3}(\\.\\d{1,3}){3}$/.test(host) || host.startsWith('[')) {
+    || /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.startsWith('[')) {
     throw new Error('Webhook endpoints must use a public HTTPS hostname');
   }
   const ipv4 = await Deno.resolveDns(host, 'A').catch(() => [] as string[]);
