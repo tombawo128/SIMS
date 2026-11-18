@@ -10,12 +10,20 @@ export function useApplications(enabled = true) {
     queryKey: ['applications'],
     enabled,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('applications')
-        .select(APPLICATION_SELECT)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Application[];
+      const pageSize = 1000;
+      const rows: Application[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase
+          .from('applications')
+          .select(APPLICATION_SELECT)
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as Application[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
 }
