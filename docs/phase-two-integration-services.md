@@ -63,7 +63,7 @@ Check the Supabase Cron job history and `net._http_response` after enabling the 
 
 ## SSO release boundary
 
-The branch adds encrypted per-tenant OIDC/SAML configuration storage and an administrative workflow. It does **not** activate a sign-in protocol by itself. Actual SSO activation still requires:
+The branch adds encrypted per-tenant OIDC/SAML configuration storage and an administrative workflow. It does **not** activate a sign-in protocol by itself. The connected SIMS Supabase project is currently on the Free plan; Supabase's SAML 2.0 Auth support requires Pro or above. An upgrade is therefore a hard prerequisite for SAML sign-in. Actual SSO activation still requires:
 
 1. A real IdP issuer, metadata, client ID and provider secret/certificate from the organisation.
 2. Verified email-domain ownership and a tested account-to-tenant mapping.
