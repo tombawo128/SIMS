@@ -49,8 +49,9 @@ export function WorkspaceAnalytics() {
   const { profile } = useAuth();
   const isUniversity = profile?.role === 'coordinator';
   const isCompany = profile?.role === 'company_admin';
-  const placementsQuery = usePlacements();
-  const applicationsQuery = useApplications();
+  const analyticsEnabled = isUniversity || isCompany;
+  const placementsQuery = usePlacements(analyticsEnabled);
+  const applicationsQuery = useApplications(analyticsEnabled);
   const universityStats = useUniversityStats(isUniversity);
   const companyStats = useCompanyStats(isCompany);
   const weeklyQuery = useQuery({
