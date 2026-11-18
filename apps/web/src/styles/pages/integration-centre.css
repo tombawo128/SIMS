@@ -208,3 +208,14 @@
   .integration-centre .integration-stats strong{font-size:22px}
   .integration-centre .integration-steps>div>.badge{margin-left:auto}
 }
+
+
+/* Integration activity audit trail */
+.integration-centre .integration-activity-list{display:grid;padding:0 18px 10px}
+.integration-centre .integration-activity-row{display:flex;align-items:flex-start;gap:12px;padding:14px 2px;border-bottom:1px solid #edf1ed}
+.integration-centre .integration-activity-row:last-child{border-bottom:0}
+.integration-centre .integration-activity-row__icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid #e1ecd8;border-radius:10px;background:#f2f7ec;color:#4d7a3d}
+.integration-centre .integration-activity-row__body{display:grid;gap:4px;min-width:0}
+.integration-centre .integration-activity-row__body strong{color:#23362a;font-size:12px;text-transform:capitalize}
+.integration-centre .integration-activity-row__body span{color:#52645a;font-size:10.5px;overflow-wrap:anywhere}
+.integration-centre .integration-activity-row__body small{color:#87948b;font-size:9.5px;overflow-wrap:anywhere}
