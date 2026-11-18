@@ -269,7 +269,7 @@ export function SsoPanel({ connections }: { connections: Connection[] }) {
             <div className="integration-key-row" key={item.id}>
               <div><strong>{item.protocol.toUpperCase()} · {connections.find(c => c.id === item.integration_id)?.organization_name ?? 'Organisation'}</strong><small>{item.issuer_url}</small><div className="integration-key-scopes">{item.email_domains.map(domain => <code key={domain}>{domain}</code>)}</div></div>
               <div className="integration-key-meta"><StatusBadge status={item.status} /></div>
-              <div className="integration-key-actions">{item.status === 'draft' || item.status === 'disabled' ? <Button size="sm" variant="secondary" onClick={() => changeStatus.mutate({ integrationId: item.integration_id, value: 'pending_verification' })}>Request verification</Button> : null}{item.status !== 'disabled' ? <Button size="sm" variant="secondary" onClick={() => changeStatus.mutate({ integrationId: item.integration_id, value: 'disabled' })}>Disable</Button> : null}</div>
+              <div className="integration-key-actions">{item.status === 'draft' || item.status === 'disabled' ? <Button size="sm" variant="secondary" onClick={() => changeStatus.mutate({ integrationId: item.integration_id, value: 'pending_verification' })}>Move to pending verification</Button> : null}{item.status !== 'disabled' ? <Button size="sm" variant="secondary" onClick={() => changeStatus.mutate({ integrationId: item.integration_id, value: 'disabled' })}>Disable</Button> : null}</div>
             </div>
           ))}</div>
         )}
