@@ -7,7 +7,7 @@ This document describes the Phase Two integration services and the required rele
 - **API management:** tenant-bound connections, one-time API secrets stored as SHA-256 hashes, scopes, expiry and revocation.
 - **API activity:** successful scoped API reads and denied scope attempts are written to the platform-admin audit stream without recording response bodies.
 - **Webhooks:** endpoint configuration, event subscriptions, encrypted one-time signing secrets, a durable database outbox, HMAC-SHA256 signatures, delivery history and bounded exponential retries.
-- **Event capture:** application, placement, weekly-report and evaluation state changes enqueue tenant-specific webhook deliveries.
+- **Event capture:** application, placement, daily/weekly-report and evaluation state changes enqueue tenant-specific webhook deliveries.
 - **Embeds:** public, unguessable embed tokens; tenant-scoped published opportunities; HTTPS origin allowlists enforced by CSP `frame-ancestors`.
 - **SSO configuration:** tenant-specific OIDC/SAML configuration can be stored encrypted and remains in draft/pending-verification states until the actual identity provider and account-linking flow are verified.
 
