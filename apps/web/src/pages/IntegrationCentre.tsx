@@ -7,6 +7,7 @@ import {
   RefreshCw, ShieldCheck, Webhook, Workflow,
 } from 'lucide-react';
 import { Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
+import { EmbedsPanel, SsoPanel, WebhooksPanel } from '@/components/integrations/IntegrationServicePanels';
 
 type Section = 'overview' | 'api' | 'webhooks' | 'sso' | 'embed' | 'logs';
 type IntegrationConnection = {
@@ -362,29 +363,11 @@ export function IntegrationCentre() {
               <Card><CardHeader title="API request example" description="The API gateway enforces the credential's organisation and permission scopes." actions={<Button size="sm" variant="secondary" onClick={() => void copyText(apiExample, 'API request example')}>{copied === 'API request example' ? <Check size={14} /> : <Copy size={14} />} Copy</Button>} /><pre className="integration-code"><code>{apiExample}</code></pre><div className="integration-note">Available endpoints: /v1/organisation, /v1/opportunities, /v1/applications and /v1/placements. Read-only access, maximum 100 records per request.</div></Card>
             </div>
           ) : null}
-          {section === 'webhooks' ? (
-            <div className="integration-stack">
-              <Alert tone="info" title="Webhook delivery is not active">Endpoint registration, signing secrets, retry handling and delivery logs require backend services. The controls below are intentionally inactive until those services exist.</Alert>
-              <Card><CardHeader title="Registered endpoints" description="Send signed event payloads to an organisation-owned HTTPS endpoint." actions={<Button disabled><Plus size={15} /> Add endpoint</Button>} /><EmptyState icon={<Webhook />} title="No webhook endpoints" description="Configured endpoints and their delivery health will appear here." /></Card>
-              <Card><CardHeader title="Available event catalogue" description="Events planned for the first integration release." /><div className="integration-event-list">{['application.submitted','application.status_changed','placement.created','placement.completed','weekly_report.submitted','weekly_report.reviewed','evaluation.completed'].map(event => <div key={event}><code>{event}</code><Badge tone="slate">Planned</Badge></div>)}</div></Card>
-            </div>
-          ) : null}
+          {section === 'webhooks' ? <WebhooksPanel connections={connections} /> : null}
 
-          {section === 'sso' ? (
-            <div className="integration-stack">
-              <Alert tone="info" title="SSO providers are not connected">OpenID Connect should be implemented first, followed by SAML 2.0 for institutions that require it. Provider secrets must be stored server-side.</Alert>
-              <Card><CardHeader title="Identity provider" description="Connect the organisation's identity provider to SIMS." /><div className="integration-provider-grid"><article><span className="integration-provider-mark">OIDC</span><strong>OpenID Connect</strong><small>Recommended first implementation</small><Badge tone="amber">Not configured</Badge></article><article><span className="integration-provider-mark">SAML</span><strong>SAML 2.0</strong><small>For enterprise and institutional identity</small><Badge tone="slate">Planned</Badge></article></div><div className="integration-disabled-actions"><Button disabled>Configure identity provider</Button><span>Requires callback handling, domain verification and server-side secret storage.</span></div></Card>
-              <Card><CardHeader title="Domain verification" description="Restrict organisation sign-in to verified email domains." /><ComingSoon title="No verified domains" description="Domain ownership checks and account-to-tenant mapping will be added with SSO." /></Card>
-            </div>
-          ) : null}
+          {section === 'sso' ? <SsoPanel connections={connections} /> : null}
 
-          {section === 'embed' ? (
-            <div className="integration-stack">
-              <Alert tone="info" title="Embeds are examples only">The snippet below is a proposed integration format. A public, tenant-aware embed route and content security policy must be added before organisations can use it.</Alert>
-              <Card><CardHeader title="Opportunity listing embed" description="An example iframe organisations could place on their careers or student portal." actions={<Button size="sm" variant="secondary" onClick={() => void copyText(embedExample, 'Embed snippet')}>{copied === 'Embed snippet' ? <Check size={14} /> : <Copy size={14} />} Copy snippet</Button>} /><pre className="integration-code"><code>{embedExample}</code></pre><div className="integration-note"><ExternalLink size={15} /> Tenant ID, allowed origin and displayed fields must be configured before publishing.</div></Card>
-              <Card><CardHeader title="Branding controls" description="Future white-label options for connected organisations." /><div className="integration-brand-options"><span>Organisation logo <Badge tone="slate">Planned</Badge></span><span>Accent colour <Badge tone="slate">Planned</Badge></span><span>Custom domain <Badge tone="slate">Planned</Badge></span></div></Card>
-            </div>
-          ) : null}
+          {section === 'embed' ? <EmbedsPanel connections={connections} /> : null}
 
           {section === 'logs' ? (
             <div className="integration-stack">
