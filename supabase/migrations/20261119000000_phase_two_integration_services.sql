@@ -16,6 +16,8 @@ create table public.integration_webhooks (
       'placement.completed',
       'weekly_report.submitted',
       'weekly_report.reviewed',
+      'daily_report.submitted',
+      'daily_report.reviewed',
       'evaluation.completed'
     ]::text[]
   ),
@@ -208,6 +210,23 @@ begin
       'week_number', v_row->>'week_number',
       'status', v_row->>'status'
     );
+  elsif tg_table_name = 'daily_reports' then
+    v_placement_id := nullif(v_row->>'placement_id', '')::uuid;
+    select p.university_id, p.company_id into v_university_id, v_company_id
+    from public.placements p where p.id = v_placement_id;
+    if v_row->>'status' = 'submitted' and (tg_op = 'INSERT' or v_old->>'status' is distinct from 'submitted') then
+      v_event := 'daily_report.submitted';
+    elsif tg_op = 'UPDATE' and v_old->>'status' is distinct from v_row->>'status'
+      and v_row->>'status' in ('approved', 'needs_revision') then
+      v_event := 'daily_report.reviewed';
+    end if;
+    v_payload := jsonb_build_object(
+      'daily_report_id', v_row->>'id',
+      'placement_id', v_row->>'placement_id',
+      'report_date', v_row->>'report_date',
+      'week_number', v_row->>'week_number',
+      'status', v_row->>'status'
+    );
   elsif tg_table_name = 'evaluations' then
     v_placement_id := nullif(v_row->>'placement_id', '')::uuid;
     select p.university_id, p.company_id into v_university_id, v_company_id
@@ -247,6 +266,9 @@ after insert or update of status on public.placements
 for each row execute function public.capture_integration_webhook_event();
 create trigger weekly_logs_integration_webhook_event
 after insert or update of status on public.weekly_logs
+for each row execute function public.capture_integration_webhook_event();
+create trigger daily_reports_integration_webhook_event
+after insert or update of status on public.daily_reports
 for each row execute function public.capture_integration_webhook_event();
 create trigger evaluations_integration_webhook_event
 after insert on public.evaluations
