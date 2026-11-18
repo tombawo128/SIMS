@@ -3,8 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import {
   Activity, ArrowUpRight, BookOpen, Check, ChevronRight, Code2, Copy,
-  ExternalLink, Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
-  RefreshCw, ShieldCheck, Webhook, Workflow,
+  Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
+  RefreshCw, ShieldCheck, Webhook,
 } from 'lucide-react';
 import { Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
 import { EmbedsPanel, SsoPanel, WebhooksPanel } from '@/components/integrations/IntegrationServicePanels';
@@ -43,14 +43,6 @@ const apiExample = `curl -X GET "https://YOUR_PROJECT_REF.supabase.co/functions/
   -H "Authorization: Bearer YOUR_API_KEY" \\\
   -H "Accept: application/json"`;
 
-const embedExample = `<iframe
-  src="https://sims.example/embed/opportunities?tenant=YOUR_TENANT"
-  title="SIMS internship opportunities"
-  width="100%"
-  height="640"
-  loading="lazy">
-</iframe>`;
-
 function localDateValue(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -60,17 +52,6 @@ function localDateValue(date: Date) {
 
 function isKeyExpired(key: IntegrationApiKey) {
   return Boolean(key.expires_at && new Date(key.expires_at).getTime() <= Date.now());
-}
-
-function ComingSoon({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="integration-empty">
-      <span className="integration-empty__icon"><Workflow size={22} /></span>
-      <h3>{title}</h3>
-      <p>{description}</p>
-      <Badge tone="amber">Backend setup required</Badge>
-    </div>
-  );
 }
 
 export function IntegrationCentre() {
@@ -102,7 +83,7 @@ export function IntegrationCentre() {
     queryFn: async () => {
       const { data, error } = await supabase.from('audit_logs')
         .select('id,actor_id,entity,entity_id,action,metadata,created_at')
-        .in('entity', ['integration_connection', 'integration_api_key', 'integration_api_request'])
+        .in('entity', ['integration_connection', 'integration_api_key', 'integration_api_request', 'integration_webhook', 'integration_sso_config', 'integration_embed'])
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -375,7 +356,7 @@ export function IntegrationCentre() {
               <Card>
                 <CardHeader
                   title="Integration activity"
-                  description="Recent connection and API-credential administration events. API request and webhook delivery telemetry are not yet part of this read-only API release."
+                  description="Recent connection, credential, webhook, SSO, embed and API request events."
                   actions={<Button size="sm" variant="secondary" onClick={() => void logsQuery.refetch()} loading={logsQuery.isFetching}><RefreshCw size={14} /> Refresh</Button>}
                 />
                 {logsQuery.isLoading ? (
@@ -399,7 +380,7 @@ export function IntegrationCentre() {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState icon={<Activity />} title="No integration activity yet" description="Connection and credential changes will appear here when they occur." />
+                  <EmptyState icon={<Activity />} title="No integration activity yet" description="Connection changes, API requests and integration configuration events will appear here when they occur." />
                 )}
               </Card>
             </div>
