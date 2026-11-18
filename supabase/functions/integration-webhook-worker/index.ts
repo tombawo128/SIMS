@@ -13,16 +13,18 @@ function decodeBase64Url(value: string) {
   return Uint8Array.from(atob(padded), char => char.charCodeAt(0));
 }
 
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer { const copy = new Uint8Array(bytes.byteLength); copy.set(bytes); return copy.buffer; }
+
 async function decryptSecret(ciphertext: string, encodedKey: string) {
   const [ivPart, dataPart] = ciphertext.split('.');
   if (!ivPart || !dataPart) throw new Error('Stored webhook secret has an invalid format');
   const rawKey = Uint8Array.from(atob(encodedKey), char => char.charCodeAt(0));
   if (rawKey.length !== 32) throw new Error('Integration encryption key must decode to 32 bytes');
-  const key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, ['decrypt']);
+  const key = await crypto.subtle.importKey('raw', toArrayBuffer(rawKey), 'AES-GCM', false, ['decrypt']);
   const plaintext = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: decodeBase64Url(ivPart) },
+    { name: 'AES-GCM', iv: toArrayBuffer(decodeBase64Url(ivPart)) },
     key,
-    decodeBase64Url(dataPart),
+    toArrayBuffer(decodeBase64Url(dataPart)),
   );
   return new TextDecoder().decode(plaintext);
 }
@@ -34,12 +36,12 @@ function hex(bytes: Uint8Array) {
 async function signPayload(secret: string, payload: string) {
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(secret),
+    toArrayBuffer(new TextEncoder().encode(secret)),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
   );
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
+  const signature = await crypto.subtle.sign('HMAC', key, toArrayBuffer(new TextEncoder().encode(payload)));
   return `sha256=${hex(new Uint8Array(signature))}`;
 }
 
