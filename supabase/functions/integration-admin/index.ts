@@ -73,7 +73,7 @@ async function assertSafeWebhookUrl(value: string) {
   let parsed: URL;
   try { parsed = new URL(value); } catch { throw new Error('Provide a valid HTTPS webhook URL'); }
   const host = parsed.hostname.toLowerCase();
-  if (parsed.protocol !== 'https:' || parsed.username || parsed.password
+  if (parsed.protocol !== 'https:' || (parsed.port && parsed.port !== '443') || parsed.username || parsed.password
     || !host.includes('.') || host === 'localhost'
     || host.endsWith('.localhost') || host.endsWith('.local')
     || host.endsWith('.internal') || host.endsWith('.test')
