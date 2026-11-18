@@ -756,3 +756,126 @@
   .workspace-shell .workspace-breadcrumb__role{max-width:92px}
   .workspace-shell .workspace-breadcrumb strong{max-width:30vw;font-size:11px}
 }
+
+
+/* Mosaic-inspired platform analytics: navy, soft lavender, and disciplined card spacing. */
+.analytics-page--mosaic{gap:22px;color:#202238}
+.analytics-page--mosaic>.admin-page-hero{
+  position:relative;overflow:hidden;align-items:center;min-height:174px;padding:29px 32px;
+  border:1px solid #252641;border-radius:16px;
+  background:linear-gradient(112deg,#17182D 0%,#20213D 68%,#343052 100%);
+  box-shadow:0 14px 32px #17182D1c
+}
+.analytics-page--mosaic>.admin-page-hero:after{
+  content:"";position:absolute;right:7%;top:-145px;width:330px;height:330px;
+  border:1px solid #C7BFFF24;border-radius:50%;
+  box-shadow:0 0 0 34px #C7BFFF0b,0 0 0 76px #C7BFFF08;pointer-events:none
+}
+.analytics-page--mosaic>.admin-page-hero>div{position:relative;z-index:1}
+.analytics-page--mosaic>.admin-page-hero .page-hero__eyebrow{color:#BDB5FF}
+.analytics-page--mosaic>.admin-page-hero h1{color:#fff;font-size:clamp(25px,3vw,32px);letter-spacing:-.055em}
+.analytics-page--mosaic>.admin-page-hero p{max-width:700px;color:#C2C3D5;font-size:12px}
+.analytics-page--mosaic .admin-page-hero__actions{position:relative;z-index:2}
+.analytics-page--mosaic .admin-page-hero__actions .btn{border:1px solid #FFFFFF2b;background:#FFFFFF12;color:#fff}
+.analytics-page--mosaic .admin-page-hero__actions .btn:hover{background:#FFFFFF20}
+.analytics-page--mosaic .admin-analytics-intro{
+  align-items:center;padding:24px 27px;border:1px solid #E8E6F3;border-radius:15px;
+  background:linear-gradient(115deg,#F4F2FF 0%,#FBFAFF 58%,#fff 100%)
+}
+.analytics-page--mosaic .analytics-page__eyebrow{color:#7769C8}
+.analytics-page--mosaic .admin-analytics-intro h2{max-width:690px;color:#20213A;font-size:clamp(22px,2.7vw,29px)}
+.analytics-page--mosaic .admin-analytics-intro p{color:#74758D;font-size:11px;line-height:1.75}
+.analytics-page--mosaic .admin-analytics-intro__status{
+  padding:9px 12px;border:1px solid #E4E0F5;border-radius:999px;background:#fff;color:#625B8D;font-size:9px
+}
+.analytics-page--mosaic .admin-analytics-intro__status:before{background:#38A982;box-shadow:0 0 0 4px #38A9821c}
+.analytics-page--mosaic .admin-analytics-kpis{gap:14px}
+.analytics-page--mosaic .admin-analytics-kpi{
+  padding:19px 20px;border:1px solid #E9E8F0;border-radius:14px;background:#fff;
+  box-shadow:0 5px 18px #25213D08;transition:transform .18s ease,box-shadow .18s ease
+}
+.analytics-page--mosaic .admin-analytics-kpi:hover,
+.analytics-page--mosaic .admin-analytics-workflow>article:hover{
+  transform:translateY(-2px);box-shadow:0 12px 24px #25213D10
+}
+.analytics-page--mosaic .admin-analytics-kpi--primary{border-top:3px solid #8B7CF6}
+.analytics-page--mosaic .admin-analytics-kpi__icon,
+.analytics-page--mosaic .admin-analytics-workflow__icon{
+  background:#F0EEFF;color:#7667DB
+}
+.analytics-page--mosaic .admin-analytics-kpi small,
+.analytics-page--mosaic .admin-analytics-workflow article>small{color:#77788D}
+.analytics-page--mosaic .admin-analytics-kpi strong,
+.analytics-page--mosaic .admin-analytics-workflow article>strong{color:#24243D}
+.analytics-page--mosaic .admin-analytics-kpi p,
+.analytics-page--mosaic .admin-analytics-workflow article>p{color:#89899C}
+.analytics-page--mosaic .admin-analytics-section-head{margin:7px 0 -5px}
+.analytics-page--mosaic .admin-analytics-section-head span{color:#8074D2}
+.analytics-page--mosaic .admin-analytics-section-head h2{color:#25243D;font-size:20px;letter-spacing:-.04em}
+.analytics-page--mosaic .admin-analytics-section-head p{color:#85859A;font-size:11px}
+.analytics-page--mosaic .admin-analytics-grid{gap:16px}
+.analytics-page--mosaic .admin-analytics-grid>.card{
+  border:1px solid #E9E8F0;border-radius:14px;box-shadow:0 5px 18px #25213D08
+}
+.analytics-page--mosaic .admin-analytics-grid>.card>.card__header{padding:18px 20px;border-bottom:1px solid #F0EFF5}
+.analytics-page--mosaic .admin-analytics-role-list,
+.analytics-page--mosaic .admin-analytics-health{padding:20px}
+.analytics-page--mosaic .admin-analytics-role__top>span{color:#494A61}
+.analytics-page--mosaic .admin-analytics-role__top strong,
+.analytics-page--mosaic .admin-analytics-health__rows strong{color:#292940}
+.analytics-page--mosaic .admin-analytics-track{background:#F0EFF6}
+.analytics-page--mosaic .admin-analytics-track__fill--students{background:#8879EF!important}
+.analytics-page--mosaic .admin-analytics-track__fill--university{background:#A89BEF!important}
+.analytics-page--mosaic .admin-analytics-track__fill--company{background:#54A995!important}
+.analytics-page--mosaic .admin-analytics-track__fill--admins{background:#C49ACB!important}
+.analytics-page--mosaic .admin-analytics-health__headline strong{color:#292940}
+.analytics-page--mosaic .admin-analytics-health__bar{background:#F0EFF6}
+.analytics-page--mosaic .admin-analytics-health .is-active{background:#43A783}
+.analytics-page--mosaic .admin-analytics-health .is-pending{background:#D6A34A}
+.analytics-page--mosaic .admin-analytics-health .is-other{background:#B9BAC8}
+.analytics-page--mosaic .admin-analytics-insight{background:#F5F3FF;color:#68618D}
+.analytics-page--mosaic .admin-analytics-insight svg{color:#8274E2}
+.analytics-page--mosaic .admin-analytics-workflow{gap:14px}
+.analytics-page--mosaic .admin-analytics-workflow>article{
+  padding:18px;border:1px solid #E9E8F0;border-radius:14px;background:#fff;
+  box-shadow:0 5px 18px #25213D08;transition:transform .18s ease,box-shadow .18s ease
+}
+.analytics-page--mosaic .admin-analytics-workflow__icon{margin-bottom:15px}
+.analytics-page--mosaic .admin-analytics-workflow .admin-analytics-track{height:6px}
+.analytics-page--mosaic .admin-analytics-workflow .admin-analytics-track>span{background:#8B7CF6}
+.analytics-page--mosaic .admin-analytics-grid--network .card{min-height:250px}
+.analytics-page--mosaic .admin-analytics-network>div{border-color:#ECEBF2;background:#FCFBFE}
+.analytics-page--mosaic .admin-analytics-network__icon.is-university{background:#F0EEFF;color:#7667DB}
+.analytics-page--mosaic .admin-analytics-network__icon.is-company{background:#EAF5F1;color:#27856F}
+.analytics-page--mosaic .admin-analytics-network strong,
+.analytics-page--mosaic .admin-analytics-ratios strong{color:#292940}
+.analytics-page--mosaic .admin-analytics-ratios>div{border-color:#F0EFF5}
+.analytics-page--mosaic .admin-analytics-ratios span{color:#56566D}
+.analytics-page--mosaic .admin-analytics-footer{
+  padding:16px 19px;border:1px solid #E8E6F3;border-radius:13px;background:#F7F6FC
+}
+.analytics-page--mosaic .admin-analytics-footer>div{color:#8274E2}
+.analytics-page--mosaic .admin-analytics-footer strong{color:#33334C}
+.analytics-page--mosaic .admin-analytics-footer p,
+.analytics-page--mosaic .admin-analytics-footer>span{color:#85859A}
+@media(max-width:900px){
+  .analytics-page--mosaic>.admin-page-hero{align-items:flex-start}
+}
+@media(max-width:600px){
+  .analytics-page--mosaic{gap:17px}
+  .analytics-page--mosaic>.admin-page-hero{min-height:0;padding:22px 20px}
+  .analytics-page--mosaic>.admin-page-hero:after{right:-190px;top:-180px}
+  .analytics-page--mosaic .admin-analytics-intro{padding:19px}
+  .analytics-page--mosaic .admin-analytics-intro__status{align-self:flex-start}
+  .analytics-page--mosaic .admin-analytics-kpis,
+  .analytics-page--mosaic .admin-analytics-workflow{gap:9px}
+  .analytics-page--mosaic .admin-analytics-kpi{padding:14px}
+  .analytics-page--mosaic .admin-analytics-kpi__icon{width:32px;height:32px;margin-bottom:12px}
+  .analytics-page--mosaic .admin-analytics-kpi strong{font-size:23px}
+  .analytics-page--mosaic .admin-analytics-workflow>article{padding:14px}
+  .analytics-page--mosaic .admin-analytics-network{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .analytics-page--mosaic .admin-analytics-kpi,
+  .analytics-page--mosaic .admin-analytics-workflow>article{transition:none}
+}
