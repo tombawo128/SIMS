@@ -45,9 +45,10 @@ export interface PendingLogRow {
   } | null;
 }
 
-export function usePlacements() {
+export function usePlacements(enabled = true) {
   return useQuery({
     queryKey: ['placements'],
+    enabled,
     queryFn: async () => {
       const pageSize = 1000;
       const rows: Placement[] = [];
