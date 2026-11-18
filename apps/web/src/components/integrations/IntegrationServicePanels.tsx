@@ -248,7 +248,7 @@ export function SsoPanel({ connections }: { connections: Connection[] }) {
   return (
     <div className="integration-stack">
       <Alert tone="warning" title="SSO configuration is not the same as an active sign-in flow">
-        SIMS can securely store tenant IdP settings here, but provider handoff, callback validation, domain proof and account linking still need to be configured and verified against the organisation's real identity provider. Do not mark a provider active before those checks pass.
+        SIMS can securely store tenant IdP settings here, but provider handoff, callback validation, domain proof and account linking still need to be configured and verified against the organisation's real identity provider. This project is on Supabase Free; SAML sign-in requires Pro or above. Do not mark a provider active before the plan, provider and account-linking checks pass.
       </Alert>
       <Card>
         <CardHeader title="Add identity provider" description="Store OIDC or SAML provider details for one organisation connection." />
