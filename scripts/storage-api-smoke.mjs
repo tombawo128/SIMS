@@ -50,13 +50,13 @@ try {
   uploaded = true;
   console.log("PASS: authenticated owner can upload to their own folder");
 
-  const deniedDelete = await request("/storage/v1/object", {
+  const deniedDelete = await request("/storage/v1/object/post-images", {
     method: "DELETE",
     headers: headers(other.access_token, { "content-type": "application/json" }),
     body: JSON.stringify({ prefixes: [objectPath] }),
   });
-  if (deniedDelete.response.ok) {
-    throw new Error("Cross-user delete unexpectedly succeeded");
+  if (deniedDelete.response.status !== 400 && deniedDelete.response.status !== 403) {
+    throw new Error(`Cross-user delete should be denied by Storage policy (400/403), received ${deniedDelete.response.status}: ${deniedDelete.body}`);
   }
   console.log("PASS: another authenticated user cannot delete the owner's file");
 
@@ -69,7 +69,7 @@ try {
   }
   console.log("PASS: owner can download the uploaded object");
 
-  const deletion = await request("/storage/v1/object", {
+  const deletion = await request("/storage/v1/object/post-images", {
     method: "DELETE",
     headers: headers(owner.access_token, { "content-type": "application/json" }),
     body: JSON.stringify({ prefixes: [objectPath] }),
@@ -81,7 +81,7 @@ try {
   console.log("PASS: owner can delete the uploaded object");
 } finally {
   if (uploaded) {
-    const cleanup = await request("/storage/v1/object", {
+    const cleanup = await request("/storage/v1/object/post-images", {
       method: "DELETE",
       headers: headers(owner.access_token, { "content-type": "application/json" }),
       body: JSON.stringify({ prefixes: [objectPath] }),
