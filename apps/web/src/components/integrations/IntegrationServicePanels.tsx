@@ -62,6 +62,8 @@ const webhookEvents = [
   'placement.completed',
   'weekly_report.submitted',
   'weekly_report.reviewed',
+  'daily_report.submitted',
+  'daily_report.reviewed',
   'evaluation.completed',
 ];
 
