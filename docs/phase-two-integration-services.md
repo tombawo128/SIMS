@@ -20,6 +20,8 @@ Before registering webhooks or SSO providers, configure these Edge Function secr
 
 The worker also uses Supabase's built-in `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` environment values internally. These are never exposed to the browser.
 
+Webhook receivers get `x-sims-event`, `x-sims-delivery` and `x-sims-signature: sha256=<hex>` headers. Verify the HMAC-SHA256 signature against the exact raw request body with the one-time signing secret before processing the event. Supported event names are `application.submitted`, `application.status_changed`, `placement.created`, `placement.status_changed`, `placement.completed`, `daily_report.submitted`, `daily_report.reviewed`, `weekly_report.submitted`, `weekly_report.reviewed` and `evaluation.completed`.
+
 Example generation commands:
 
 ```bash
