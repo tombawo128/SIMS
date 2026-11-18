@@ -93,3 +93,15 @@ for (const tenant of tenants) {
 }
 
 console.log('PASS: coordinator and company analytics API smoke tests completed');
+
+const studentToken = await signIn('student1@baystate.edu', 'Password123!');
+const studentStatsResponse = await fetch(new URL('/rest/v1/rpc/university_stats', apiUrl), {
+  method: 'POST',
+  headers: { apikey: anonKey, Authorization: `Bearer ${studentToken}`, 'Content-Type': 'application/json' },
+  body: '{}',
+});
+if (studentStatsResponse.ok) {
+  throw new Error('Student account unexpectedly accessed coordinator-only university analytics');
+}
+console.log('PASS: student account is denied coordinator-only analytics RPC access');
+
