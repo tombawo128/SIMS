@@ -238,11 +238,22 @@ Deno.serve(async (req: Request) => {
     const clientId = body.client_id?.trim() ?? null;
     const metadataUrl = body.metadata_url?.trim() ?? null;
     const domains = Array.isArray(body.email_domains) ? [...new Set(body.email_domains.map(value => value.toLowerCase().trim()))] : [];
-    if (!integrationId || !protocol || !issuer || !issuer.startsWith('https://')) return json({ error: 'Connection, protocol and HTTPS issuer URL are required' }, 400);
-    if (protocol === 'oidc' && !clientId) return json({ error: 'OIDC client ID is required' }, 400);
-    if (protocol === 'saml' && (!metadataUrl || !metadataUrl.startsWith('https://'))) return json({ error: 'SAML metadata URL must use HTTPS' }, 400);
-    if (domains.some(domain => !/^[a-z0-9.-]+\\.[a-z]{2,}$/i.test(domain) || domain.includes('..'))) return json({ error: 'Provide valid email domains without @ symbols' }, 400);
-    if (!body.provider_config || typeof body.provider_config !== 'object') return json({ error: 'Provider configuration is required' }, 400);
+    if (!integrationId || !['oidc', 'saml'].includes(protocol ?? '') || !issuer || !issuer.startsWith('https://')) {
+      return json({ error: 'Connection, supported protocol and HTTPS issuer URL are required' }, 400);
+    }
+    if (protocol === 'oidc' && (!clientId || typeof body.provider_config?.client_secret !== 'string' || !body.provider_config.client_secret.trim())) {
+      return json({ error: 'OIDC client ID and client secret are required' }, 400);
+    }
+    if (protocol === 'saml' && (!metadataUrl || !metadataUrl.startsWith('https://'))) {
+      return json({ error: 'SAML metadata URL must use HTTPS' }, 400);
+    }
+    if (domains.some(domain => !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain) || domain.includes('..'))) {
+      return json({ error: 'Provide valid email domains without @ symbols' }, 400);
+    }
+    if (!body.provider_config || typeof body.provider_config !== 'object'
+      || JSON.stringify(body.provider_config).length > 16000) {
+      return json({ error: 'Provider configuration is required and must be under 16 KB' }, 400);
+    }
     const { data: connection } = await admin.from('integration_connections').select('id,status').eq('id', integrationId).maybeSingle();
     if (!connection || connection.status !== 'active') return json({ error: 'Integration connection not found or suspended' }, 404);
     let encryptedConfig: string;
