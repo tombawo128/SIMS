@@ -20,6 +20,7 @@ import {
   Database,
   LifeBuoy,
   LockKeyhole,
+  Webhook,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { APP_NAME, NAV_BY_ROLE, ROLE_LABELS, formatDateTime, type NavIcon } from '@sims/shared';
@@ -90,6 +91,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </NavLink>
           <NavLink to="/admin/security" onClick={onNavigate} className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}>
             <LockKeyhole className='nav-link__icon' /> Security & authentication
+          </NavLink>
+          <NavLink to="/admin/integrations" onClick={onNavigate} className={({ isActive }) => cn('nav-link', isActive ? 'nav-link--active' : 'nav-link--inactive')}>
+            <Webhook className='nav-link__icon' /> Integration Centre
           </NavLink>
           <NavLink
             to="/recycle-bin"
@@ -267,6 +271,7 @@ export function Layout() {
     '/admin/compliance': 'Compliance & data management',
     '/admin/support': 'Support & moderation',
     '/admin/security': 'Security & authentication',
+    '/admin/integrations': 'Integration Centre',
     '/manage/postings': 'Manage opportunities',
   };
   const currentLabel = routeLabels[location.pathname]
