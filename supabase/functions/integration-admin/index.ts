@@ -68,7 +68,8 @@ function isPublicIpv6(address: string) {
   return value !== '::' && value !== '::1'
     && !value.startsWith('fc') && !value.startsWith('fd')
     && !value.startsWith('fe8') && !value.startsWith('fe9')
-    && !value.startsWith('fea') && !value.startsWith('feb')
+    && !value.startsWith('fea') && !value.startsWith('feb') && !value.startsWith('fec')
+    && !value.startsWith('2001:db8:') && !value.startsWith('2001:10:')
     && !value.startsWith('ff') && !value.startsWith('::ffff:');
 }
 
