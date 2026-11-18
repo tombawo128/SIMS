@@ -276,7 +276,7 @@ export function Analytics() {
   const usersPerOrganization = organizations > 0 ? Math.round(total / organizations).toLocaleString() : '—';
 
   return (
-    <div className='admin-console analytics-page analytics-page--command'>
+    <div className='admin-console analytics-page analytics-page--command analytics-page--mosaic'>
       <AdminHeader title='Platform intelligence' description='A clearer command view of SIMS adoption, organisation coverage and internship workflow activity.' actions={<Button size='sm' variant='secondary' onClick={() => void analytics.refetch()} loading={analytics.isFetching}><RefreshCw size={14} /> Refresh data</Button>} />
       {analytics.isLoading ? <div className='admin-console__loading'><Spinner /></div> : analytics.isError ? (
         <Alert tone='danger' title='Analytics could not be loaded'>{(analytics.error as Error).message}</Alert>
