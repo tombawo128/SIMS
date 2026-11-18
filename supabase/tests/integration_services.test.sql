@@ -32,16 +32,17 @@ select is(
    join pg_class c on c.oid = t.tgrelid
    join pg_namespace n on n.oid = c.relnamespace
    where n.nspname = 'public'
-     and c.relname in ('applications','placements','weekly_logs','evaluations')
+     and c.relname in ('applications','placements','weekly_logs','daily_reports','evaluations')
      and t.tgname in (
        'applications_integration_webhook_event',
        'placements_integration_webhook_event',
        'weekly_logs_integration_webhook_event',
+       'daily_reports_integration_webhook_event',
        'evaluations_integration_webhook_event'
      )
      and not t.tgisinternal),
-  4,
-  'application, placement, weekly report and evaluation events are captured'
+  5,
+  'application, placement, daily and weekly report, and evaluation events are captured'
 );
 
 select ok(not has_function_privilege('anon', 'public.enqueue_integration_webhook_event(text,uuid,text,jsonb)', 'execute'), 'anonymous users cannot enqueue integration webhook events');
