@@ -10,10 +10,10 @@ async function sha256(value: string) {
 }
 
 async function recordApiRequest(
-  admin: ReturnType<typeof createClient>,
+  admin: any,
   input: { keyId: string; integrationId: string; path: string; tenantType: string; tenantId: string; statusCode: number; returned?: number },
 ) {
-  const { error } = await admin.from('audit_logs').insert({
+  const { error } = await (admin as any).from('audit_logs').insert({
     actor_id: null,
     entity: 'integration_api_request',
     entity_id: input.keyId,
