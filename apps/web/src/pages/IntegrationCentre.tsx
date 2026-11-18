@@ -18,6 +18,10 @@ type IntegrationApiKey = {
   scopes: string[]; expires_at: string | null; last_used_at: string | null;
   revoked_at: string | null; created_at: string;
 };
+type IntegrationAuditEvent = {
+  id: number; actor_id: string | null; entity: string; entity_id: string | null;
+  action: string; metadata: Record<string, unknown>; created_at: string;
+};
 const integrationScopes = [
   { value: 'organisation:read', label: 'Organisation details' },
   { value: 'opportunities:read', label: 'Published opportunities' },
@@ -89,6 +93,18 @@ export function IntegrationCentre() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       return data as { connections: IntegrationConnection[]; api_keys: IntegrationApiKey[] };
+    },
+  });
+  const logsQuery = useQuery({
+    queryKey: ['integration-centre-audit-events'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('audit_logs')
+        .select('id,actor_id,entity,entity_id,action,metadata,created_at')
+        .in('entity', ['integration_connection', 'integration_api_key'])
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as IntegrationAuditEvent[];
     },
   });
   const organizations = useQuery({
@@ -371,8 +387,32 @@ export function IntegrationCentre() {
 
           {section === 'logs' ? (
             <div className="integration-stack">
-              <Alert tone="info" title="No integration events recorded">Audit and delivery events will appear here after integration services are activated.</Alert>
-              <Card><CardHeader title="Integration activity" description="Monitor authentication, API requests, webhook delivery and configuration changes." actions={<Button size="sm" variant="secondary" disabled><RefreshCw size={14} /> Refresh</Button>} /><EmptyState icon={<Activity />} title="No integration activity" description="There are no integration logs to display yet." /></Card>
+              {logsQuery.isError ? <Alert tone="danger" title="Integration activity could not be loaded">Check platform administrator access and retry.</Alert> : null}
+              <Card>
+                <CardHeader
+                  title="Integration activity"
+                  description="Recent connection and API-credential administration events. API request and webhook delivery telemetry are not yet part of this read-only API release."
+                  actions={<Button size="sm" variant="secondary" onClick={() => void logsQuery.refetch()} loading={logsQuery.isFetching}><RefreshCw size={14} /> Refresh</Button>}
+                />
+                {logsQuery.isLoading ? (
+                  <div className="integration-empty">Loading integration activity…</div>
+                ) : logsQuery.data?.length ? (
+                  <div className="integration-activity-list">
+                    {logsQuery.data.map((event) => (
+                      <article className="integration-activity-row" key={event.id}>
+                        <span className="integration-activity-row__icon"><Activity size={16} /></span>
+                        <div className="integration-activity-row__body">
+                          <strong>{event.action.replaceAll('_', ' ')}</strong>
+                          <span>{event.entity.replaceAll('_', ' ')}{event.entity_id ? ` · ${event.entity_id}` : ''}</span>
+                          <small>{new Date(event.created_at).toLocaleString()} · {event.actor_id ? `Actor ${event.actor_id}` : 'System event'}</small>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState icon={<Activity />} title="No integration activity yet" description="Connection and credential changes will appear here when they occur." />
+                )}
+              </Card>
             </div>
           ) : null}
         </div>
