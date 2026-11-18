@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(12);
+select plan(13);
 
 select ok(to_regclass('public.integration_webhooks') is not null, 'webhook configuration table exists');
 select ok(to_regclass('public.integration_webhook_deliveries') is not null, 'webhook delivery outbox exists');
