@@ -168,11 +168,16 @@ Deno.serve(async (req: Request) => {
   }
 
   if (body.action === 'list_webhooks') {
-    const { data, error } = await admin.from('integration_webhooks')
-      .select('id,integration_id,name,endpoint_url,events,status,created_at')
-      .order('created_at', { ascending: false });
-    if (error) return json({ error: 'Could not load webhook endpoints' }, 500);
-    return json({ webhooks: data ?? [] });
+    const [webhooksResult, deliveriesResult] = await Promise.all([
+      admin.from('integration_webhooks')
+        .select('id,integration_id,name,endpoint_url,events,status,created_at')
+        .order('created_at', { ascending: false }),
+      admin.from('integration_webhook_deliveries')
+        .select('id,webhook_id,event_type,status,attempts,last_status_code,last_error,created_at,delivered_at')
+        .order('created_at', { ascending: false }).limit(100),
+    ]);
+    if (webhooksResult.error || deliveriesResult.error) return json({ error: 'Could not load webhook endpoints and delivery history' }, 500);
+    return json({ webhooks: webhooksResult.data ?? [], deliveries: deliveriesResult.data ?? [] });
   }
 
   if (body.action === 'create_webhook') {
