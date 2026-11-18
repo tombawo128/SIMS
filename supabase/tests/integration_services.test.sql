@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(13);
+select plan(15);
 
 select ok(to_regclass('public.integration_webhooks') is not null, 'webhook configuration table exists');
 select ok(to_regclass('public.integration_webhook_deliveries') is not null, 'webhook delivery outbox exists');
@@ -46,6 +46,8 @@ select is(
 
 select ok(not has_function_privilege('anon', 'public.enqueue_integration_webhook_event(text,uuid,text,jsonb)', 'execute'), 'anonymous users cannot enqueue integration webhook events');
 select ok(not has_function_privilege('authenticated', 'public.capture_integration_webhook_event()', 'execute'), 'authenticated users cannot invoke the webhook trigger function');
+select ok(has_function_privilege('service_role', 'public.claim_integration_webhook_deliveries(integer)', 'execute'), 'service role can claim queued webhook deliveries');
+select ok(not has_function_privilege('authenticated', 'public.claim_integration_webhook_deliveries(integer)', 'execute'), 'authenticated users cannot claim queued webhook deliveries');
 
 select * from finish();
 rollback;
