@@ -34,6 +34,7 @@ const SystemAlerts = lazy(() => import('@/pages/AdminConsole').then((m) => ({ de
 const ComplianceDataManagement = lazy(() => import('@/pages/AdminGovernance').then((m) => ({ default: m.ComplianceDataManagement })));
 const SupportModeration = lazy(() => import('@/pages/AdminGovernance').then((m) => ({ default: m.SupportModeration })));
 const SecurityAuthentication = lazy(() => import('@/pages/AdminGovernance').then((m) => ({ default: m.SecurityAuthentication })));
+const IntegrationCentre = lazy(() => import('@/pages/IntegrationCentre').then((m) => ({ default: m.IntegrationCentre })));
 
 const WORKFLOW_ROLES = [
   'student',
@@ -100,6 +101,7 @@ export function App() {
                 <Route path="/admin/compliance" element={<ComplianceDataManagement />} />
                 <Route path="/admin/support" element={<SupportModeration />} />
                 <Route path="/admin/security" element={<SecurityAuthentication />} />
+                <Route path="/admin/integrations" element={<IntegrationCentre />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />
