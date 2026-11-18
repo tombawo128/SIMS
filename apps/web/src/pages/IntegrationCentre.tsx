@@ -97,6 +97,7 @@ export function IntegrationCentre() {
   });
   const logsQuery = useQuery({
     queryKey: ['integration-centre-audit-events'],
+    enabled: section === 'logs',
     queryFn: async () => {
       const { data, error } = await supabase.from('audit_logs')
         .select('id,actor_id,entity,entity_id,action,metadata,created_at')
