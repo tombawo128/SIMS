@@ -428,3 +428,7 @@ enabled = true
 # Public iframe endpoint uses an unguessable per-embed token and CSP frame-ancestors allowlists.
 [functions.integration-embed]
 verify_jwt = false
+
+# The worker authenticates with a dedicated high-entropy header secret.
+[functions.integration-webhook-worker]
+verify_jwt = false
