@@ -69,7 +69,7 @@ create table public.integration_sso_configs (
 create table public.integration_embeds (
   id uuid primary key default gen_random_uuid(),
   integration_id uuid not null references public.integration_connections(id) on delete cascade,
-  public_token text not null unique default encode(gen_random_bytes(32), 'hex'),
+  public_token text not null unique,
   title text not null default 'Internship opportunities' check (char_length(trim(title)) between 2 and 120),
   allowed_origins text[] not null default '{}',
   display_options jsonb not null default '{"show_company":true,"show_location":true,"show_deadline":true}'::jsonb,
@@ -77,12 +77,8 @@ create table public.integration_embeds (
   created_by uuid not null references public.profiles(id) on delete restrict,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint integration_embeds_origins_https check (
+  constraint integration_embeds_origins_required check (
     coalesce(array_length(allowed_origins, 1), 0) > 0
-    and not exists (
-      select 1 from unnest(allowed_origins) as origin
-      where origin !~ '^https://[^[:space:]]+$'
-    )
   )
 );
 create index integration_embeds_connection_idx on public.integration_embeds(integration_id, status);
