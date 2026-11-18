@@ -30,7 +30,7 @@ function MetricBar({ label, value, max, suffix = '' }: { label: string; value: n
 function csvCell(value: unknown) {
   const text = value == null ? '' : String(value);
   // Prevent spreadsheet formula execution when CSV fields contain untrusted values.
-  const safeText = /^[\\u0000-\\u0020]*[=+\\-@]/.test(text) ? `'${text}` : text;
+  const safeText = /^[\u0000-\u0020]*[=+\-@]/.test(text) ? `'${text}` : text;
   return `\"${safeText.replace(/\"/g, '\"\"')}\"`;
 }
 
