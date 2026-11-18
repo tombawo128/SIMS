@@ -87,9 +87,7 @@ try {
   if (!deletion.response.ok) {
     throw new Error(`Owner delete failed (${deletion.response.status}): ${deletion.body}`);
   }
-  if (!deletion.response.ok) {
-    throw new Error(`Owner delete failed (${deletion.response.status}): ${deletion.body}`);
-  }
+
   uploaded = false;
   const afterOwnerDelete = await fetch(new URL(`/storage/v1/object/authenticated/post-images/${objectPath}`, apiUrl), {
     headers: headers(owner.access_token),
