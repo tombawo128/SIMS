@@ -57,27 +57,51 @@ export function WorkspaceAnalytics() {
     queryKey: ['analytics-weekly-reports'],
     enabled: isUniversity || isCompany,
     queryFn: async () => {
-      const { data, error } = await supabase.from('weekly_logs').select('id,placement_id,week_number,status,submitted_at');
-      if (error) throw error;
-      return (data ?? []) as WeeklyReport[];
+      const pageSize = 1000;
+      const rows: WeeklyReport[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase.from('weekly_logs')
+          .select('id,placement_id,week_number,status,submitted_at')
+          .order('id', { ascending: true }).range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as WeeklyReport[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
   const dailyQuery = useQuery({
     queryKey: ['analytics-daily-reports'],
     enabled: isUniversity || isCompany,
     queryFn: async () => {
-      const { data, error } = await supabase.from('daily_reports').select('id,placement_id,report_date,week_number,status');
-      if (error) throw error;
-      return (data ?? []) as DailyReport[];
+      const pageSize = 1000;
+      const rows: DailyReport[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase.from('daily_reports')
+          .select('id,placement_id,report_date,week_number,status')
+          .order('id', { ascending: true }).range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as DailyReport[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
   const evaluationsQuery = useQuery({
     queryKey: ['analytics-evaluations'],
     enabled: isUniversity || isCompany,
     queryFn: async () => {
-      const { data, error } = await supabase.from('evaluations').select('id,placement_id,type,overall_score');
-      if (error) throw error;
-      return (data ?? []) as EvaluationRow[];
+      const pageSize = 1000;
+      const rows: EvaluationRow[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase.from('evaluations')
+          .select('id,placement_id,type,overall_score')
+          .order('id', { ascending: true }).range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as EvaluationRow[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
 
