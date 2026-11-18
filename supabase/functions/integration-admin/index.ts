@@ -5,7 +5,7 @@ const ALLOWED_SCOPES = ['organisation:read', 'opportunities:read', 'applications
 const ALLOWED_WEBHOOK_EVENTS = [
   'application.submitted', 'application.status_changed', 'placement.created',
   'placement.status_changed', 'placement.completed', 'weekly_report.submitted',
-  'weekly_report.reviewed', 'evaluation.completed',
+  'weekly_report.reviewed', 'daily_report.submitted', 'daily_report.reviewed', 'evaluation.completed',
 ];
 type Action = 'list' | 'create_connection' | 'create_api_key' | 'revoke_api_key' | 'set_connection_status'
   | 'list_webhooks' | 'create_webhook' | 'set_webhook_status' | 'process_webhooks'
