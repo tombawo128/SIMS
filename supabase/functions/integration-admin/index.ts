@@ -32,6 +32,8 @@ function base64Url(bytes: Uint8Array) {
 
 }
 
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer { const copy = new Uint8Array(bytes.byteLength); copy.set(bytes); return copy.buffer; }
+
 async function encryptIntegrationSecret(value: string) {
   const configuredKey = Deno.env.get('INTEGRATION_SECRET_ENCRYPTION_KEY');
   if (!configuredKey) throw new Error('INTEGRATION_SECRET_ENCRYPTION_KEY is not configured');
@@ -42,7 +44,7 @@ async function encryptIntegrationSecret(value: string) {
     throw new Error('INTEGRATION_SECRET_ENCRYPTION_KEY must be base64-encoded');
   }
   if (rawKey.length !== 32) throw new Error('INTEGRATION_SECRET_ENCRYPTION_KEY must decode to exactly 32 bytes');
-  const key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, ['encrypt']);
+  const key = await crypto.subtle.importKey('raw', toArrayBuffer(rawKey), 'AES-GCM', false, ['encrypt']);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(value));
   return `${base64Url(iv)}.${base64Url(new Uint8Array(encrypted))}`;
