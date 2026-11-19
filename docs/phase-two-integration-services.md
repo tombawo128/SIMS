@@ -93,3 +93,19 @@ The embed endpoint accepts only an unguessable per-embed token and returns only 
 8. Test the Integration Centre using a platform-admin account and test analytics using real coordinator/company accounts.
 
 No production schema, function or deployment change is authorized by this branch alone.
+
+
+## Security verification boundaries and outstanding tests
+
+The CI run on the Phase Two PR validates a local full migration rebuild, pgTAP, seeded Storage API checks, coordinator/company analytics API isolation smoke checks, web app type-check/build, and Edge Function type-check. It does not constitute a live external-provider or production security test.
+
+Before treating integrations as production-ready, complete these separate checks:
+
+- **Webhook SSRF / network controls:** the exact hostname allowlist and DNS public-address checks are defense-in-depth, not DNS pinning. DNS may change between resolution and connection. Configure and verify connection-time outbound egress controls that block loopback, private, link-local, reserved and metadata-service destinations, including IPv4/IPv6 and DNS-rebinding cases. Until this is proven, keep delivery disabled for production.
+- **Webhook regression tests:** add automated tests for hostname allowlist enforcement, redirect rejection, DNS resolution of mixed public/private answers, IPv4 and IPv6 special/reserved ranges, malformed URLs, signature verification by receiver, retries, terminal failure, worker authorization and concurrent claiming. Existing database tests cover queue capture/claim and payload minimization, not a full HTTP worker attack suite.
+- **Embed tests:** test token invalidation/suspension, connection suspension, tenant isolation, visibility rules, malformed/absent Origin behavior, CSP frame-ancestor behavior in browsers, response escaping, and query limits against seeded tenants.
+- **API tests:** test invalid/revoked/expired credentials, scope denial, unknown routes, malformed query values, pagination limits, tenant-bound application/placement access, inactive tenant/connection, audit logging on success and denial, and throttling under abusive request patterns. Rate limiting is not yet verified as an infrastructure control.
+- **SSO:** no live IdP flow has been verified; configuration storage alone is not sign-in. Verify provider/domain/account linking, wrong-tenant rejection, disabled provider, callback and session expiry before activation.
+- **Release operations:** verify backups and restore, deployed function version parity, secret rotation and secure cron/Vault scheduling, monitoring/alerting and incident response.
+
+These are release gates, not claims that the branch has already completed them.
