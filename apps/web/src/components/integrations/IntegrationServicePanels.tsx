@@ -41,6 +41,7 @@ type SsoConfig = {
   issuer_url: string;
   client_id: string | null;
   metadata_url: string | null;
+  auth_provider_id: string | null;
   email_domains: string[];
   status: 'draft' | 'pending_verification' | 'active' | 'disabled';
 };
@@ -203,6 +204,7 @@ export function SsoPanel({ connections }: { connections: Connection[] }) {
   const [issuer, setIssuer] = useState('');
   const [clientId, setClientId] = useState('');
   const [metadataUrl, setMetadataUrl] = useState('');
+  const [authProviderId, setAuthProviderId] = useState('');
   const [domains, setDomains] = useState('');
   const [providerConfig, setProviderConfig] = useState('{"client_secret":""}');
   const queryClient = useQueryClient();
@@ -224,6 +226,7 @@ export function SsoPanel({ connections }: { connections: Connection[] }) {
           action: 'save_sso_config', integration_id: connectionId, protocol,
           issuer_url: issuer.trim(), client_id: protocol === 'oidc' ? clientId.trim() : null,
           metadata_url: protocol === 'saml' ? metadataUrl.trim() : null,
+          auth_provider_id: authProviderId.trim() || null,
           email_domains: domains.split(',').map(value => value.trim()).filter(Boolean),
           provider_config: config,
         },
@@ -250,7 +253,7 @@ export function SsoPanel({ connections }: { connections: Connection[] }) {
   return (
     <div className="integration-stack">
       <Alert tone="warning" title="SSO configuration is not the same as an active sign-in flow">
-        SIMS can securely store tenant IdP settings here, but provider handoff, callback validation, domain proof and account linking still need to be configured and verified against the organisation's real identity provider. This project is on Supabase Free; SAML sign-in requires Pro or above. Do not mark a provider active before the plan, provider and account-linking checks pass.
+        SIMS can securely store tenant IdP settings here, but provider handoff, callback validation and domain proof still require the organisation's real identity provider. This project is on Supabase Free; SAML sign-in requires Pro or above. Supabase SAML identities are separate from password accounts and cannot be identity-linked, so use the provider UUID for tenant mapping and never auto-link by email.
       </Alert>
       <Card>
         <CardHeader title="Add identity provider" description="Store OIDC or SAML provider details for one organisation connection." />
@@ -259,6 +262,7 @@ export function SsoPanel({ connections }: { connections: Connection[] }) {
           <label>Protocol<select value={protocol} onChange={event => setProtocol(event.target.value as 'oidc' | 'saml')}><option value="oidc">OpenID Connect</option><option value="saml">SAML 2.0</option></select></label>
           <label className="integration-form__wide">Issuer URL<input type="url" value={issuer} onChange={event => setIssuer(event.target.value)} placeholder="https://identity.example.org" required /></label>
           {protocol === 'oidc' ? <label>Client ID<input value={clientId} onChange={event => setClientId(event.target.value)} required /></label> : <label>SAML metadata URL<input type="url" value={metadataUrl} onChange={event => setMetadataUrl(event.target.value)} placeholder="https://identity.example.org/metadata" required /></label>}
+          <label className="integration-form__wide">Supabase Auth provider UUID (optional)<input value={authProviderId} onChange={event => setAuthProviderId(event.target.value)} placeholder="UUID returned by Supabase SSO provider setup" /><small>After an IdP is registered in Supabase Auth, save its provider UUID here to bind the identity to this tenant.</small></label>
           <label className="integration-form__wide">Allowed email domains<input value={domains} onChange={event => setDomains(event.target.value)} placeholder="university.edu, students.university.edu" /><small>Comma-separated domains. Do not include the @ symbol.</small></label>
           <label className="integration-form__wide">Provider secret/config JSON<textarea value={providerConfig} onChange={event => setProviderConfig(event.target.value)} rows={4} spellCheck={false} /><small>Example OIDC JSON: {"{"}"client_secret":"your-provider-secret"{"}"}. Values are encrypted before storage.</small></label>
           <div className="integration-form__actions integration-form__wide"><span>Saved configurations start in draft status.</span><Button type="submit" disabled={!connectionId || !issuer.startsWith('https://') || save.isPending} loading={save.isPending}><LockKeyhole size={15} /> Save provider configuration</Button></div>
