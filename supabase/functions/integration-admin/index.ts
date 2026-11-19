@@ -270,7 +270,7 @@ Deno.serve(async (req: Request) => {
       metadata_url: metadataUrl, auth_provider_id: authProviderId, provider_config_ciphertext: encryptedConfig,
       email_domains: domains, status: 'draft', created_by: caller.id,
     }, { onConflict: 'integration_id' })
-      .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,email_domains,status,created_at').single();
+      .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,auth_provider_id,email_domains,status,created_at').single();
     if (error) return json({ error: 'Could not save SSO configuration' }, 500);
     await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_sso_config', entity_id: data.id, action: 'saved', metadata: { integration_id: integrationId, protocol, email_domains: domains } });
     return json({ sso_config: data, status_note: 'Configuration saved as draft. Provider metadata and domain ownership must be verified before activation.' });
