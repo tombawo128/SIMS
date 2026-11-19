@@ -17,6 +17,7 @@ Before registering webhooks or SSO providers, configure these Edge Function secr
 
 - `INTEGRATION_SECRET_ENCRYPTION_KEY`: base64-encoded 32 random bytes. Used for AES-256-GCM encryption of webhook and IdP configuration secrets.
 - `INTEGRATION_WEBHOOK_WORKER_SECRET`: a separate high-entropy random value used to authenticate the scheduled delivery worker.
+- `INTEGRATION_WEBHOOK_ALLOWED_HOSTS`: comma-separated exact DNS hostnames permitted for outbound webhook delivery (no wildcards). The worker fails closed when this is unset and rejects destinations outside this list.
 
 The worker also uses Supabase's built-in `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` environment values internally. These are never exposed to the browser.
 
@@ -28,6 +29,8 @@ Example generation commands:
 openssl rand -base64 32
 openssl rand -hex 32
 ```
+
+Configure the outbound host allowlist only for trusted webhook receiver hostnames. This is defense-in-depth and is not a complete DNS-rebinding mitigation: production must also enforce egress restrictions against private/reserved IPs and DNS rebinding at connection time. Until this egress control is verified, webhook delivery is not production-approved.
 
 Set the resulting values with the Supabase CLI after the backup gate:
 
