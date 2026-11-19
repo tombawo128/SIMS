@@ -68,9 +68,10 @@ function isPublicIpv6(address: string) {
     && !value.startsWith('ff') && !value.startsWith('::ffff:');
 }
 
-async function assertSafeTarget(value: string) {
+async function assertSafeTarget(value: string, allowedHosts: Set<string>) {
   const url = new URL(value);
   const host = url.hostname.toLowerCase();
+  if (!allowedHosts.has(host)) throw new Error('Webhook host is not included in the worker outbound host allowlist');
   if (url.protocol !== 'https:' || (url.port && url.port !== '443')
     || url.username || url.password || !host.includes('.')
     || host === 'localhost' || host.endsWith('.localhost')
@@ -105,6 +106,9 @@ Deno.serve(async (req: Request) => {
     return json({ error: 'Unauthorized' }, 401);
   }
   if (!encryptionKey) return json({ error: 'Webhook encryption is not configured' }, 503);
+  const configuredHosts = Deno.env.get('INTEGRATION_WEBHOOK_ALLOWED_HOSTS') ?? '';
+  const allowedHosts = new Set(configuredHosts.split(',').map(host => host.trim().toLowerCase()).filter(Boolean));
+  if (allowedHosts.size === 0) return json({ error: 'Webhook outbound host allowlist is not configured' }, 503);
 
   const url = Deno.env.get('SUPABASE_URL');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -123,7 +127,7 @@ Deno.serve(async (req: Request) => {
     let statusCode: number | null = null;
     let errorMessage: string | null = null;
     try {
-      await assertSafeTarget(delivery.endpoint_url);
+      await assertSafeTarget(delivery.endpoint_url, allowedHosts);
       const secret = await decryptSecret(delivery.secret_ciphertext, encryptionKey);
       const payload = JSON.stringify({
         id: delivery.id,
@@ -146,6 +150,7 @@ Deno.serve(async (req: Request) => {
         body: payload,
       });
       statusCode = response.status;
+      await response.body?.cancel().catch(() => undefined);
       if (!response.ok) throw new Error(`Webhook endpoint returned HTTP ${response.status}`);
     } catch (error) {
       errorMessage = error instanceof Error ? error.message.slice(0, 1000) : 'Webhook delivery failed';
