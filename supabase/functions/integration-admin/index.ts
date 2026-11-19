@@ -116,7 +116,7 @@ Deno.serve(async (req: Request) => {
     integration_id?: string; scopes?: string[]; expires_at?: string | null; key_id?: string;
     status?: 'active' | 'suspended' | 'draft' | 'pending_verification' | 'disabled';
     webhook_id?: string; endpoint_url?: string; events?: string[];
-    protocol?: 'oidc' | 'saml'; issuer_url?: string; client_id?: string; metadata_url?: string;
+    protocol?: 'oidc' | 'saml'; issuer_url?: string; client_id?: string; metadata_url?: string; auth_provider_id?: string | null;
     email_domains?: string[]; provider_config?: Record<string, unknown>;
     embed_id?: string; title?: string; allowed_origins?: string[];
   };
@@ -226,7 +226,7 @@ Deno.serve(async (req: Request) => {
 
   if (body.action === 'list_sso_configs') {
     const { data, error } = await admin.from('integration_sso_configs')
-      .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,email_domains,status,created_at')
+      .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,auth_provider_id,email_domains,status,created_at')
       .order('created_at', { ascending: false });
     if (error) return json({ error: 'Could not load SSO configurations' }, 500);
     return json({ sso_configs: data ?? [] });
@@ -238,6 +238,7 @@ Deno.serve(async (req: Request) => {
     const issuer = body.issuer_url?.trim();
     const clientId = body.client_id?.trim() ?? null;
     const metadataUrl = body.metadata_url?.trim() ?? null;
+    const authProviderId = body.auth_provider_id?.trim() || null;
     const domains = Array.isArray(body.email_domains) ? [...new Set(body.email_domains.map(value => value.toLowerCase().trim()))] : [];
     if (!integrationId || !['oidc', 'saml'].includes(protocol ?? '') || !issuer || !issuer.startsWith('https://')) {
       return json({ error: 'Connection, supported protocol and HTTPS issuer URL are required' }, 400);
@@ -247,6 +248,9 @@ Deno.serve(async (req: Request) => {
     }
     if (protocol === 'saml' && (!metadataUrl || !metadataUrl.startsWith('https://'))) {
       return json({ error: 'SAML metadata URL must use HTTPS' }, 400);
+    }
+    if (authProviderId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(authProviderId)) {
+      return json({ error: 'Supabase Auth provider ID must be a valid UUID' }, 400);
     }
     if (domains.some(domain => !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain) || domain.includes('..'))) {
       return json({ error: 'Provide valid email domains without @ symbols' }, 400);
@@ -263,7 +267,7 @@ Deno.serve(async (req: Request) => {
     }
     const { data, error } = await admin.from('integration_sso_configs').upsert({
       integration_id: integrationId, protocol, issuer_url: issuer, client_id: clientId,
-      metadata_url: metadataUrl, provider_config_ciphertext: encryptedConfig,
+      metadata_url: metadataUrl, auth_provider_id: authProviderId, provider_config_ciphertext: encryptedConfig,
       email_domains: domains, status: 'draft', created_by: caller.id,
     }, { onConflict: 'integration_id' })
       .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,email_domains,status,created_at').single();
