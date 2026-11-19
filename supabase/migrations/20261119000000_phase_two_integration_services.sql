@@ -55,6 +55,7 @@ create table public.integration_sso_configs (
   issuer_url text not null check (issuer_url ~ '^https://[^[:space:]]+$'),
   client_id text,
   metadata_url text,
+  auth_provider_id uuid unique,
   provider_config_ciphertext text not null,
   email_domains text[] not null default '{}',
   status text not null default 'draft' check (status in ('draft', 'pending_verification', 'active', 'disabled')),
