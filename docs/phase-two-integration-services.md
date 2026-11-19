@@ -69,10 +69,10 @@ The branch adds encrypted per-tenant OIDC/SAML configuration storage and an admi
 
 1. A real IdP issuer, metadata, client ID and provider secret/certificate from the organisation.
 2. Verified email-domain ownership and a tested account-to-tenant mapping.
-3. A configured Supabase Auth SSO/OIDC provider and callback URLs supported by the project's Auth plan.
+3. A configured Supabase Auth SSO provider, its provider UUID saved against the tenant connection, and callback URLs supported by the project's Auth plan.
 4. Successful tests for new users, existing-user linking, wrong-tenant rejection, disabled provider rejection and sign-out/session expiry.
 
-Until these checks pass, configurations must remain draft or pending verification. Do not advertise SSO as live merely because provider settings were saved.
+Supabase SAML SSO does not link a new SSO identity to an existing password account, so do not automatically link accounts by email. Use the Auth provider UUID as the tenant boundary. Until these checks pass, configurations must remain draft or pending verification. Do not advertise SSO as live merely because provider settings were saved.
 
 ## Public embed security
 
