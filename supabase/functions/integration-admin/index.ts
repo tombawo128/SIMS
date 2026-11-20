@@ -200,6 +200,14 @@ Deno.serve(async (req: Request) => {
     try { await assertSafeWebhookUrl(endpoint); } catch (error) {
       return json({ error: error instanceof Error ? error.message : 'Webhook endpoint is not allowed' }, 400);
     }
+    // Match the worker's outbound allowlist at registration time so administrators
+    // cannot create hooks that will never be delivered, and reduce outbound scope.
+    const configuredHosts = Deno.env.get('INTEGRATION_WEBHOOK_ALLOWED_HOSTS') ?? '';
+    const allowedHosts = new Set(configuredHosts.split(',').map(host => host.trim().toLowerCase()).filter(Boolean));
+    const endpointHost = new URL(endpoint).hostname.toLowerCase();
+    if (!allowedHosts.has(endpointHost)) {
+      return json({ error: 'Webhook hostname must be included in the configured outbound host allowlist' }, 400);
+    }
     const secret = `sims_whsec_${base64Url(crypto.getRandomValues(new Uint8Array(32)))}`;
     let encryptedSecret: string;
     try { encryptedSecret = await encryptIntegrationSecret(secret); } catch (error) {
