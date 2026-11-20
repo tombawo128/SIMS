@@ -45,16 +45,25 @@ export interface PendingLogRow {
   } | null;
 }
 
-export function usePlacements() {
+export function usePlacements(enabled = true) {
   return useQuery({
     queryKey: ['placements'],
+    enabled,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('placements')
-        .select(PLACEMENT_SELECT)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Placement[];
+      const pageSize = 1000;
+      const rows: Placement[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase
+          .from('placements')
+          .select(PLACEMENT_SELECT)
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as Placement[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
 }

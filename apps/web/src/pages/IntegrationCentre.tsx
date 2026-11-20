@@ -3,10 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import {
   Activity, ArrowUpRight, BookOpen, Check, ChevronRight, Code2, Copy,
-  ExternalLink, Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
-  RefreshCw, ShieldCheck, Webhook, Workflow,
+  Globe2, KeyRound, Link2, LockKeyhole, Plus, Radio,
+  RefreshCw, ShieldCheck, Webhook,
 } from 'lucide-react';
 import { Card, CardHeader, Button, Badge, Alert, EmptyState, useToast } from '@/components/ui';
+import { EmbedsPanel, SsoPanel, WebhooksPanel } from '@/components/integrations/IntegrationServicePanels';
 
 type Section = 'overview' | 'api' | 'webhooks' | 'sso' | 'embed' | 'logs';
 type IntegrationConnection = {
@@ -17,6 +18,10 @@ type IntegrationApiKey = {
   id: string; integration_id: string; name: string; key_prefix: string;
   scopes: string[]; expires_at: string | null; last_used_at: string | null;
   revoked_at: string | null; created_at: string;
+};
+type IntegrationAuditEvent = {
+  id: number; actor_id: string | null; entity: string; entity_id: string | null;
+  action: string; metadata: Record<string, unknown>; created_at: string;
 };
 const integrationScopes = [
   { value: 'organisation:read', label: 'Organisation details' },
@@ -38,14 +43,6 @@ const apiExample = `curl -X GET "https://YOUR_PROJECT_REF.supabase.co/functions/
   -H "Authorization: Bearer YOUR_API_KEY" \\\
   -H "Accept: application/json"`;
 
-const embedExample = `<iframe
-  src="https://sims.example/embed/opportunities?tenant=YOUR_TENANT"
-  title="SIMS internship opportunities"
-  width="100%"
-  height="640"
-  loading="lazy">
-</iframe>`;
-
 function localDateValue(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -55,17 +52,6 @@ function localDateValue(date: Date) {
 
 function isKeyExpired(key: IntegrationApiKey) {
   return Boolean(key.expires_at && new Date(key.expires_at).getTime() <= Date.now());
-}
-
-function ComingSoon({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="integration-empty">
-      <span className="integration-empty__icon"><Workflow size={22} /></span>
-      <h3>{title}</h3>
-      <p>{description}</p>
-      <Badge tone="amber">Backend setup required</Badge>
-    </div>
-  );
 }
 
 export function IntegrationCentre() {
@@ -89,6 +75,19 @@ export function IntegrationCentre() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       return data as { connections: IntegrationConnection[]; api_keys: IntegrationApiKey[] };
+    },
+  });
+  const logsQuery = useQuery({
+    queryKey: ['integration-centre-audit-events'],
+    enabled: section === 'logs',
+    queryFn: async () => {
+      const { data, error } = await supabase.from('audit_logs')
+        .select('id,actor_id,entity,entity_id,action,metadata,created_at')
+        .in('entity', ['integration_connection', 'integration_api_key', 'integration_api_request', 'integration_webhook', 'integration_sso_config', 'integration_embed'])
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as IntegrationAuditEvent[];
     },
   });
   const organizations = useQuery({
@@ -345,34 +344,45 @@ export function IntegrationCentre() {
               <Card><CardHeader title="API request example" description="The API gateway enforces the credential's organisation and permission scopes." actions={<Button size="sm" variant="secondary" onClick={() => void copyText(apiExample, 'API request example')}>{copied === 'API request example' ? <Check size={14} /> : <Copy size={14} />} Copy</Button>} /><pre className="integration-code"><code>{apiExample}</code></pre><div className="integration-note">Available endpoints: /v1/organisation, /v1/opportunities, /v1/applications and /v1/placements. Read-only access, maximum 100 records per request.</div></Card>
             </div>
           ) : null}
-          {section === 'webhooks' ? (
-            <div className="integration-stack">
-              <Alert tone="info" title="Webhook delivery is not active">Endpoint registration, signing secrets, retry handling and delivery logs require backend services. The controls below are intentionally inactive until those services exist.</Alert>
-              <Card><CardHeader title="Registered endpoints" description="Send signed event payloads to an organisation-owned HTTPS endpoint." actions={<Button disabled><Plus size={15} /> Add endpoint</Button>} /><EmptyState icon={<Webhook />} title="No webhook endpoints" description="Configured endpoints and their delivery health will appear here." /></Card>
-              <Card><CardHeader title="Available event catalogue" description="Events planned for the first integration release." /><div className="integration-event-list">{['application.submitted','application.status_changed','placement.created','placement.completed','weekly_report.submitted','weekly_report.reviewed','evaluation.completed'].map(event => <div key={event}><code>{event}</code><Badge tone="slate">Planned</Badge></div>)}</div></Card>
-            </div>
-          ) : null}
+          {section === 'webhooks' ? <WebhooksPanel connections={connections} /> : null}
 
-          {section === 'sso' ? (
-            <div className="integration-stack">
-              <Alert tone="info" title="SSO providers are not connected">OpenID Connect should be implemented first, followed by SAML 2.0 for institutions that require it. Provider secrets must be stored server-side.</Alert>
-              <Card><CardHeader title="Identity provider" description="Connect the organisation's identity provider to SIMS." /><div className="integration-provider-grid"><article><span className="integration-provider-mark">OIDC</span><strong>OpenID Connect</strong><small>Recommended first implementation</small><Badge tone="amber">Not configured</Badge></article><article><span className="integration-provider-mark">SAML</span><strong>SAML 2.0</strong><small>For enterprise and institutional identity</small><Badge tone="slate">Planned</Badge></article></div><div className="integration-disabled-actions"><Button disabled>Configure identity provider</Button><span>Requires callback handling, domain verification and server-side secret storage.</span></div></Card>
-              <Card><CardHeader title="Domain verification" description="Restrict organisation sign-in to verified email domains." /><ComingSoon title="No verified domains" description="Domain ownership checks and account-to-tenant mapping will be added with SSO." /></Card>
-            </div>
-          ) : null}
+          {section === 'sso' ? <SsoPanel connections={connections} /> : null}
 
-          {section === 'embed' ? (
-            <div className="integration-stack">
-              <Alert tone="info" title="Embeds are examples only">The snippet below is a proposed integration format. A public, tenant-aware embed route and content security policy must be added before organisations can use it.</Alert>
-              <Card><CardHeader title="Opportunity listing embed" description="An example iframe organisations could place on their careers or student portal." actions={<Button size="sm" variant="secondary" onClick={() => void copyText(embedExample, 'Embed snippet')}>{copied === 'Embed snippet' ? <Check size={14} /> : <Copy size={14} />} Copy snippet</Button>} /><pre className="integration-code"><code>{embedExample}</code></pre><div className="integration-note"><ExternalLink size={15} /> Tenant ID, allowed origin and displayed fields must be configured before publishing.</div></Card>
-              <Card><CardHeader title="Branding controls" description="Future white-label options for connected organisations." /><div className="integration-brand-options"><span>Organisation logo <Badge tone="slate">Planned</Badge></span><span>Accent colour <Badge tone="slate">Planned</Badge></span><span>Custom domain <Badge tone="slate">Planned</Badge></span></div></Card>
-            </div>
-          ) : null}
+          {section === 'embed' ? <EmbedsPanel connections={connections} /> : null}
 
           {section === 'logs' ? (
             <div className="integration-stack">
-              <Alert tone="info" title="No integration events recorded">Audit and delivery events will appear here after integration services are activated.</Alert>
-              <Card><CardHeader title="Integration activity" description="Monitor authentication, API requests, webhook delivery and configuration changes." actions={<Button size="sm" variant="secondary" disabled><RefreshCw size={14} /> Refresh</Button>} /><EmptyState icon={<Activity />} title="No integration activity" description="There are no integration logs to display yet." /></Card>
+              {logsQuery.isError ? <Alert tone="danger" title="Integration activity could not be loaded">Check platform administrator access and retry.</Alert> : null}
+              <Card>
+                <CardHeader
+                  title="Integration activity"
+                  description="Recent connection, credential, webhook, SSO, embed and API request events."
+                  actions={<Button size="sm" variant="secondary" onClick={() => void logsQuery.refetch()} loading={logsQuery.isFetching}><RefreshCw size={14} /> Refresh</Button>}
+                />
+                {logsQuery.isLoading ? (
+                  <div className="integration-empty">Loading integration activity…</div>
+                ) : logsQuery.data?.length ? (
+                  <div className="integration-activity-list">
+                    {logsQuery.data.map((event) => (
+                      <article className="integration-activity-row" key={event.id}>
+                        <span className="integration-activity-row__icon"><Activity size={16} /></span>
+                        <div className="integration-activity-row__body">
+                          <strong>{event.action.replaceAll('_', ' ')}</strong>
+                          <span>
+                            {event.entity.replaceAll('_', ' ')}
+                            {typeof event.metadata.path === 'string' ? ` · ${event.metadata.path}` : ''}
+                            {typeof event.metadata.status_code === 'number' ? ` · HTTP ${event.metadata.status_code}` : ''}
+                            {event.entity_id ? ` · ${event.entity_id}` : ''}
+                          </span>
+                          <small>{new Date(event.created_at).toLocaleString()} · {event.actor_id ? `Actor ${event.actor_id}` : 'System or API event'}</small>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState icon={<Activity />} title="No integration activity yet" description="Connection changes, API requests and integration configuration events will appear here when they occur." />
+                )}
+              </Card>
             </div>
           ) : null}
         </div>

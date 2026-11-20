@@ -29,7 +29,9 @@ function MetricBar({ label, value, max, suffix = '' }: { label: string; value: n
 
 function csvCell(value: unknown) {
   const text = value == null ? '' : String(value);
-  return `"${text.replace(/"/g, '""')}"`;
+  // Prevent spreadsheet formula execution when CSV fields contain untrusted values.
+  const safeText = /^[\u0000-\u0020]*[=+\-@]/.test(text) ? `'${text}` : text;
+  return `\"${safeText.replace(/\"/g, '\"\"')}\"`;
 }
 
 function downloadCsv(filename: string, rows: unknown[][]) {
@@ -47,35 +49,60 @@ export function WorkspaceAnalytics() {
   const { profile } = useAuth();
   const isUniversity = profile?.role === 'coordinator';
   const isCompany = profile?.role === 'company_admin';
-  const placementsQuery = usePlacements();
-  const applicationsQuery = useApplications();
+  const analyticsEnabled = isUniversity || isCompany;
+  const placementsQuery = usePlacements(analyticsEnabled);
+  const applicationsQuery = useApplications(analyticsEnabled);
   const universityStats = useUniversityStats(isUniversity);
   const companyStats = useCompanyStats(isCompany);
   const weeklyQuery = useQuery({
     queryKey: ['analytics-weekly-reports'],
     enabled: isUniversity || isCompany,
     queryFn: async () => {
-      const { data, error } = await supabase.from('weekly_logs').select('id,placement_id,week_number,status,submitted_at');
-      if (error) throw error;
-      return (data ?? []) as WeeklyReport[];
+      const pageSize = 1000;
+      const rows: WeeklyReport[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase.from('weekly_logs')
+          .select('id,placement_id,week_number,status,submitted_at')
+          .order('id', { ascending: true }).range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as WeeklyReport[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
   const dailyQuery = useQuery({
     queryKey: ['analytics-daily-reports'],
     enabled: isUniversity || isCompany,
     queryFn: async () => {
-      const { data, error } = await supabase.from('daily_reports').select('id,placement_id,report_date,week_number,status');
-      if (error) throw error;
-      return (data ?? []) as DailyReport[];
+      const pageSize = 1000;
+      const rows: DailyReport[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase.from('daily_reports')
+          .select('id,placement_id,report_date,week_number,status')
+          .order('id', { ascending: true }).range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as DailyReport[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
   const evaluationsQuery = useQuery({
     queryKey: ['analytics-evaluations'],
     enabled: isUniversity || isCompany,
     queryFn: async () => {
-      const { data, error } = await supabase.from('evaluations').select('id,placement_id,type,overall_score');
-      if (error) throw error;
-      return (data ?? []) as EvaluationRow[];
+      const pageSize = 1000;
+      const rows: EvaluationRow[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase.from('evaluations')
+          .select('id,placement_id,type,overall_score')
+          .order('id', { ascending: true }).range(from, from + pageSize - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as EvaluationRow[]));
+        if (!data || data.length < pageSize) break;
+      }
+      return rows;
     },
   });
 
@@ -144,11 +171,12 @@ export function WorkspaceAnalytics() {
   const supervisorCounts = useMemo(() => {
     const counts = new Map<string, number>();
     filteredPlacements.forEach((p) => {
-      const key = p.faculty_supervisor?.full_name || 'Not assigned';
+      const supervisor = isUniversity ? p.faculty_supervisor : p.site_supervisor;
+      const key = supervisor?.full_name || 'Not assigned';
       counts.set(key, (counts.get(key) ?? 0) + 1);
     });
     return [...counts.entries()].sort((a, b) => b[1] - a[1]);
-  }, [filteredPlacements]);
+  }, [filteredPlacements, isUniversity]);
   const applicationStages = ['submitted', 'under_review', 'shortlisted', 'accepted', 'rejected', 'withdrawn']
     .map((status) => ({ label: status.replace('_', ' '), value: filteredApplications.filter((a) => a.status === status).length }));
   const active = filteredPlacements.filter((p) => p.status === 'active').length;
@@ -267,7 +295,10 @@ export function WorkspaceAnalytics() {
           </div>
         </Card>
         <Card>
-          <CardHeader title="Supervisor workload" description="Number of placements assigned to each university faculty supervisor." />
+          <CardHeader
+            title={isUniversity ? 'Faculty supervisor workload' : 'Site supervisor workload'}
+            description={isUniversity ? 'Number of placements assigned to each university faculty supervisor.' : 'Number of hosted placements assigned to each company site supervisor.'}
+          />
           <div style={{ padding: 16, display: 'grid', gap: 14 }}>
             {supervisorCounts.length ? supervisorCounts.map(([name, count]) => <MetricBar key={name} label={name} value={count} max={Math.max(1, ...supervisorCounts.map((x) => x[1]))} />) : <p style={{ color: '#64748b' }}>No supervisor assignments yet.</p>}
           </div>
@@ -285,20 +316,20 @@ export function WorkspaceAnalytics() {
         <CardHeader title={isUniversity ? 'Student and placement register' : 'Student grade register'} description={isUniversity ? 'Placement, faculty assignment, and official grade records.' : 'Final grades are read-only for company users and are entered by assigned university faculty supervisors.'} />
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px 12px' }}>
           <button type="button" onClick={() => downloadCsv(isUniversity ? 'sims-university-placement-register.csv' : 'sims-company-placement-register.csv', [
-            ['Student', 'Email', 'Department', 'Programme', 'Opportunity', 'Status', 'Faculty supervisor', 'Final grade', 'Created at'],
-            ...filteredPlacements.map((p) => [p.student?.full_name, p.student?.email, p.student?.department, p.student?.student_profile?.program, p.posting?.title, p.status, p.faculty_supervisor?.full_name, p.final_grade, p.created_at]),
+            ['Student', 'Email', 'Department', 'Programme', 'Opportunity', 'Status', isUniversity ? 'Faculty supervisor' : 'Site supervisor', 'Final grade', 'Created at'],
+            ...filteredPlacements.map((p) => [p.student?.full_name, p.student?.email, p.student?.department, p.student?.student_profile?.program, p.posting?.title, p.status, isUniversity ? p.faculty_supervisor?.full_name : p.site_supervisor?.full_name, p.final_grade, p.created_at]),
           ])} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 13px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}><Download size={16} /> Export CSV</button>
         </div>
         {filteredPlacements.length === 0 ? <EmptyState title="No placements match these filters" description="Change or clear the filters to see more records." /> : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead><tr>{['Student', 'Department / programme', 'Opportunity', 'Status', 'Faculty supervisor', 'Final grade'].map((label) => <th key={label} style={{ textAlign: 'left', padding: 12, borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{label}</th>)}</tr></thead>
+              <thead><tr>{['Student', 'Department / programme', 'Opportunity', 'Status', isUniversity ? 'Faculty supervisor' : 'Site supervisor', 'Final grade'].map((label) => <th key={label} style={{ textAlign: 'left', padding: 12, borderBottom: '1px solid #e2e8f0', color: '#64748b' }}>{label}</th>)}</tr></thead>
               <tbody>{filteredPlacements.map((placement) => <tr key={placement.id}>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.student?.full_name ?? 'Student'}<div style={{ color: '#64748b' }}>{placement.student?.email}</div></td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.student?.department ?? '—'}<div style={{ color: '#64748b' }}>{placement.student?.student_profile?.program ?? '—'}</div></td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.posting?.title ?? '—'}</td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9', textTransform: 'capitalize' }}>{placement.status}</td>
-                <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{placement.faculty_supervisor?.full_name ?? 'Not assigned'}</td>
+                <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9' }}>{(isUniversity ? placement.faculty_supervisor?.full_name : placement.site_supervisor?.full_name) ?? 'Not assigned'}</td>
                 <td style={{ padding: 12, borderBottom: '1px solid #f1f5f9', fontWeight: 700 }}>{placement.final_grade === null ? 'Pending' : `${Number(placement.final_grade).toFixed(1)} / 100`}</td>
               </tr>)}</tbody>
             </table>

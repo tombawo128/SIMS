@@ -8,6 +8,27 @@ async function sha256(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
 }
+
+async function recordApiRequest(
+  admin: any,
+  input: { keyId: string; integrationId: string; path: string; tenantType: string; tenantId: string; statusCode: number; returned?: number },
+) {
+  const { error } = await (admin as any).from('audit_logs').insert({
+    actor_id: null,
+    entity: 'integration_api_request',
+    entity_id: input.keyId,
+    action: 'GET',
+    metadata: {
+      integration_id: input.integrationId,
+      path: input.path,
+      tenant_type: input.tenantType,
+      tenant_id: input.tenantId,
+      status_code: input.statusCode,
+      returned: input.returned ?? 0,
+    },
+  });
+  if (error) console.error('Could not record integration API request audit event', error.message);
+}
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'GET') return json({ error: 'Only GET requests are supported in this API release' }, 405);
@@ -48,9 +69,19 @@ Deno.serve(async (req: Request) => {
   };
   const requiredScope = scopeByPath[path];
   if (!requiredScope) return json({ error: 'Endpoint not found' }, 404);
-  if (!key.scopes.includes(requiredScope)) return json({ error: 'API key does not have the required permission scope' }, 403);
+  if (!key.scopes.includes(requiredScope)) {
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 403,
+    });
+    return json({ error: 'API key does not have the required permission scope' }, 403);
+  }
 
   if (path === '/v1/organisation') {
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 200, returned: 1,
+    });
     return json({ data: { id: tenant.id, name: tenant.name, type: connection.organization_type, connection: connection.name } });
   }
 
@@ -63,6 +94,10 @@ Deno.serve(async (req: Request) => {
         .eq('company_id', tenantId).eq('status', 'published')
         .order('created_at', { ascending: false }).limit(limit);
       if (error) return json({ error: 'Could not load opportunities' }, 500);
+      await recordApiRequest(admin, {
+        keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+        tenantId, statusCode: 200, returned: data?.length ?? 0,
+      });
       return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
     }
     const [{ data: publicPosts, error: publicError }, { data: mappings, error: mappingError }] = await Promise.all([
@@ -82,6 +117,10 @@ Deno.serve(async (req: Request) => {
     }
     const combined = [...(publicPosts ?? []), ...selectedPosts]
       .sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit);
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 200, returned: combined.length,
+    });
     return json({ data: combined, pagination: { limit, returned: combined.length } });
   }
   if (path === '/v1/applications') {
@@ -91,6 +130,10 @@ Deno.serve(async (req: Request) => {
     query = isUniversity ? query.eq('university_id', tenantId) : query.eq('company_id', tenantId);
     const { data, error } = await query;
     if (error) return json({ error: 'Could not load applications' }, 500);
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 200, returned: data?.length ?? 0,
+    });
     return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
   }
   let query = admin.from('placements')
@@ -99,5 +142,9 @@ Deno.serve(async (req: Request) => {
   query = isUniversity ? query.eq('university_id', tenantId) : query.eq('company_id', tenantId);
   const { data, error } = await query;
   if (error) return json({ error: 'Could not load placements' }, 500);
+  await recordApiRequest(admin, {
+    keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+    tenantId, statusCode: 200, returned: data?.length ?? 0,
+  });
   return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
 });

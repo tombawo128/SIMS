@@ -59,6 +59,13 @@ jobs:
           export API_URL ANON_KEY
           node scripts/storage-api-smoke.mjs
 
+      - name: Exercise coordinator and company analytics with isolated seeded users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          export API_URL ANON_KEY
+          node scripts/analytics-api-smoke.mjs
+
       - name: Collect local Auth and Storage logs on failure
         if: failure()
         run: |
