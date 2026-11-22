@@ -1,0 +1,39 @@
+/* Administration pages share a single restrained operational pattern */
+[class*="admin-page"],.tenants-page,.users-page,.recycle-v2,.analytics-page,.governance-page,.admin-console-page{min-width:0;display:grid;gap:20px}
+.tenants-page,.analytics-page{color:var(--body)}
+.tenants-page .page-hero,.analytics-page .page-hero{padding-bottom:18px;border-bottom:1px solid var(--border)}
+.tenants-page .card,.analytics-page .card,.admin-console-page .card,.governance-page .card{min-width:0;padding:20px;border:1px solid var(--border);border-radius:10px;background:#fff;box-shadow:var(--shadow-sm)}
+.tenants-search,.users-search{display:flex;align-items:center;gap:8px;min-width:0}
+.tenants-page .tabs,.users-tabs{overflow-x:auto}
+.tenants-page table,.users-page table,.analytics-page table{min-width:680px}
+.tenants-page .table-wrap,.users-page .table-wrap,.analytics-page .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:#fff}
+.tenants-delete,.users-delete-btn{color:var(--danger)}
+.users-pending-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid #FDE68A;border-radius:8px;background:var(--warning-bg)}
+.users-pending-banner__text{color:var(--warning)}
+.users-error,.admin-error{padding:14px;border:1px solid #FECACA;border-left:3px solid var(--danger);border-radius:8px;background:var(--danger-bg)}
+.analytics-page__overview{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;border:1px solid #20365A;border-radius:10px;background:var(--navy);color:#fff}
+.analytics-page__overview h2,.analytics-page__overview p{color:#fff}
+.analytics-page__overview p{max-width:65ch;color:#D6DFEC}
+.analytics-page__metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.analytics-page__metrics .stat-card{padding:18px;border:1px solid var(--border);border-radius:10px;background:#fff}
+.analytics-page__detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.analytics-page__workflow-grid,.analytics-page__organization-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.analytics-page__workflow-card,.analytics-page__organization-card{display:flex;align-items:center;gap:12px;min-width:0;padding:16px;border:1px solid var(--border);border-radius:8px;background:#fff}
+.analytics-page__section-kicker,.recycle-v2__section-kicker{color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.analytics-page__role-list,.analytics-page__organizations{display:grid;gap:14px}
+.analytics-page__role{min-width:0}
+.analytics-page__role-heading{display:flex;justify-content:space-between;gap:12px}
+.analytics-page__role-track,.analytics-page__status-track{height:8px;overflow:hidden;border-radius:99px;background:var(--surface-subtle)}
+.analytics-page__role-track span,.analytics-page__status-track span{display:block;height:100%;background:var(--primary)}
+.analytics-page__status--redesigned{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(0,1.3fr);gap:16px}
+.analytics-page__status-total{padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--surface-subtle)}
+.recycle-v2__summary{background:var(--navy)}
+.recycle-v2__metric-icon,.recycle-v2__record-icon{color:var(--primary);background:var(--primary-tint)}
+.admin-console-page form,.governance-page form{display:grid;gap:14px;min-width:0}
+.admin-console-page .form-actions,.governance-page .form-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:12px;border-top:1px solid var(--border)}
+.admin-console-page pre,.governance-page pre{max-width:100%;overflow:auto;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--surface-subtle);font-family:var(--font-mono);font-size:12px}
+.admin-console-page .status,.governance-page .status{display:inline-flex;align-items:center;padding:4px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface-subtle);color:var(--muted);font-size:12px;font-weight:600}
+.admin-console-page .status--available,.governance-page .status--available{border-color:#BBF7D0;background:var(--success-bg);color:var(--success)}
+.admin-console-page .status--not-connected,.governance-page .status--not-connected,.admin-console-page .status--not-configured,.governance-page .status--not-configured,.admin-console-page .status--backend-required,.governance-page .status--backend-required,.admin-console-page .status--integration-required,.governance-page .status--integration-required{border-color:#FDE68A;background:var(--warning-bg);color:var(--warning)}
+button:disabled[aria-label],button:disabled{filter:none}
+@media(max-width:767px){.analytics-page__detail-grid,.analytics-page__status--redesigned{grid-template-columns:1fr}.analytics-page__overview{align-items:flex-start;flex-direction:column}.users-pending-banner{align-items:flex-start;flex-direction:column}.tenants-page .card,.analytics-page .card,.admin-console-page .card,.governance-page .card{padding:16px}}
