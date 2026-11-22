@@ -85,6 +85,9 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Test webhook IP screening
+        run: deno test --no-lock --node-modules-dir=auto supabase/functions/_shared/webhook-ip.test.ts
+
       - name: Type-check Edge Functions
         run: |
           set -e
