@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - backend-hardening
+      - fix/phase-two-completion
   pull_request:
     branches:
       - main
