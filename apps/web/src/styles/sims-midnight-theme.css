@@ -204,3 +204,65 @@ hr,.divider{border-color:var(--sims-line)}
 .integration-centre .integration-connection-row,.integration-centre .integration-key-row,.integration-centre .integration-activity-row{border-color:var(--sims-line)}
 .integration-centre .integration-connection-row:hover,.integration-centre .integration-key-row:hover{background:#F7FAFC}
 .integration-centre :is(button,input,select):focus-visible{outline:3px solid var(--sims-lime);outline-offset:2px}
+
+
+/* Public product/marketing sections still had literal royal-blue values in
+   product-overhaul.css; bring those sections into the same three-colour system. */
+.public-hero{background:linear-gradient(180deg,#F7FAFC 0%,#FFFFFF 90%)}
+.public-hero:before{background:radial-gradient(ellipse at 60% 35%,#DCE8F1 0%,#EEF4F8 34%,transparent 70%)}
+.public-kicker,.public-eyebrow,.public-text-link,.public-feature-card__icon,.public-audience__icon{color:var(--sims-navy)}
+.public-kicker span{background:var(--sims-lime);box-shadow:0 0 0 5px #DBFF0030}
+.public-hero h1 em,.public-section-heading h2 em,.public-workflow h2 em,.public-cta h2 em{color:var(--sims-navy)}
+.public-product__rail{background:var(--sims-navy)}
+.public-product__rail span.is-active{background:var(--sims-lime);color:var(--sims-navy)}
+.public-product__body,.public-product__main,.public-workflow{background:#EEF3F7}
+.public-product__avatar,.public-feature-card__icon,.public-audience__icon,.public-stage__icon{background:#EEF4F8;color:var(--sims-navy)}
+.public-product__bars i{background:linear-gradient(180deg,#547A9D,#102C4D)}
+.public-product__step-icon.done{background:#EEF4F8;color:var(--sims-navy)}
+.public-feature-card--dark{background:linear-gradient(135deg,#0B2039,#102C4D);border-color:#102C4D;color:#F7FAFC}
+.public-feature-card--dark .public-feature-card__icon{background:#FFFFFF18;color:var(--sims-lime)}
+.public-feature-card--dark .public-feature-card__label{color:#D6E1EA}
+.public-feature-card--dark h3{color:#F7FAFC}
+.public-feature-card--dark p{color:#D6E1EA}
+.public-role-stack span{border-color:#FFFFFF30;color:#F7FAFC}
+.public-role-stack svg{color:var(--sims-lime)}
+.public-flow__node,.public-visibility>div{background:#EEF3F7}
+.public-flow__node>span,.public-visibility strong{color:var(--sims-navy)}
+.public-feature-card__label{color:var(--sims-muted)}
+.public-cta{background:linear-gradient(120deg,#0B2039 0%,#102C4D 60%,#244565 100%)}
+.public-cta .public-eyebrow{color:var(--sims-lime)}
+.public-cta h2{color:#F7FAFC}
+.public-cta h2 em{color:var(--sims-lime)}
+.public-cta>p{color:#D6E1EA}
+.public-cta__ornament{border-color:#FFFFFF30;color:var(--sims-lime);background:#FFFFFF12}
+.public-cta__actions .btn{background:var(--sims-lime)!important;color:var(--sims-navy)!important;border:1px solid var(--sims-lime)!important}
+.public-cta__actions .btn:hover{background:#C8EA00!important}
+.public-cta__actions .public-text-link{color:#F7FAFC}
+.public-footer__links a:hover,.public-nav a:hover{color:var(--sims-navy)}
+
+/* Recycle Bin and older analytics cards had literal indigo/violet accents. */
+.analytics-page__overview{border-color:var(--sims-navy);background:linear-gradient(112deg,#0B2039 0%,#102C4D 60%,#244565 100%)}
+.analytics-page__eyebrow{color:#D6E1EA}
+.analytics-page__section-heading h2,.analytics-page__role-heading strong,.analytics-page__status-total strong,.analytics-page__status-list strong{color:var(--sims-navy)}
+.analytics-page__workflow-icon{background:#EEF4F8;color:var(--sims-navy)}
+.analytics-page__legend--students,.analytics-page__fill--students{background:var(--sims-navy)}
+.analytics-page__legend--university,.analytics-page__fill--university{background:#547A9D}
+.analytics-page__legend--company,.analytics-page__fill--company{background:#8FAAC1}
+.analytics-page__legend--admins,.analytics-page__fill--admins{background:var(--sims-lime)}
+.analytics-page__status-total{background:#EEF4F8}
+.recycle-page__hero,.recycle-v2__summary{border-color:var(--sims-navy);background:linear-gradient(112deg,#0B2039 0%,#102C4D 60%,#244565 100%)}
+.recycle-v2{color:var(--sims-navy)}
+.recycle-v2__eyebrow,.recycle-v2__section-kicker{color:#547A9D}
+.recycle-v2__metric--user .recycle-v2__metric-icon,.recycle-v2__metric--university .recycle-v2__metric-icon,.recycle-v2__metric--company .recycle-v2__metric-icon,
+.recycle-v2__record-icon--user,.recycle-v2__record-icon--university,.recycle-v2__record-icon--company{background:#EEF4F8;color:var(--sims-navy)}
+.recycle-v2__metric-content strong,.recycle-v2__workspace-head h2,.recycle-v2__record-copy strong{color:var(--sims-navy)}
+.recycle-v2__metric:hover{border-color:#AFC2D2}
+.recycle-v2__notice{border-color:var(--sims-line);background:#EEF4F8;color:var(--sims-muted)}
+.recycle-v2__notice svg,.recycle-v2__confirm-icon{color:var(--sims-navy)}
+.recycle-v2__confirm-icon{background:#EEF4F8}
+.recycle-v2__notice strong,.recycle-v2__confirm strong{color:var(--sims-navy)}
+.recycle-v2__search:focus-within{border-color:#547A9D;box-shadow:0 0 0 3px #102C4D18}
+.recycle-v2__search,.recycle-v2__sort{border-color:var(--sims-line);background:#FFFFFF}
+.recycle-v2__tabs,.recycle-v2__workspace-head,.recycle-v2__footer{border-color:var(--sims-line)}
+.recycle-v2__table thead{background:#EEF3F7}
+.recycle-v2__table tbody tr:hover,.recycle-v2__mobile-record:hover{background:#F7FAFC}
