@@ -6,6 +6,7 @@
   --sims-blue:#28618A;
   --sims-accent:#347EAD;
   --sims-accent-soft:#EAF3F9;
+  --sims-lime:#DCEAF4; /* legacy token mapped to cool blue; no lime/yellow remains */
   --sims-paper:#F4F7FA;
   --sims-white:#FFFFFF;
   --sims-muted:#687B8E;
