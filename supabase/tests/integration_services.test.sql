@@ -14,9 +14,9 @@ select is(
    from pg_class c
    join pg_namespace n on n.oid = c.relnamespace
    where n.nspname = 'public'
-     and c.relname in ('integration_webhooks','integration_webhook_deliveries','integration_sso_configs','integration_embeds')
+     and c.relname in ('integration_webhooks','integration_webhook_deliveries','integration_sso_configs','integration_embeds','integration_api_rate_limits')
      and c.relrowsecurity),
-  4,
+  5,
   'RLS is enabled on every new integration service table'
 );
 
