@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap;
-select plan(17);
+select plan(21);
 
 -- Fixture identities/placements are seeded by the established CI RLS fixture.
 create or replace function public.role_negative_test_as(p_uid uuid)
@@ -45,6 +45,70 @@ select throws_ok($$select public.record_grade('66666666-6666-4666-8666-666666660
 -- Platform admin: privileged function execution is gated by grants, not arbitrary authenticated callers.
 select is(has_function_privilege('authenticated','public.set_user_status(uuid,public.account_status)','execute'),false,'authenticated role cannot execute platform account-status RPC');
 select is(has_function_privilege('anon','public.platform_stats()','execute'),false,'anonymous role cannot execute platform aggregate RPC');
+
+-- Suspended accounts still carry authenticated JWTs. The role helper returns
+-- NULL for them, so SECURITY DEFINER guards must use NULL-safe comparisons.
+reset role;
+update public.profiles
+set account_status = 'suspended'
+where id = '99999999-9999-4999-8999-999999999003';
+set local role authenticated;
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999003');
+
+select throws_ok(
+  $ select public.assign_faculty_supervisor(
+       '66666666-6666-4666-8666-666666660002',
+       '99999999-9999-4999-8999-999999999013'
+     ) $,
+  'P0001',
+  'Only internship coordinators can assign faculty supervisors',
+  'suspended coordinator cannot assign faculty supervisors'
+);
+
+reset role;
+update public.profiles
+set account_status = 'active'
+where id = '99999999-9999-4999-8999-999999999003';
+
+update public.profiles
+set account_status = 'suspended'
+where id = '99999999-9999-4999-8999-999999999011';
+set local role authenticated;
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999011');
+
+select throws_ok(
+  $ select public.faculty_stats() $,
+  'P0001',
+  'Not authorized',
+  'suspended faculty cannot read faculty statistics'
+);
+
+select throws_ok(
+  $ select public.review_weekly_log(
+       '77777777-7777-4777-8777-777777770001',
+       'approved',
+       'Suspended faculty cannot review.'
+     ) $,
+  'P0001',
+  'Only the assigned university faculty supervisor can approve this weekly report',
+  'suspended faculty cannot review weekly reports'
+);
+
+select throws_ok(
+  $ select public.record_grade(
+       '66666666-6666-4666-8666-666666660001',
+       85,
+       'Suspended faculty cannot grade.'
+     ) $,
+  'P0001',
+  'Only the assigned university faculty supervisor can record the official final grade',
+  'suspended faculty cannot record final grades'
+);
+
+reset role;
+update public.profiles
+set account_status = 'active'
+where id = '99999999-9999-4999-8999-999999999011';
 
 reset role;
 select * from finish();
