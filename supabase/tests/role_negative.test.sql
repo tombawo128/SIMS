@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap;
-select plan(18);
+select plan(17);
 
 -- Fixture identities/placements are seeded by the established CI RLS fixture.
 create or replace function public.role_negative_test_as(p_uid uuid)
