@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(18);
+select plan(27);
 
 select ok(to_regclass('public.integration_webhooks') is not null, 'webhook configuration table exists');
 select ok(to_regclass('public.integration_webhook_deliveries') is not null, 'webhook delivery outbox exists');
@@ -49,6 +49,13 @@ select ok(not has_function_privilege('anon', 'public.enqueue_integration_webhook
 select ok(not has_function_privilege('authenticated', 'public.capture_integration_webhook_event()', 'execute'), 'authenticated users cannot invoke the webhook trigger function');
 select ok(has_function_privilege('service_role', 'public.claim_integration_webhook_deliveries(integer)', 'execute'), 'service role can claim queued webhook deliveries');
 select ok(not has_function_privilege('authenticated', 'public.claim_integration_webhook_deliveries(integer)', 'execute'), 'authenticated users cannot claim queued webhook deliveries');
+select ok(to_regclass('public.integration_api_rate_limits') is not null, 'integration API rate-limit table exists');
+select ok(not has_table_privilege('anon', 'public.integration_api_rate_limits', 'select'), 'anonymous users cannot read rate-limit state');
+select ok(not has_table_privilege('authenticated', 'public.integration_api_rate_limits', 'select'), 'authenticated users cannot read rate-limit state');
+select ok(not has_function_privilege('anon', 'public.consume_integration_api_rate_limit(uuid,integer,integer)', 'execute'), 'anonymous users cannot consume API rate limits');
+select ok(not has_function_privilege('authenticated', 'public.consume_integration_api_rate_limit(uuid,integer,integer)', 'execute'), 'authenticated users cannot consume API rate limits');
+select ok(has_function_privilege('service_role', 'public.consume_integration_api_rate_limit(uuid,integer,integer)', 'execute'), 'service role can consume API rate limits');
+
 insert into public.integration_connections (id, name, organization_type, university_id, created_by)
 values (
   '77777777-7777-4777-8777-777777770001',
@@ -64,6 +71,33 @@ values (
   'company',
   '22222222-2222-4222-8222-222222222201',
   '99999999-9999-4999-8999-999999999001'
+);
+
+insert into public.integration_api_keys (id, integration_id, name, key_prefix, key_hash, scopes, created_by)
+values (
+  '66666666-6666-4666-8666-666666666001',
+  '77777777-7777-4777-8777-777777770001',
+  'pgTAP API rate-limit key',
+  'sims_live_test',
+  'rate-limit-test-hash',
+  array['organisation:read'],
+  '99999999-9999-4999-8999-999999999001'
+);
+
+select is(
+  public.consume_integration_api_rate_limit('66666666-6666-4666-8666-666666666001', 2, 3600),
+  true,
+  'first request is allowed within the configured rate-limit window'
+);
+select is(
+  public.consume_integration_api_rate_limit('66666666-6666-4666-8666-666666666001', 2, 3600),
+  true,
+  'second request is allowed within the configured rate-limit window'
+);
+select is(
+  public.consume_integration_api_rate_limit('66666666-6666-4666-8666-666666666001', 2, 3600),
+  false,
+  'requests above the per-key limit are denied'
 );
 
 insert into public.integration_webhooks (id, integration_id, name, endpoint_url, events, secret_ciphertext, created_by)
