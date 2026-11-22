@@ -1,117 +1,171 @@
-import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { useAdminSignupAvailable } from '@/hooks/useAdminConsole';
-import { AuthShell } from '@/components/AuthShell';
-import { Alert, Button, Field, Input } from '@/components/ui';
-import { errorMessage } from '@/lib/utils';
+import "./landing.css";
 
-/** Turns raw auth errors into messages people can act on. */
-function friendlyError(message: string): string {
-  const text = message.toLowerCase();
-  if (text.includes('invalid login credentials')) {
-    return 'Incorrect email or password. Please try again.';
-  }
-  if (text.includes('email not confirmed')) {
-    return 'Please confirm your email first. Check your inbox for the confirmation link.';
-  }
-  return message;
-}
+/* Change these if your routes differ. If you use react-router, swap the
+ * <a href> tags for <Link to> and keep the same className values. */
+const LOGIN = "/login";
+const SIGNUP = "/register";
 
-export function Login() {
-  const { signIn } = useAuth();
-  const navigate = useNavigate();
-  const availability = useAdminSignupAvailable();
-  const adminAvailable = availability.data === true && !availability.isLoading && !availability.isError;
+const roles = [
+  {
+    title: "Students",
+    text: "Find openings, apply, and see where each application stands.",
+    points: ["Browse placements from partner companies", "Track every application in one list", "Receive decisions and next steps"],
+  },
+  {
+    title: "University coordinators",
+    text: "Oversee placements across a cohort without chasing spreadsheets.",
+    points: ["See who is placed, pending, or unplaced", "Approve placements and assign supervisors", "Export records for reporting"],
+  },
+  {
+    title: "Companies",
+    text: "Publish openings and review candidates from the universities you work with.",
+    points: ["Post internship positions", "Review applications and shortlist", "Confirm placements and dates"],
+  },
+];
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+const steps = [
+  { title: "Post", text: "A company publishes an internship opening." },
+  { title: "Apply", text: "Students apply and the company reviews candidates." },
+  { title: "Confirm", text: "The company offers a place and the university approves it." },
+  { title: "Follow up", text: "Progress and outcomes stay on the placement record." },
+];
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setError('');
-    setSubmitting(true);
-    try {
-      await signIn(email.trim(), password);
-      navigate('/dashboard', { replace: true });
-    } catch (caught) {
-      setError(friendlyError(errorMessage(caught)));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+const features = [
+  ["One record per placement", "Student, company, supervisor, dates and status live together instead of across emails and sheets."],
+  ["Several universities, several companies", "Each organisation works in its own space on the same system."],
+  ["Clear status at every stage", "Everyone sees the same status, so nobody has to ask where an application is."],
+  ["Role-based access", "Students, coordinators and companies each see only what their role needs."],
+];
 
+const faqs = [
+  ["Who can use SIMS?", "Students, university coordinators and partner companies. Each role has its own sign-in and its own view."],
+  ["Does it cost anything for students?", "Replace this answer with your actual pricing policy."],
+  ["How do I join as a company or university?", "Create an account and complete your organisation details. A coordinator or administrator confirms new organisations."],
+  ["Who can see my information?", "Only people involved in your placement: you, the company, and your university coordinator."],
+];
+
+export default function Landing() {
   return (
-    <AuthShell title="Sign in" subtitle="Enter your email and password to continue.">
-      <form onSubmit={handleSubmit} className="login-form">
-        {error ? <Alert tone="danger">{error}</Alert> : null}
+    <div className="lp">
+      <header className="lp-header">
+        <div className="lp-wrap">
+          <a href="/" className="lp-brand">SIMS</a>
+          <nav className="lp-nav" aria-label="Main">
+            <div className="lp-nav-links">
+              <a href="#who">Who it is for</a>
+              <a href="#process">How it works</a>
+              <a href="#faq">FAQ</a>
+            </div>
+            <a href={LOGIN}>Sign in</a>
+            <a href={SIGNUP} className="lp-btn lp-btn-primary lp-btn-sm">Get started</a>
+          </nav>
+        </div>
+      </header>
 
-        <Field label="Email" htmlFor="email" required>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@example.com"
-          />
-        </Field>
+      <main>
+        <section className="lp-hero">
+          <div className="lp-wrap">
+            <div>
+              <h1>Student internship placements, managed in one place</h1>
+              <p className="lp-hero-lead">
+                SIMS connects students, universities and companies on a single placement record,
+                from the first application to the final outcome.
+              </p>
+              <div className="lp-hero-actions">
+                <a href={SIGNUP} className="lp-btn lp-btn-primary">Create an account</a>
+                <a href={LOGIN} className="lp-btn lp-btn-quiet">Sign in</a>
+              </div>
+              <p className="lp-hero-note">For students, university coordinators and partner companies.</p>
+            </div>
 
-        <Field label="Password" htmlFor="password" required>
-          <div className="login-password">
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              required
-              className="login-password__input"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-            <button
-              type="button"
-              className="login-password__toggle"
-              onClick={() => setShowPassword((current) => !current)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              aria-pressed={showPassword}
-            >
-              {showPassword ? <EyeOff className="login-h-4-1" /> : <Eye className="login-h-4-1" />}
-            </button>
+            <div className="lp-record" aria-label="Example placement list">
+              <div className="lp-record-head">
+                <strong>Placements</strong>
+                <span>Example data</span>
+              </div>
+              <table>
+                <thead>
+                  <tr><th>Student</th><th>Company</th><th>Start</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>A. Mukamana<small>Computer Science</small></td><td>Northfield Systems</td><td>3 Feb</td><td><span className="lp-status lp-status-ok">Placed</span></td></tr>
+                  <tr><td>J. Habimana<small>Business IT</small></td><td>Kivu Logistics</td><td>10 Feb</td><td><span className="lp-status lp-status-wait">Awaiting approval</span></td></tr>
+                  <tr><td>C. Uwase<small>Information Systems</small></td><td>Lakeside Bank</td><td>17 Feb</td><td><span className="lp-status lp-status-info">Interview</span></td></tr>
+                  <tr><td>P. Niyonzima<small>Computer Science</small></td><td>Akira Digital</td><td>24 Feb</td><td><span className="lp-status lp-status-ok">Placed</span></td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </Field>
+        </section>
 
-        <div className="login-forgot">
-          <Link to="/forgot-password" className="login-link">
-            Forgot password?
-          </Link>
+        <section className="lp-section" id="who">
+          <div className="lp-wrap">
+            <h2>Built for the three groups involved in a placement</h2>
+            <div className="lp-section-body lp-roles">
+              {roles.map((r) => (
+                <div className="lp-role" key={r.title}>
+                  <h3>{r.title}</h3>
+                  <p>{r.text}</p>
+                  <ul>{r.points.map((p) => <li key={p}>{p}</li>)}</ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="lp-section lp-section-wash" id="process">
+          <div className="lp-wrap">
+            <h2>How a placement moves from opening to outcome</h2>
+            <ol className="lp-section-body lp-steps">
+              {steps.map((s) => (
+                <li key={s.title}><h3>{s.title}</h3><p>{s.text}</p></li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="lp-section" id="features">
+          <div className="lp-wrap">
+            <h2>What you get</h2>
+            <dl className="lp-section-body lp-features">
+              {features.map(([t, d]) => (
+                <div key={t}><dt>{t}</dt><dd>{d}</dd></div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        <section className="lp-section lp-section-wash" id="faq">
+          <div className="lp-wrap">
+            <h2>Common questions</h2>
+            <div className="lp-section-body lp-faq">
+              {faqs.map(([q, a]) => (
+                <details key={q}><summary>{q}</summary><p>{a}</p></details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="lp-cta">
+          <div className="lp-wrap">
+            <div>
+              <h2>Start managing placements in SIMS</h2>
+              <p>Create an account to get started, or sign in if you already have one.</p>
+            </div>
+            <a href={SIGNUP} className="lp-btn lp-btn-primary">Create an account</a>
+          </div>
+        </section>
+      </main>
+
+      <footer className="lp-footer">
+        <div className="lp-wrap">
+          <span>© {new Date().getFullYear()} SIMS</span>
+          <nav aria-label="Footer">
+            <a href={LOGIN}>Sign in</a>
+            <a href={SIGNUP}>Create an account</a>
+          </nav>
         </div>
-
-        <Button type="submit" className="login-w-full-1" loading={submitting}>
-          Sign in
-        </Button>
-
-        <div className="login-footer">
-          <p>
-            No account yet?{' '}
-            <Link to="/signup" className="login-link">
-              Create a student account
-            </Link>
-          </p>
-          {adminAvailable ? (
-            <p>
-              Setting up the platform?{' '}
-              <Link to="/signup?mode=admin" className="login-link">
-                Create an administrator account
-              </Link>
-            </p>
-          ) : null}
-        </div>
-      </form>
-    </AuthShell>
+      </footer>
+    </div>
   );
 }
