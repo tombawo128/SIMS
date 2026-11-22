@@ -28,7 +28,7 @@ select throws_ok($$select public.submit_evaluation('66666666-6666-4666-8666-6666
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999002');
 select is((select count(*) from public.placements where id='66666666-6666-4666-8666-666666660002'),0::bigint,'coordinator cannot see foreign university placement');
 select is((select count(*) from public.profiles where id='99999999-9999-4999-8999-999999999024'),0::bigint,'coordinator cannot read foreign university student profile');
-select throws_ok($select public.set_user_status('99999999-9999-4999-8999-999999999021','suspended')$,'P0001','Only a general administrator can manage user accounts','coordinator cannot perform platform-level account suspension');
+select throws_ok($$select public.set_user_status('99999999-9999-4999-8999-999999999021','suspended')$$,'P0001','Only a general administrator can manage user accounts','coordinator cannot perform platform-level account suspension');
 
 -- Company admin: restrict to its own tenant and assigned application workflow.
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999041');
