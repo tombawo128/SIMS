@@ -1,0 +1,89 @@
+/* SIMS global visual identity — Midnight Navy / Cloud White / Electric Lime */
+:root{
+  --sims-navy:#102C4D;
+  --sims-white:#F7FAFC;
+  --sims-lime:#DBFF00;
+  --sims-navy-strong:#0B2039;
+  --sims-navy-soft:#244565;
+  --sims-line:#DCE5ED;
+  --sims-muted:#64778A;
+  --sims-surface:#FFFFFF;
+  --brand-900:#102C4D;--brand-800:#16395F;--brand-700:#1B456F;--brand-600:#28577F;
+  --brand-100:#EAF1F7;--ink:#102C4D;--muted:#64778A;--line:#DCE5ED;--canvas:#F7FAFC;
+  --surface:#FFFFFF;
+}
+html,body,#root{min-height:100%;background:var(--sims-white);color:var(--sims-navy)}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+::selection{background:var(--sims-lime);color:var(--sims-navy)}
+a{color:var(--sims-navy)}
+.app-shell,.workspace-shell,.app-content,.workspace-content,.app-main,.workspace-main{background:var(--sims-white);color:var(--sims-navy)}
+.workspace-main__inner{width:100%}
+.app-sidebar,.workspace-sidebar,.mobile-nav__panel,.sidebar{background:var(--sims-navy)!important;color:#F7FAFC}
+.sidebar__tenant{border-color:#FFFFFF24!important;background:#FFFFFF0D!important}
+.sidebar__tenant-name,.sidebar__user-name,.sidebar__app-name{color:#F7FAFC!important}
+.sidebar__tenant-role,.sidebar__user-email,.sidebar__app-tagline{color:#C5D2DE!important}
+.nav-link{color:#D4DFE8!important;border-radius:10px}
+.nav-link:hover,.nav-link--inactive:hover{background:#FFFFFF12!important;color:#FFFFFF!important}
+.nav-link--active{background:var(--sims-lime)!important;color:var(--sims-navy)!important;box-shadow:none!important;font-weight:800}
+.nav-link--active .nav-link__icon{color:var(--sims-navy)!important}
+.sidebar__signout{color:#E7EEF4}
+.sidebar__signout:hover{background:#FFFFFF18;color:var(--sims-lime)}
+.workspace-topbar,.app-header{background:#FFFFFF;border-bottom:1px solid var(--sims-line);color:var(--sims-navy);box-shadow:0 3px 16px #102C4D08}
+.workspace-breadcrumb__role,.workspace-account small{color:var(--sims-muted)}
+.workspace-breadcrumb strong,.workspace-account strong{color:var(--sims-navy)}
+.workspace-footer{background:#FFFFFF;color:var(--sims-muted);border-top:1px solid var(--sims-line)}
+.workspace-account:hover,.bell__button:hover{background:#EDF3F8}
+.bell__dropdown,.ui-card,.card,.modal,.dialog,.dropdown-menu{background:#FFFFFF;border:1px solid var(--sims-line);color:var(--sims-navy);box-shadow:0 12px 32px #102C4D12}
+.bell__dropdown-header,.bell__footer{border-color:var(--sims-line)}
+.bell__item{color:var(--sims-navy)}
+.bell__item:hover,.bell__item--unread{background:#F0F5F9}
+.bell__badge,.badge--primary{background:var(--sims-lime);color:var(--sims-navy)}
+h1,h2,h3,h4,h5,h6,.page-title,.heading-lg,.heading-md,.heading-sm{color:var(--sims-navy)}
+p,.text-muted,.muted{color:inherit}
+.ui-page-header p,.page-description,.text-secondary{color:var(--sims-muted)}
+.ui-card,.stat-card,.dashboard-card,.panel,.content-card{border-color:var(--sims-line);background:#FFFFFF;box-shadow:0 5px 22px #102C4D08}
+.ui-card:hover,.stat-card:hover,.dashboard-card:hover{border-color:#C7D5E2}
+.btn--primary,.btn-primary,.button-primary,.public-nav .public-nav__cta,.public-hero__actions .btn,.public-cta__actions .btn{
+  background:var(--sims-lime)!important;color:var(--sims-navy)!important;border:1px solid var(--sims-lime)!important;
+  box-shadow:0 5px 14px #102C4D18!important;font-weight:800;transition:transform .18s ease,box-shadow .18s ease,background .18s ease
+}
+.btn--primary:hover,.btn-primary:hover,.button-primary:hover,.public-nav .public-nav__cta:hover,.public-hero__actions .btn:hover,.public-cta__actions .btn:hover{
+  background:#C8EA00!important;border-color:#C8EA00!important;color:var(--sims-navy)!important;transform:translateY(-1px);box-shadow:0 8px 20px #102C4D22!important
+}
+.btn--secondary,.btn--outline,.btn--ghost,.btn-secondary{border-color:var(--sims-line);color:var(--sims-navy);background:#FFFFFF}
+.btn--secondary:hover,.btn--outline:hover,.btn--ghost:hover,.btn-secondary:hover{background:#EDF3F8;color:var(--sims-navy)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #DBFF00!important;outline-offset:2px}
+input,select,textarea,.form-control{border-color:#CCD8E3!important;background:#FFFFFF!important;color:var(--sims-navy)!important}
+input::placeholder,textarea::placeholder{color:#8A9AAA!important}
+input:focus,select:focus,textarea:focus,.form-control:focus{border-color:#547A9D!important;box-shadow:0 0 0 3px #102C4D18!important}
+table{color:var(--sims-navy)}
+thead,th{background:#EDF3F8;color:var(--sims-navy)}
+td,th{border-color:var(--sims-line)}
+tbody tr:hover{background:#F4F8FB}
+hr,.divider{border-color:var(--sims-line)}
+.public-header{background:#FFFFFFF2;border-color:var(--sims-line)}
+.public-brand,.public-brand__name,.public-product__brand{color:var(--sims-navy)}
+.public-brand__mark,.public-product__brand>span{background:var(--sims-navy);color:#FFFFFF}
+.public-hero{background:linear-gradient(180deg,#F7FAFC 0%,#FFFFFF 92%)}
+.public-hero:before{background:radial-gradient(ellipse at 60% 35%,#DCE8F2 0%,#EDF3F8 36%,transparent 72%)}
+.public-hero h1,.public-section-heading h2,.public-workflow h2,.public-cta h2{color:var(--sims-navy)}
+.public-hero h1 em,.public-section-heading h2 em,.public-workflow h2 em,.public-cta h2 em,.public-kicker,.public-eyebrow,.public-text-link{color:var(--sims-navy)}
+.public-kicker span{background:var(--sims-lime);box-shadow:0 0 0 5px #DBFF0033}
+.public-product__rail{background:var(--sims-navy)}
+.public-product__rail span.is-active{background:var(--sims-lime);color:var(--sims-navy)}
+.public-product__window{border-color:var(--sims-line);box-shadow:0 30px 75px #102C4D20}
+.public-product__body,.public-product__main{background:#F1F5F8}
+.public-product__metric,.public-product__top{background:#FFFFFF;border-color:var(--sims-line)}
+.public-product__metric strong svg,.public-product__avatar{color:var(--sims-navy)}
+.public-product__avatar{background:#E5EDF4}
+.integration-centre{--ic-ink:#102C4D;--ic-muted:#64778A;--ic-line:#DCE5ED;--ic-green:#102C4D;--ic-lime:#DBFF00}
+.integration-centre .integration-hero{background:radial-gradient(circle at 82% 48%,#315575 0,transparent 30%),linear-gradient(112deg,#0B2039 0%,#102C4D 62%,#1B456F 100%);border-color:#102C4D}
+.integration-centre .integration-hero p{color:#D6E1EA}
+.integration-centre .integration-nav{background:#FFFFFF;border-color:var(--sims-line)}
+.integration-centre .integration-nav__item.is-active{background:#DBFF00;color:#102C4D;box-shadow:inset 3px 0 #102C4D}
+.integration-centre .integration-stat-icon,.integration-centre .integration-feature>span,.integration-centre .integration-steps b{background:#EDF3F8;border-color:#DCE5ED;color:#102C4D}
+.integration-centre .integration-stats article:before{background:var(--sims-lime)}
+.integration-centre .integration-form input:focus,.integration-centre .integration-form select:focus{border-color:#547A9D;box-shadow:0 0 0 3px #102C4D18}
+.integration-centre .integration-code{background:#0B2039;color:#E5EEF5;border-color:#244565}
+@media(max-width:850px){.mobile-nav__panel{box-shadow:12px 0 35px #07192C55}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
