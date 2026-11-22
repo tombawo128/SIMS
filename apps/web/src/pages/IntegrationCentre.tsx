@@ -205,7 +205,7 @@ export function IntegrationCentre() {
       </section>
 
       <div className="integration-layout">
-        <aside className="integration-nav" aria-label="Integration sections">
+        <nav className="integration-nav" aria-label="Integration sections">
           <p className="integration-nav__label">WORKSPACE</p>
           {navigation.map(item => {
             const Icon = item.icon;
@@ -220,11 +220,11 @@ export function IntegrationCentre() {
             <strong>Integration guide</strong>
             <span>Technical setup documentation will live here.</span>
           </div>
-        </aside>
+        </nav>
 
-        <div className="integration-main">
+        <div className="integration-main" role="region" aria-labelledby="integration-section-title">
           <div className="integration-section-heading">
-            <div><span className="integration-eyebrow">WORKSPACE / CONFIGURATION</span><h2>{title}</h2></div>
+            <div><span className="integration-eyebrow">WORKSPACE / CONFIGURATION</span><h2 id="integration-section-title">{title}</h2></div>
             <Badge tone={section === "overview" ? "blue" : "slate"}>{section === "overview" ? "Integration workspace" : "Configuration"}</Badge>
           </div>
 
