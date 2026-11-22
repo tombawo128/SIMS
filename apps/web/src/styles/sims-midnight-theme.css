@@ -266,3 +266,364 @@ hr,.divider{border-color:var(--sims-line)}
 .recycle-v2__tabs,.recycle-v2__workspace-head,.recycle-v2__footer{border-color:var(--sims-line)}
 .recycle-v2__table thead{background:#EEF3F7}
 .recycle-v2__table tbody tr:hover,.recycle-v2__mobile-record:hover{background:#F7FAFC}
+
+
+/* ─────────────────────────────────────────────────────────────
+   Integration Centre — full page visual redesign
+   Midnight Navy #102C4D · Cloud White #F7FAFC · Electric Lime #DBFF00
+   ───────────────────────────────────────────────────────────── */
+.integration-centre{
+  --ic-ink:#102C4D;
+  --ic-muted:#667B90;
+  --ic-line:#DCE5ED;
+  --ic-panel:#FFFFFF;
+  --ic-soft:#EEF4F8;
+  --ic-accent:#DBFF00;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+  color:#102C4D;
+}
+.integration-centre .integration-hero{
+  min-height:260px;
+  padding:38px 42px;
+  border:1px solid #0B2039;
+  border-radius:22px;
+  background:
+    radial-gradient(ellipse at 82% 42%,#547A9D55 0,transparent 32%),
+    linear-gradient(116deg,#0B2039 0%,#102C4D 58%,#244565 100%);
+  box-shadow:0 18px 44px #102C4D20;
+}
+.integration-centre .integration-hero:before{
+  right:-72px;top:-148px;width:450px;height:450px;
+  border-color:#FFFFFF20;
+  box-shadow:0 0 0 48px #FFFFFF0A,0 0 0 96px #FFFFFF06;
+}
+.integration-centre .integration-hero:after{
+  background:linear-gradient(140deg,#DBFF0020,transparent 72%);
+}
+.integration-centre .integration-hero h1,
+.integration-centre .integration-hero h2{
+  max-width:630px;
+  margin:16px 0 12px;
+  color:#F7FAFC;
+  font-size:clamp(30px,3.3vw,44px);
+  font-weight:790;
+  line-height:1.08;
+  letter-spacing:-.052em;
+}
+.integration-centre .integration-eyebrow{
+  color:#DBFF00;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.17em;
+}
+.integration-centre .integration-hero p{
+  max-width:590px;
+  color:#D7E3EC;
+  font-size:13px;
+  line-height:1.8;
+}
+.integration-centre .integration-hero__meta{
+  gap:20px;
+  color:#E8F0F6;
+  font-size:11px;
+}
+.integration-centre .integration-hero__meta .badge{
+  border:1px solid #DBFF0055;
+  background:#DBFF001A;
+  color:#DBFF00;
+}
+.integration-centre .integration-dot{
+  background:#DBFF00;
+  box-shadow:0 0 0 4px #DBFF0028;
+}
+.integration-centre .integration-node{
+  border-color:#FFFFFF35;
+  background:#FFFFFF16;
+  color:#F7FAFC;
+}
+.integration-centre .integration-node--main{
+  border:0;
+  background:#DBFF00;
+  color:#102C4D;
+  box-shadow:0 10px 30px #DBFF0035;
+}
+.integration-centre .integration-orbit{border-color:#FFFFFF35}
+
+.integration-centre .integration-layout{
+  grid-template-columns:228px minmax(0,1fr);
+  gap:20px;
+}
+.integration-centre .integration-nav{
+  position:sticky;
+  top:16px;
+  padding:12px;
+  border:1px solid #DCE5ED;
+  border-radius:17px;
+  background:#FFFFFF;
+  box-shadow:0 10px 28px #102C4D0D;
+}
+.integration-centre .integration-nav__label{
+  padding:9px 11px 12px;
+  color:#8295A8;
+  font-size:9px;
+  letter-spacing:.17em;
+}
+.integration-centre .integration-nav__item{
+  min-height:46px;
+  margin:2px 0;
+  padding:11px 12px;
+  border-radius:11px;
+  color:#526A80;
+  font-size:11px;
+  font-weight:680;
+}
+.integration-centre .integration-nav__item:hover{
+  background:#EEF4F8;
+  color:#102C4D;
+  transform:translateX(2px);
+}
+.integration-centre .integration-nav__item.is-active{
+  background:#DBFF00;
+  color:#102C4D;
+  box-shadow:0 5px 15px #DBFF0030,inset 3px 0 #102C4D;
+  font-weight:820;
+}
+.integration-centre .integration-nav__item.is-active>svg:last-child{opacity:.75}
+.integration-centre .integration-nav__help{
+  margin:16px 3px 2px;
+  padding:16px 10px 5px;
+  border-color:#DCE5ED;
+  color:#102C4D;
+}
+.integration-centre .integration-nav__help svg{color:#102C4D}
+.integration-centre .integration-nav__help strong{color:#102C4D;font-size:11px}
+.integration-centre .integration-nav__help span{color:#71869A;font-size:10px}
+
+.integration-centre .integration-main{gap:18px}
+.integration-centre .integration-section-heading{
+  align-items:center;
+  padding:4px 2px 2px;
+}
+.integration-centre .integration-section-heading h2{
+  margin:6px 0 0;
+  color:#102C4D;
+  font-size:26px;
+  font-weight:790;
+  letter-spacing:-.045em;
+}
+.integration-centre .integration-section-heading .integration-eyebrow{
+  color:#8295A8;
+  font-size:9px;
+}
+.integration-centre .integration-section-heading .badge{
+  border:1px solid #DCE5ED;
+  background:#FFFFFF;
+  color:#526A80;
+}
+
+.integration-centre .integration-stats{
+  gap:13px;
+}
+.integration-centre .integration-stats article{
+  grid-template-columns:43px minmax(0,1fr);
+  padding:19px 17px;
+  border:1px solid #DCE5ED;
+  border-radius:15px;
+  background:#FFFFFF;
+  box-shadow:0 7px 22px #102C4D0C;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.integration-centre .integration-stats article:hover{
+  transform:translateY(-3px);
+  border-color:#B9CAD8;
+  box-shadow:0 13px 28px #102C4D14;
+}
+.integration-centre .integration-stats article:before{
+  height:3px;
+  background:#DBFF00;
+}
+.integration-centre .integration-stat-icon,
+.integration-centre .integration-feature>span,
+.integration-centre .integration-steps b,
+.integration-centre .integration-provider-mark,
+.integration-centre .integration-activity-row__icon{
+  border:1px solid #DCE5ED;
+  background:#EEF4F8;
+  color:#102C4D;
+}
+.integration-centre .integration-stats strong{
+  color:#102C4D;
+  font-size:27px;
+}
+.integration-centre .integration-stats small{color:#526A80;font-size:10px}
+.integration-centre .integration-stats em{color:#8295A8;font-size:9px}
+
+.integration-centre .ui-card{
+  min-width:0;
+  border:1px solid #DCE5ED;
+  border-radius:16px;
+  background:#FFFFFF;
+  box-shadow:0 7px 24px #102C4D0B;
+}
+.integration-centre .ui-card [class*="card-header"]{margin-bottom:17px}
+.integration-centre .integration-card-grid{gap:14px}
+.integration-centre .integration-feature{gap:14px;padding:3px 0}
+.integration-centre .integration-feature>span{
+  flex-basis:43px;
+  height:43px;
+  border-radius:13px;
+}
+.integration-centre .integration-feature h3{color:#102C4D;font-size:13px}
+.integration-centre .integration-feature p{color:#667B90;font-size:11px;line-height:1.75}
+.integration-centre .integration-feature button{
+  color:#102C4D;
+  font-size:11px;
+  font-weight:820;
+}
+.integration-centre .integration-feature button:hover{color:#244565;text-decoration:underline}
+.integration-centre .integration-steps>div{border-color:#E7EDF2}
+.integration-centre .integration-steps b{
+  border-radius:10px;
+  background:#DBFF00;
+  color:#102C4D;
+}
+.integration-centre .integration-steps strong{color:#102C4D;font-size:11px}
+.integration-centre .integration-steps small{color:#71869A;font-size:10px}
+
+.integration-centre .integration-form{gap:15px 17px}
+.integration-centre .integration-form>label,
+.integration-centre .integration-form legend{
+  color:#334F6B;
+  font-size:11px;
+  font-weight:760;
+}
+.integration-centre .integration-form input,
+.integration-centre .integration-form select,
+.integration-centre .integration-form textarea{
+  min-height:44px;
+  padding:11px 13px;
+  border:1px solid #CCD8E3!important;
+  border-radius:10px;
+  background:#FFFFFF!important;
+  color:#102C4D!important;
+  font-size:11px;
+}
+.integration-centre .integration-form input:focus,
+.integration-centre .integration-form select:focus,
+.integration-centre .integration-form textarea:focus{
+  border-color:#547A9D!important;
+  box-shadow:0 0 0 3px #102C4D18!important;
+}
+.integration-centre .integration-form fieldset,
+.integration-centre .integration-event-list>div,
+.integration-centre .integration-provider-grid article,
+.integration-centre .integration-brand-options span{
+  border:1px solid #DCE5ED;
+  border-radius:12px;
+  background:#F7FAFC;
+}
+.integration-centre .integration-scope-checks label{color:#334F6B;font-size:11px}
+.integration-centre .integration-scope-checks input{accent-color:#102C4D}
+.integration-centre .integration-scope-checks code,
+.integration-centre .integration-scope-list code,
+.integration-centre .integration-event-list code{
+  color:#244565;
+}
+.integration-centre .integration-form__actions>span,
+.integration-centre .integration-muted,
+.integration-centre .integration-note{color:#71869A}
+.integration-centre .integration-connection-row,
+.integration-centre .integration-key-row,
+.integration-centre .integration-activity-row{border-color:#E7EDF2}
+.integration-centre .integration-connection-row:hover,
+.integration-centre .integration-key-row:hover{background:#F7FAFC}
+.integration-centre .integration-connection-row strong,
+.integration-centre .integration-key-row strong,
+.integration-centre .integration-activity-row__body strong{color:#102C4D}
+.integration-centre .integration-connection-row small,
+.integration-centre .integration-key-row small,
+.integration-centre .integration-activity-row__body span,
+.integration-centre .integration-activity-row__body small{color:#71869A}
+.integration-centre .integration-key-scopes code{
+  border:1px solid #DCE5ED;
+  border-radius:6px;
+  background:#EEF4F8;
+  color:#244565;
+}
+.integration-centre .integration-secret-panel{
+  border:1px solid #B9D64A;
+  border-radius:14px;
+  background:#F7FBE6;
+}
+.integration-centre .integration-secret-panel strong,
+.integration-centre .integration-secret-panel code{color:#102C4D}
+.integration-centre .integration-secret-panel p{color:#526A80}
+.integration-centre .integration-secret-panel code{
+  border:1px solid #DCE5ED;
+  background:#FFFFFF;
+}
+.integration-centre .integration-secret-panel>button:last-child{color:#244565}
+.integration-centre .integration-code{
+  border:1px solid #244565;
+  border-radius:13px;
+  background:#0B2039;
+  color:#EAF1F6;
+  box-shadow:inset 0 1px #FFFFFF0A;
+}
+.integration-centre .integration-provider-grid strong{color:#102C4D}
+.integration-centre .integration-provider-grid small{color:#71869A}
+.integration-centre .integration-error-text{color:#B42318}
+.integration-centre :is(button,input,select,textarea,a):focus-visible{
+  outline:3px solid #DBFF00;
+  outline-offset:2px;
+}
+.integration-centre .integration-empty__icon{
+  border-color:#DCE5ED;
+  background:#EEF4F8;
+  color:#102C4D;
+}
+.integration-centre .integration-empty p{color:#71869A}
+
+/* Mobile: keep the section switcher readable and forms comfortably tappable. */
+@media(max-width:1120px){
+  .integration-centre .integration-layout{grid-template-columns:205px minmax(0,1fr);gap:15px}
+}
+@media(max-width:850px){
+  .integration-centre .integration-layout{grid-template-columns:1fr}
+  .integration-centre .integration-nav{
+    position:static;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  .integration-centre .integration-nav__label,
+  .integration-centre .integration-nav__help{display:none}
+  .integration-centre .integration-nav__item{min-width:0;justify-content:flex-start}
+}
+@media(max-width:640px){
+  .integration-centre{gap:16px}
+  .integration-centre .integration-hero{min-height:0;padding:25px 22px;border-radius:17px}
+  .integration-centre .integration-hero h1,
+  .integration-centre .integration-hero h2{font-size:29px}
+  .integration-centre .integration-hero p{font-size:11px}
+  .integration-centre .integration-hero__meta{align-items:flex-start;flex-direction:column;gap:10px}
+  .integration-centre .integration-hero__art{display:none}
+  .integration-centre .integration-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .integration-centre .integration-nav__item{font-size:10px;padding:10px}
+  .integration-centre .integration-section-heading{align-items:flex-start;flex-direction:column}
+  .integration-centre .integration-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .integration-centre .integration-stats article{grid-template-columns:34px minmax(0,1fr);padding:14px 11px;column-gap:8px}
+  .integration-centre .integration-stat-icon{width:32px;height:32px}
+  .integration-centre .integration-stats strong{font-size:22px}
+  .integration-centre .integration-form{grid-template-columns:1fr}
+  .integration-centre .integration-form__actions{align-items:stretch;flex-direction:column}
+  .integration-centre .integration-connection-row,
+  .integration-centre .integration-key-row{align-items:flex-start;flex-wrap:wrap}
+  .integration-centre .integration-key-meta{align-items:flex-start}
+  .integration-centre .integration-key-actions{justify-content:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .integration-centre .integration-stats article{transition:none}
+}
