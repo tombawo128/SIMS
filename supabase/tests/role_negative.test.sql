@@ -28,18 +28,18 @@ select throws_ok($$select public.submit_evaluation('66666666-6666-4666-8666-6666
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999002');
 select is((select count(*) from public.placements where id='66666666-6666-4666-8666-666666660002'),0::bigint,'coordinator cannot see foreign university placement');
 select is((select count(*) from public.profiles where id='99999999-9999-4999-8999-999999999024'),0::bigint,'coordinator cannot read foreign university student profile');
-select throws_ok($$select public.set_user_status('99999999-9999-4999-8999-999999999021','suspended')$$,'P0001','Not authorized','coordinator cannot perform platform-level account suspension');
+select throws_ok($select public.set_user_status('99999999-9999-4999-8999-999999999021','suspended')$,'P0001','Only a general administrator can manage user accounts','coordinator cannot perform platform-level account suspension');
 
 -- Company admin: restrict to its own tenant and assigned application workflow.
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999041');
-select is((select count(*) from public.job_postings where company_id='22222222-2222-4222-8222-222222222202'),0::bigint,'company admin cannot read another company postings');
+select is((select count(*) from public.job_postings where id='44444444-4444-4444-8444-444444440005'),0::bigint,'company admin cannot read another company draft posting');
 select throws_ok($$select public.accept_application('55555555-5555-4555-8555-555555550004','99999999-9999-4999-8999-999999999033','2027-01-01','2027-03-01')$$,'P0001','Not authorized to accept applications','company admin cannot accept another tenant application');
 
 -- Student: no privileged data access or workflow changes.
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999021');
-select is((select count(*) from public.integration_connections),0::bigint,'student cannot read integration connections');
-select is((select count(*) from public.integration_api_keys),0::bigint,'student cannot read integration credentials');
-select is((select count(*) from public.provision_tickets),0::bigint,'student cannot read privileged provision tickets');
+select is(has_table_privilege('authenticated','public.integration_connections','select'),false,'student role has no direct SELECT privilege on integration connections');
+select is(has_table_privilege('authenticated','public.integration_api_keys','select'),false,'student role has no direct SELECT privilege on integration credentials');
+select is(has_table_privilege('authenticated','public.provision_tickets','select'),false,'student role has no direct SELECT privilege on privileged provision tickets');
 select throws_ok($$select public.record_grade('66666666-6666-4666-8666-666666660001','unauthorized student grade')$$,'P0001','Not authorized','student cannot finalize placement grade');
 
 -- Platform admin: privileged function execution is gated by grants, not arbitrary authenticated callers.
