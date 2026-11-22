@@ -1,8 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+function json(body: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, ...extraHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 }
 async function sha256(value: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
@@ -57,6 +57,18 @@ Deno.serve(async (req: Request) => {
   const { data: tenant } = await admin.from(tenantTable).select('id,name,status,deleted_at')
     .eq('id', tenantId).maybeSingle();
   if (!tenant || tenant.status !== 'active' || tenant.deleted_at) return json({ error: 'Organisation is not active' }, 403);
+
+  const rateLimit = await admin.rpc('consume_integration_api_rate_limit', {
+    p_key_id: key.id, p_max_requests: 60, p_window_seconds: 60,
+  });
+  if (rateLimit.error) return json({ error: 'API rate limit service is unavailable' }, 503);
+  if (rateLimit.data !== true) {
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path: new URL(req.url).pathname,
+      tenantType: connection.organization_type, tenantId, statusCode: 429,
+    });
+    return json({ error: 'API request limit exceeded; retry after the current window' }, 429, { 'Retry-After': '60' });
+  }
 
   await admin.from('integration_api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', key.id);
 
