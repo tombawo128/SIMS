@@ -14,14 +14,14 @@ body{background:var(--sims-bg)!important;color:var(--sims-body)!important;font-f
 #root{min-height:100dvh}
 img,video,iframe,embed{max-width:100%}
 :where(.workspace-shell,.workspace-main,.workspace-main__inner,.page-header,.card,.panel,.table-wrap,form){min-width:0;max-width:100%}
-p,h1,h2,h3,h4,span,td,th,button,a,label{overflow-wrap:anywhere}
+p,h1,h2,h3,h4,span,td,th,button,a,label{overflow-wrap:break-word}\ncode,pre,.integration-code{overflow-wrap:anywhere;word-break:break-word}\ninput[type=checkbox],input[type=radio]{width:auto!important;min-height:0!important;flex:0 0 auto}
 :focus-visible{outline:3px solid #60A5FA!important;outline-offset:3px}
 ::selection{background:#DBEAFE;color:#1E3A8A}
 button,a,input,select,textarea{transition:color .18s var(--sims-ease),background-color .18s var(--sims-ease),border-color .18s var(--sims-ease),box-shadow .18s var(--sims-ease),transform .18s var(--sims-ease)}
 /* Shared frame and navigation */
 .workspace-shell,.workspace-main,.workspace-content{background:var(--sims-bg)!important;color:var(--sims-body)}
 .workspace-main{padding:clamp(16px,2.5vw,32px)!important}
-.workspace-main__inner{width:min(100%,1200px)!important;margin-inline:auto}
+.workspace-main__inner{width:min(100%,1440px)!important;margin-inline:auto}
 .workspace-sidebar,.app-sidebar{width:240px;min-width:240px;background:#0B1120!important;border-right:1px solid #1F2937!important}
 .sidebar{padding:20px 14px}
 .sidebar__brand{padding:4px 10px 20px}
@@ -40,7 +40,7 @@ button,a,input,select,textarea{transition:color .18s var(--sims-ease),background
 .sidebar__user-name{color:#F1F5F9!important}
 .sidebar__user-email{color:#94A3B8!important}
 .workspace-topbar,.app-header{min-height:64px;background:#fff!important;border-bottom:1px solid var(--sims-border)!important;box-shadow:var(--sims-shadow-1)!important;padding-inline:clamp(16px,3vw,32px)}
-.workspace-main__inner{max-width:1200px}
+.workspace-main__inner{max-width:1440px}
 .workspace-footer{background:#fff!important;border-color:var(--sims-border)!important;color:var(--sims-muted)!important}
 .mobile-nav__panel{background:#0B1120!important}
 .page-header{margin-bottom:24px;gap:16px}
@@ -65,7 +65,7 @@ tbody tr:hover{background:#F8FAFC!important}
 .tabs__item--active{border-color:var(--sims-primary)!important;color:var(--sims-primary)!important}
 .tabs__count--active{background:var(--sims-primary-tint)!important;color:var(--sims-primary)!important}
 /* Controls */
-input,select,textarea,.form-control{width:100%;min-width:0;min-height:42px;border:1px solid #CBD5E1!important;border-radius:8px!important;background:#fff!important;color:var(--sims-heading)!important;font-size:16px!important;box-shadow:none!important}
+input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),select,textarea,.form-control{width:100%;min-width:0;min-height:42px;border:1px solid #CBD5E1!important;border-radius:8px!important;background:#fff!important;color:var(--sims-heading)!important;font-size:16px!important;box-shadow:none!important}
 textarea{min-height:112px}
 input:focus,select:focus,textarea:focus,.form-control:focus{border-color:var(--sims-primary)!important;box-shadow:0 0 0 3px #2563EB20!important}
 label,.field__label,.form-label{color:#334155!important;font-size:14px!important;font-weight:600!important}
