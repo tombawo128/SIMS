@@ -110,3 +110,14 @@
  .public-stage-list{grid-template-columns:minmax(0,1fr)}
  .public-footer__bottom{align-items:flex-start;flex-direction:column}
 }
+
+/* Role-aware dashboard header alignment */
+.dashboard-overview{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.dashboard-overview__copy{flex:1 1 560px;min-width:0}
+.dashboard-overview__actions{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;flex-wrap:wrap;gap:10px}
+.dashboard-overview__actions>*{min-width:0}
+@media(max-width:767px){
+ .dashboard-overview{align-items:flex-start;flex-direction:column;gap:18px}
+ .dashboard-overview__copy,.dashboard-overview__actions{width:100%}
+ .dashboard-overview__actions{justify-content:flex-start}
+}
