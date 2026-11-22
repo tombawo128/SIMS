@@ -64,11 +64,11 @@ export function Landing() {
         </div>
       </header>
 
-      <section className="public-hero">
+      <section className="public-hero" aria-labelledby="public-hero-title">
         <div className="public-hero__grid">
           <div className="public-hero__copy">
             <div className="public-kicker"><span /> ONE CONNECTED INTERNSHIP WORKSPACE</div>
-            <h1>Make every internship <em>count.</em></h1>
+            <h1 id="public-hero-title">Make every internship <em>count.</em></h1>
             <p className="public-hero__lead">From the first application to the final evaluation, SIMS brings students, universities and employers into one organised placement journey.</p>
             <div className="public-hero__actions">
               <Link to={primaryHref}><Button size="lg">{session ? 'Go to your workspace' : 'Explore SIMS'} <ArrowRight size={17} /></Button></Link>

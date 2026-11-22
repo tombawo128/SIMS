@@ -54,6 +54,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className='sidebar'>
+      <Link to="/dashboard" className='sidebar__brand' aria-label={`${APP_NAME} workspace`}>
+        <span className='sidebar__logo'><GraduationCap size={22} /></span>
+        <span><span className='sidebar__app-name'>{APP_NAME}</span><span className='sidebar__app-tagline'>INTERNSHIP WORKSPACE</span></span>
+      </Link>
       <div className='sidebar__tenant'>
         <p className='sidebar__tenant-name'>{tenant}</p>
         <p className='sidebar__tenant-role'>{ROLE_LABELS[profile.role]}</p>
