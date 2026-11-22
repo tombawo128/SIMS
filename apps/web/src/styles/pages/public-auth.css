@@ -1,0 +1,110 @@
+/* Public landing page and authentication experience */
+.sims-public{background:#fff;color:var(--body)}
+.public-header{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--border);background:#fff}
+.public-header__inner{display:flex;align-items:center;gap:28px;width:min(var(--content-width),calc(100% - 48px));min-height:72px;margin:auto}
+.public-brand{display:flex;align-items:center;gap:10px;color:var(--navy)}
+.public-brand__mark{display:grid;place-items:center;width:38px;height:38px;border-radius:7px;background:var(--navy);color:#fff}
+.public-brand__name{font-size:17px;font-weight:700;letter-spacing:-.02em}
+.public-nav{display:flex;align-items:center;gap:24px;margin-left:auto}
+.public-nav a{color:var(--body);font-size:14px;font-weight:500}
+.public-nav a:hover{color:var(--primary)}
+.public-nav__signin{padding:9px 13px;border:1px solid var(--border-strong);border-radius:6px}
+.public-nav__cta{padding:10px 15px;border:1px solid var(--primary);border-radius:6px;background:var(--primary);color:#fff!important}
+.public-menu-toggle{display:none;min-width:44px;min-height:44px;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:6px;background:#fff}
+.public-hero{background:var(--navy);color:#fff}
+.public-hero__grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:56px;width:min(var(--content-width),calc(100% - 64px));min-height:600px;margin:auto;padding:64px 0}
+.public-hero__copy{max-width:620px}
+.public-kicker,.public-eyebrow{color:#BFDBFE;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.public-hero h1{max-width:620px;margin:18px 0;color:#fff;font-size:clamp(2.4rem,5vw,4rem);line-height:1.08;letter-spacing:-.04em}
+.public-hero__lead{max-width:560px;color:#D6DFEC;font-size:17px;line-height:1.7}
+.public-hero__actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:28px}
+.public-hero__actions .btn--primary{min-height:46px;padding-inline:20px;background:#fff;border-color:#fff;color:var(--navy)}
+.public-text-link{color:#fff;font-size:14px;font-weight:600}
+.public-hero__proof{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:28px;color:#CBD5E1;font-size:13px}
+.public-product{position:relative;min-width:0;padding:16px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:#12264D;box-shadow:var(--shadow-md)}
+.public-product__glow{display:none}
+.public-product__window{overflow:hidden;border:1px solid rgba(255,255,255,.14);border-radius:8px;background:#fff;color:var(--body)}
+.public-product__top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.public-product__brand{color:var(--navy);font-size:12px;font-weight:700}
+.public-product__top-right{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px}
+.public-product__body{display:grid;grid-template-columns:42px minmax(0,1fr);min-height:340px}
+.public-product__rail{display:grid;align-content:start;gap:16px;padding:16px 10px;border-right:1px solid var(--border);background:var(--surface-subtle)}
+.public-product__main{min-width:0;padding:18px}
+.public-product__welcome{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.public-product__metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}
+.public-product__metric,.public-product__panel{min-width:0;padding:12px;border:1px solid var(--border);border-radius:7px;background:#fff}
+.public-product__lower{display:grid;grid-template-columns:1.3fr .7fr;gap:10px;margin-top:12px}
+.public-product__panel-head{font-size:12px;font-weight:700;color:var(--heading)}
+.public-product__step{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-size:10px}
+.public-product__bars{display:flex;align-items:end;gap:7px;height:100px;padding-top:12px}
+.public-product__bars span{flex:1;border-radius:3px 3px 0 0;background:#93C5FD}
+.public-product__legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;color:var(--muted);font-size:10px}
+.public-float{display:none}
+.public-hero__base{padding:18px 24px;border-top:1px solid rgba(255,255,255,.14);color:#D6DFEC;text-align:center;font-size:13px}
+.public-platform,.public-workflow,.public-audiences,.sims-landing-section{padding:72px 0}
+.public-platform>.public-section-heading,.public-feature-layout,.public-workflow__intro,.public-stage-list,.public-audience-grid,.sims-landing-container,.public-cta__actions{width:min(var(--content-width),calc(100% - 48px));margin-inline:auto}
+.public-section-heading{text-align:center;margin-bottom:30px}
+.public-section-heading h2,.sims-landing-heading{max-width:720px;margin:8px auto;color:var(--heading)}
+.public-section-heading p{margin:0 auto;color:var(--muted)}
+.public-feature-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.public-feature-card,.public-audience,.sims-capability-card,.sims-security-item,.public-stage{min-width:0;padding:22px;border:1px solid var(--border);border-radius:10px;background:#fff}
+.public-feature-card--large{display:flex;flex-direction:column}
+.public-feature-card--wide{grid-column:1/-1}
+.public-feature-card__icon,.public-audience__icon,.sims-capability-icon{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--primary-border);border-radius:8px;background:var(--primary-tint);color:var(--primary)}
+.public-feature-card__label{display:block;margin:14px 0 7px;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.07em}
+.public-feature-card h3,.public-audience h3,.sims-capability-card h3{margin:6px 0;color:var(--heading)}
+.public-feature-card p,.public-audience p,.sims-capability-card p{margin:0;color:var(--muted);font-size:14px}
+.public-flow,.public-role-stack,.public-visibility{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.public-flow__node,.public-role-stack>* ,.public-visibility>*{padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface-subtle);color:var(--body);font-size:12px}
+.public-feature-card--dark{background:var(--navy);color:#fff}
+.public-feature-card--dark h3,.public-feature-card--dark p{color:#fff}
+.public-workflow{background:var(--surface-subtle)}
+.public-workflow__intro{display:grid;grid-template-columns:.8fr 1.2fr;gap:28px;align-items:end}
+.public-stage-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}
+.public-stage__number{display:block;margin-bottom:14px;color:var(--primary);font-size:12px;font-weight:700}
+.public-stage__arrow{display:flex;justify-content:flex-end;color:var(--muted)}
+.public-audiences{background:#fff}
+.public-audience-grid,.sims-capability-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.public-audience__top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sims-landing-security{background:var(--surface-subtle)}
+.sims-security-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:32px}
+.sims-security-list{display:grid;gap:12px}
+.sims-security-item{display:flex;gap:12px;align-items:flex-start}
+.sims-faq-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sims-faq-item{padding:18px;border:1px solid var(--border);border-radius:8px;background:#fff}
+.public-cta{padding:56px 0;background:var(--navy);color:#fff}
+.public-cta h2,.public-cta p{color:#fff}
+.public-cta__ornament{display:none}
+.public-cta__actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.public-footer{padding:44px 0 18px;background:var(--navy);color:#D6DFEC}
+.public-footer__main,.public-footer__bottom{width:min(var(--content-width),calc(100% - 48px));margin:auto}
+.public-footer__main{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;padding-bottom:28px}
+.public-footer__links{display:flex;flex-wrap:wrap;gap:14px}
+.public-footer__bottom{display:flex;justify-content:space-between;gap:12px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-size:12px}
+.auth-shell{display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,.9fr);min-height:100dvh;background:#fff}
+.auth-aside{display:flex;flex-direction:column;justify-content:space-between;gap:36px;min-height:100dvh;padding:48px;background:var(--navy);color:#fff}
+.auth-aside__blob-1,.auth-aside__blob-2{display:none}
+.auth-aside__brand{display:flex;align-items:center;gap:12px}
+.auth-aside__logo,.auth-mobile-logo{display:grid;place-items:center;width:40px;height:40px;border-radius:7px;background:#fff;color:var(--navy)}
+.auth-aside__hero{max-width:520px}
+.auth-aside__eyebrow{color:#BFDBFE;font-size:12px;font-weight:600;letter-spacing:.08em}
+.auth-aside__headline{margin:12px 0;color:#fff;font-size:clamp(1.7rem,3vw,2.5rem);line-height:1.2}
+.auth-aside__subhead,.auth-aside__point,.auth-aside__quote-text{color:#D6DFEC;font-size:14px}
+.auth-aside__points{display:grid;gap:12px;margin-top:24px}
+.auth-aside__quote{padding:18px;border:1px solid rgba(255,255,255,.16);border-radius:8px;background:var(--navy-raised)}
+.auth-aside__quote-author{margin-top:10px;color:#B8C5D8;font-size:12px}
+.auth-main{display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:40px 24px}
+.auth-form-wrap{width:100%;max-width:480px}
+.auth-form-wrap--narrow{max-width:420px}
+.auth-heading{margin-bottom:26px}
+.auth-heading__title{margin:0;color:var(--heading);font-size:28px;font-weight:700}
+.auth-heading__subtitle{margin:7px 0 0;color:var(--muted);font-size:14px}
+.auth-mobile-bar{display:none}
+.login-form,.signup-form{display:grid;gap:16px}
+.login-password{position:relative}
+.login-password__input{padding-right:48px}
+.login-password__toggle{position:absolute;top:0;right:0;display:grid;place-items:center;width:44px;height:42px;border:0;background:transparent;color:var(--muted)}
+.auth-back{display:inline-flex;margin-top:22px;color:var(--muted);font-size:13px}
+@media(max-width:900px){.public-hero__grid{grid-template-columns:1fr;gap:32px;padding:56px 0}.public-product{max-width:720px;width:100%;margin:auto}.public-feature-layout{grid-template-columns:1fr}.public-workflow__intro,.sims-security-layout{grid-template-columns:1fr}.public-stage-list{grid-template-columns:repeat(2,minmax(0,1fr))}.auth-shell{grid-template-columns:1fr}.auth-aside{display:none}.auth-main{min-height:100dvh}}
+@media(max-width:767px){.public-header__inner{width:calc(100% - 32px);min-height:64px;flex-wrap:wrap}.public-menu-toggle{display:inline-flex;margin-left:auto}.public-nav{display:none;width:100%;align-items:stretch;flex-direction:column;gap:4px;padding:8px 0 14px}.public-nav--open{display:flex}.public-nav>a{display:flex;align-items:center;min-height:44px}.public-hero__grid,.public-platform>.public-section-heading,.public-feature-layout,.public-workflow__intro,.public-stage-list,.public-audience-grid,.sims-landing-container,.public-cta__actions{width:calc(100% - 32px)}.public-hero__grid{min-height:0;padding:44px 0}.public-product__body{grid-template-columns:30px minmax(0,1fr)}.public-product__main{padding:12px}.public-product__lower{grid-template-columns:1fr}.public-product__panel--side{display:none}.public-audience-grid,.sims-capability-grid{grid-template-columns:1fr}.public-footer__main{grid-template-columns:1fr}.public-footer__bottom{align-items:flex-start;flex-direction:column}.auth-main{padding:24px 18px}.auth-mobile-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}}
+@media(max-width:430px){.public-hero h1{font-size:2.25rem}.public-product{padding:8px}.public-product__metric-grid{grid-template-columns:1fr}.public-product__rail{padding-inline:6px}.public-stage-list,.sims-faq-grid{grid-template-columns:1fr}.public-platform,.public-workflow,.public-audiences,.sims-landing-section{padding:48px 0}.auth-heading__title{font-size:24px}}
