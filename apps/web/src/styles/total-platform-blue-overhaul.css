@@ -1,0 +1,162 @@
+/* SIMS total platform makeover: unified blue/teal design system. Overrides legacy lime styling. */
+:root{
+ --sims-primary:#2563EB;--sims-primary-hover:#1D4ED8;--sims-primary-pressed:#1E40AF;--sims-primary-tint:#EFF6FF;
+ --sims-accent:#14B8A6;--sims-bg:#F8FAFC;--sims-surface:#FFFFFF;--sims-border:#E2E8F0;
+ --sims-heading:#0F172A;--sims-body:#334155;--sims-muted:#64748B;
+ --sims-success:#16A34A;--sims-warning:#F59E0B;--sims-error:#DC2626;--sims-info:#0EA5E9;
+ --sims-radius:12px;--sims-radius-sm:8px;--sims-shadow-1:0 1px 3px rgba(15,23,42,.06);--sims-shadow-2:0 12px 32px rgba(15,23,42,.12);
+ --sims-ease:cubic-bezier(.2,.75,.25,1);
+ color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--sims-bg)!important;color:var(--sims-body)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:0;line-height:1.5;min-width:320px}
+#root{min-height:100dvh}
+img,video,iframe,embed{max-width:100%}
+:where(.workspace-shell,.workspace-main,.workspace-main__inner,.page-header,.card,.panel,.table-wrap,form){min-width:0;max-width:100%}
+p,h1,h2,h3,h4,span,td,th,button,a,label{overflow-wrap:anywhere}
+:focus-visible{outline:3px solid #60A5FA!important;outline-offset:3px}
+::selection{background:#DBEAFE;color:#1E3A8A}
+button,a,input,select,textarea{transition:color .18s var(--sims-ease),background-color .18s var(--sims-ease),border-color .18s var(--sims-ease),box-shadow .18s var(--sims-ease),transform .18s var(--sims-ease)}
+/* Shared frame and navigation */
+.workspace-shell,.workspace-main,.workspace-content{background:var(--sims-bg)!important;color:var(--sims-body)}
+.workspace-main{padding:clamp(16px,2.5vw,32px)!important}
+.workspace-main__inner{width:min(100%,1200px)!important;margin-inline:auto}
+.workspace-sidebar,.app-sidebar{width:240px;min-width:240px;background:#0B1120!important;border-right:1px solid #1F2937!important}
+.sidebar{padding:20px 14px}
+.sidebar__brand{padding:4px 10px 20px}
+.sidebar__logo,.public-brand__mark{background:var(--sims-primary)!important;color:#fff!important;border-radius:10px!important;box-shadow:none!important}
+.sidebar__app-name{color:#F8FAFC!important;font-weight:750;letter-spacing:-.03em}
+.sidebar__app-tagline{color:#94A3B8!important}
+.sidebar__tenant{background:#111827!important;border:1px solid #1F2937!important;border-radius:12px!important}
+.sidebar__tenant-name{color:#F1F5F9!important}
+.sidebar__tenant-role{color:#94A3B8!important}
+.sidebar__nav{gap:4px}
+.nav-link{min-height:42px;border-radius:9px!important;color:#CBD5E1!important;font-size:13px!important;gap:10px}
+.nav-link:hover,.nav-link--inactive:hover{background:#1F2937!important;color:#fff!important}
+.nav-link--active{background:#1E3A8A!important;color:#fff!important;box-shadow:inset 3px 0 #60A5FA!important}
+.nav-link--active .nav-link__icon{color:#BFDBFE!important}
+.sidebar__footer{border-color:#1F2937!important}
+.sidebar__user-name{color:#F1F5F9!important}
+.sidebar__user-email{color:#94A3B8!important}
+.workspace-topbar,.app-header{min-height:64px;background:#fff!important;border-bottom:1px solid var(--sims-border)!important;box-shadow:var(--sims-shadow-1)!important;padding-inline:clamp(16px,3vw,32px)}
+.workspace-main__inner{max-width:1200px}
+.workspace-footer{background:#fff!important;border-color:var(--sims-border)!important;color:var(--sims-muted)!important}
+.mobile-nav__panel{background:#0B1120!important}
+.page-header{margin-bottom:24px;gap:16px}
+.page-header__title,.workspace-shell .page-header__title{font-size:clamp(1.5rem,1.2rem + 1.5vw,2rem)!important;font-weight:700!important;letter-spacing:-.04em!important;color:var(--sims-heading)!important}
+.page-header__description{max-width:70ch;color:var(--sims-muted)!important;font-size:14px!important;line-height:1.6}
+.heading-lg{font-size:clamp(1.25rem,1.1rem + 1vw,1.5rem);font-weight:650;color:var(--sims-heading)}
+.heading-md{font-size:20px;font-weight:650;color:var(--sims-heading)}
+/* Surfaces, stats and tables */
+.ui-card,.card,.panel,.content-card,.dashboard-card,.stat-card,.admin-console>section,.admin-console .ui-card{background:var(--sims-surface)!important;border:1px solid var(--sims-border)!important;border-radius:12px!important;box-shadow:var(--sims-shadow-1)!important}
+.ui-card:hover,.card:hover,.panel:hover,.content-card:hover,.stat-card:hover{box-shadow:var(--sims-shadow-2)!important;border-color:#CBD5E1!important}
+.stat-card{padding:20px!important}
+.stat-card__label{color:var(--sims-muted)!important;font-size:12px!important;font-weight:600!important}
+.stat-card__value{color:var(--sims-heading)!important;font-size:clamp(23px,2vw,30px)!important;font-weight:700!important;letter-spacing:-.04em!important}
+.stat-card__icon{background:var(--sims-primary-tint)!important;color:var(--sims-primary)!important;border-radius:10px!important}
+.table-wrap{border:1px solid var(--sims-border)!important;border-radius:12px!important;background:#fff!important;max-width:100%;overflow-x:auto}
+.table{font-size:14px!important}
+.th,thead th{background:#F1F5F9!important;color:#475569!important;font-size:12px!important;font-weight:650!important;letter-spacing:.02em!important}
+.td,tbody td{color:#334155!important}
+tbody tr{border-color:#E2E8F0!important}
+tbody tr:hover{background:#F8FAFC!important}
+.tabs{border-color:var(--sims-border)!important}
+.tabs__item--active{border-color:var(--sims-primary)!important;color:var(--sims-primary)!important}
+.tabs__count--active{background:var(--sims-primary-tint)!important;color:var(--sims-primary)!important}
+/* Controls */
+input,select,textarea,.form-control{width:100%;min-width:0;min-height:42px;border:1px solid #CBD5E1!important;border-radius:8px!important;background:#fff!important;color:var(--sims-heading)!important;font-size:16px!important;box-shadow:none!important}
+textarea{min-height:112px}
+input:focus,select:focus,textarea:focus,.form-control:focus{border-color:var(--sims-primary)!important;box-shadow:0 0 0 3px #2563EB20!important}
+label,.field__label,.form-label{color:#334155!important;font-size:14px!important;font-weight:600!important}
+.btn--primary,.btn-primary,.button-primary,.public-nav__cta{min-height:40px;border:1px solid var(--sims-primary)!important;border-radius:8px!important;background:var(--sims-primary)!important;color:#fff!important;font-weight:650!important;box-shadow:none!important}
+.btn--primary:hover,.btn-primary:hover,.button-primary:hover,.public-nav__cta:hover{background:var(--sims-primary-hover)!important;border-color:var(--sims-primary-hover)!important}
+.btn--primary:active,.btn-primary:active,.button-primary:active{background:var(--sims-primary-pressed)!important}
+.btn--secondary,.btn-secondary,.btn--outline{min-height:40px;border:1px solid var(--sims-border)!important;border-radius:8px!important;background:#fff!important;color:#334155!important;font-weight:600!important}
+.btn--secondary:hover,.btn-secondary:hover,.btn--outline:hover{background:#F1F5F9!important}
+button:disabled{opacity:.55;cursor:not-allowed}
+.badge,.status-badge{border-radius:999px;font-weight:650}
+.empty-state{background:#fff!important;border:1px dashed #CBD5E1!important;border-radius:12px!important}
+.alert,.modal,.dialog{border-radius:12px!important}
+.dashboard-overview{background:linear-gradient(120deg,#0B1120,#172554 70%,#1D4ED8)!important;border:1px solid #1E3A8A!important;border-radius:16px!important;box-shadow:none!important}
+.dashboard-overview__eyebrow{color:#BFDBFE!important}
+.dashboard-overview__title{color:#fff!important;font-size:clamp(24px,2.5vw,32px)!important;font-weight:700!important}
+.dashboard-overview__description{color:#DBEAFE!important}
+.dashboard-grid-1{gap:16px!important}
+.dashboard-grid-1>*{min-width:0}
+/* Landing and authentication surfaces */
+.sims-public{background:#fff!important;color:var(--sims-body)!important}
+.public-header{background:#FFFFFFF2!important;border-bottom:1px solid var(--sims-border)!important;backdrop-filter:blur(14px)}
+.public-brand__name{color:var(--sims-heading)!important}
+.public-nav>a:not(.public-nav__cta){color:#475569!important}
+.public-hero{background:linear-gradient(180deg,#F8FAFC,#fff)!important}
+.public-hero:before{background:radial-gradient(ellipse at 65% 35%,#2563EB14,transparent 62%)!important}
+.public-kicker,.public-eyebrow{color:var(--sims-primary)!important}
+.public-kicker span{background:#DBEAFE!important;box-shadow:0 0 0 5px #DBEAFE55!important}
+.public-hero h1{color:#0F172A!important;font-size:clamp(32px,1.2rem + 1.5vw,52px)!important;letter-spacing:-.055em!important;line-height:1.1!important}
+.public-hero h1 em,.public-section-heading h2 em,.public-workflow h2 em,.public-cta h2 em{color:var(--sims-primary)!important}
+.public-hero__lead,.public-section-heading p,.public-workflow__intro>p,.sims-landing-heading>p{color:#64748B!important}
+.public-text-link{color:var(--sims-primary)!important}
+.public-product__window{box-shadow:0 20px 50px #0F172A14!important;transform:none!important}
+.public-product__body,.public-product__main{background:#F1F5F9!important}
+.public-product__rail{background:#0B1120!important}
+.public-product__rail span.is-active,.public-flow__node>span{background:#DBEAFE!important;color:#1D4ED8!important}
+.public-hero__base i{background:var(--sims-primary)!important}
+.public-feature-card,.public-audience,.sims-capability-card{border-color:var(--sims-border)!important;border-radius:12px!important;box-shadow:var(--sims-shadow-1)!important}
+.public-feature-card--dark{background:#0B1120!important;border-color:#0B1120!important}
+.public-feature-card__icon,.public-audience__icon,.sims-capability-icon,.public-stage__icon{background:var(--sims-primary-tint)!important;color:var(--sims-primary)!important}
+.public-feature-card h3,.public-audience h3,.sims-capability-card h3,.public-stage h3{color:var(--sims-heading)!important}
+.public-feature-card p,.public-audience p,.sims-capability-card p,.public-stage p{color:var(--sims-muted)!important}
+.public-feature-card--dark h3,.public-feature-card--dark p{color:#fff!important}
+.public-audience li svg{color:var(--sims-accent)!important}
+.sims-landing-security{background:#F8FAFC!important}
+.sims-security-item>span{color:var(--sims-primary)!important}
+.public-cta{background:#0B1120!important}
+.public-cta h2 em,.public-cta .public-eyebrow{color:#93C5FD!important}
+.public-footer{background:#0B1120!important}
+.public-footer__links a:hover{color:#93C5FD!important}
+.auth-shell,.auth-layout{background:#F1F5F9!important}
+.auth-card,.login-card,.signup-card{border:1px solid var(--sims-border)!important;border-radius:12px!important;box-shadow:0 12px 32px #0F172A12!important}
+.auth-shell h1,.auth-shell h2{color:var(--sims-heading)!important}
+.login-link{color:var(--sims-primary)!important}
+/* Dark mode: honor OS preference for all shared surfaces and controls. */
+@media(prefers-color-scheme:dark){
+ :root{color-scheme:dark;--sims-bg:#0B1120;--sims-surface:#111827;--sims-border:#1F2937;--sims-heading:#E5E7EB;--sims-body:#D1D5DB;--sims-muted:#9CA3AF;--sims-primary:#3B82F6;--sims-primary-hover:#2563EB;--sims-primary-pressed:#1D4ED8;--sims-primary-tint:#172554}
+ body,.workspace-shell,.workspace-main,.workspace-main__inner{background:#0B1120!important;color:#D1D5DB!important}
+ .workspace-topbar,.app-header,.workspace-footer{background:#111827!important;border-color:#1F2937!important}
+ .ui-card,.card,.panel,.content-card,.dashboard-card,.stat-card,.admin-console>section,.admin-console .ui-card,.table-wrap,.auth-card,.login-card,.signup-card{background:#111827!important;border-color:#1F2937!important}
+ .page-header__title,.workspace-shell .page-header__title,.heading-lg,.heading-md,.stat-card__value{color:#E5E7EB!important}
+ .page-header__description,.stat-card__label{color:#9CA3AF!important}
+ .table-wrap{background:#111827!important}.th,thead th{background:#1F2937!important;color:#CBD5E1!important}tbody td{color:#D1D5DB!important}tbody tr:hover{background:#1F2937!important}
+ input,select,textarea,.form-control{background:#111827!important;color:#E5E7EB!important;border-color:#374151!important}
+ .btn--secondary,.btn-secondary,.btn--outline{background:#111827!important;color:#E5E7EB!important;border-color:#374151!important}
+ .empty-state{background:#111827!important;border-color:#374151!important}
+ .sims-public,.public-header,.public-feature-card,.public-audience,.sims-capability-card,.public-product__window,.public-product__metric,.public-product__panel{background:#111827!important;color:#D1D5DB!important;border-color:#1F2937!important}
+ .public-hero,.sims-landing-security,.auth-shell,.auth-layout{background:#0B1120!important}
+ .public-hero h1,.public-section-heading h2,.public-workflow h2,.public-cta h2,.sims-landing-heading h2,.public-feature-card h3,.public-audience h3,.sims-capability-card h3,.public-stage h3,.auth-shell h1,.auth-shell h2{color:#E5E7EB!important}
+ .public-hero__lead,.public-section-heading p,.public-workflow__intro>p,.sims-landing-heading>p,.public-feature-card p,.public-audience p,.sims-capability-card p,.public-stage p{color:#9CA3AF!important}
+ .public-product__body,.public-product__main{background:#0B1120!important}
+ .public-cta,.public-footer{background:#111827!important}
+}
+@media(max-width:1023px){.workspace-sidebar,.app-sidebar{display:none}.workspace-main__inner{width:100%}.workspace-main{padding:24px!important}}
+@media(max-width:767px){
+ .workspace-main{padding:16px!important}.workspace-topbar,.app-header{padding-inline:12px!important}
+ .workspace-account span,.workspace-breadcrumb__role,.workspace-breadcrumb__divider{display:none}
+ .dashboard-grid-1{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .public-hero__grid,.public-feature-layout,.public-audience-grid,.sims-capability-grid,.public-workflow{grid-template-columns:1fr!important}
+ .public-hero{padding:50px 0 28px!important}.public-hero__grid{width:calc(100% - 32px)!important}
+ .public-hero h1{font-size:clamp(32px,1.2rem + 1.5vw,42px)!important}
+ .public-product__window{overflow:hidden}.public-product__lower,.public-product__metric-grid,.public-flow{grid-template-columns:1fr!important}
+ .public-float{display:none}.public-cta{padding:60px 16px!important}
+ .public-section-heading h2,.public-workflow h2,.public-cta h2{font-size:clamp(24px,1.1rem + 1vw,32px)!important}
+ .admin-console__stats,.admin-console__form-grid{grid-template-columns:1fr!important}
+ .table-wrap{overflow-x:auto;max-width:100%}
+}
+@media(max-width:420px){
+ .workspace-main{padding:12px!important}.page-header{flex-direction:column}
+ .page-header__title,.workspace-shell .page-header__title{font-size:24px!important}
+ .dashboard-grid-1{gap:8px!important}.dashboard-grid-1 .stat-card{padding:12px!important;min-height:108px}
+ .stat-card__value{font-size:22px!important}.public-header__inner{width:calc(100% - 24px)}
+ .public-hero__grid{width:calc(100% - 24px)!important}.public-hero h1{font-size:32px!important}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
