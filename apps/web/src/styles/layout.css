@@ -80,3 +80,8 @@
 @media(max-width:639px){.workspace-main__inner{padding:20px 16px 28px}.workspace-breadcrumb__role{display:none}.workspace-account>span{display:none}.workspace-account{padding:0 5px}.workspace-topbar__right{gap:4px}}
 
 @media(max-width:639px){.workspace-breadcrumb__role{display:inline;color:var(--muted);font-size:11px}.workspace-account>span{display:grid;max-width:76px}.workspace-account strong{max-width:76px;font-size:11px}.workspace-account small{display:none}}
+
+/* Sidebar is fixed; the content column is offset rather than grid-nested */
+.workspace-shell{display:block}
+.app-content.workspace-content{width:calc(100% - var(--sidebar-width));margin-left:var(--sidebar-width)}
+@media(max-width:1023px){.app-content.workspace-content{width:100%;margin-left:0}}
