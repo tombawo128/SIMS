@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - backend-hardening
+      - fix/phase-two-completion
   pull_request:
     branches:
       - main
@@ -59,6 +60,13 @@ jobs:
           export API_URL ANON_KEY
           node scripts/storage-api-smoke.mjs
 
+      - name: Exercise coordinator and company analytics with isolated seeded users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          export API_URL ANON_KEY
+          node scripts/analytics-api-smoke.mjs
+
       - name: Collect local Auth and Storage logs on failure
         if: failure()
         run: |
@@ -77,6 +85,9 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+
+      - name: Test webhook IP screening
+        run: deno test --no-lock --node-modules-dir=auto supabase/functions/_shared/webhook-ip.test.ts
 
       - name: Type-check Edge Functions
         run: |

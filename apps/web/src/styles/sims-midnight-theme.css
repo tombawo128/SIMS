@@ -1,0 +1,268 @@
+/* SIMS global visual identity — Midnight Navy / Cloud White / Electric Lime */
+:root{
+  --sims-navy:#102C4D;
+  --sims-white:#F7FAFC;
+  --sims-lime:#DBFF00;
+  --sims-navy-strong:#0B2039;
+  --sims-navy-soft:#244565;
+  --sims-line:#DCE5ED;
+  --sims-muted:#64778A;
+  --sims-surface:#FFFFFF;
+  --brand-900:#102C4D;--brand-800:#16395F;--brand-700:#1B456F;--brand-600:#28577F;
+  --brand-100:#EAF1F7;--ink:#102C4D;--muted:#64778A;--line:#DCE5ED;--canvas:#F7FAFC;
+  --surface:#FFFFFF;
+}
+html,body,#root{min-height:100%;background:var(--sims-white);color:var(--sims-navy)}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+::selection{background:var(--sims-lime);color:var(--sims-navy)}
+a{color:var(--sims-navy)}
+.app-shell,.workspace-shell,.app-content,.workspace-content,.app-main,.workspace-main{background:var(--sims-white);color:var(--sims-navy)}
+.workspace-main__inner{width:100%}
+.app-sidebar,.workspace-sidebar,.mobile-nav__panel,.sidebar{background:var(--sims-navy)!important;color:#F7FAFC}
+.sidebar__tenant{border-color:#FFFFFF24!important;background:#FFFFFF0D!important}
+.sidebar__tenant-name,.sidebar__user-name,.sidebar__app-name{color:#F7FAFC!important}
+.sidebar__tenant-role,.sidebar__user-email,.sidebar__app-tagline{color:#C5D2DE!important}
+.nav-link{color:#D4DFE8!important;border-radius:10px}
+.nav-link:hover,.nav-link--inactive:hover{background:#FFFFFF12!important;color:#FFFFFF!important}
+.nav-link--active{background:var(--sims-lime)!important;color:var(--sims-navy)!important;box-shadow:none!important;font-weight:800}
+.nav-link--active .nav-link__icon{color:var(--sims-navy)!important}
+.sidebar__signout{color:#E7EEF4}
+.sidebar__signout:hover{background:#FFFFFF18;color:var(--sims-lime)}
+.workspace-topbar,.app-header{background:#FFFFFF;border-bottom:1px solid var(--sims-line);color:var(--sims-navy);box-shadow:0 3px 16px #102C4D08}
+.workspace-breadcrumb__role,.workspace-account small{color:var(--sims-muted)}
+.workspace-breadcrumb strong,.workspace-account strong{color:var(--sims-navy)}
+.workspace-footer{background:#FFFFFF;color:var(--sims-muted);border-top:1px solid var(--sims-line)}
+.workspace-account:hover,.bell__button:hover{background:#EDF3F8}
+.bell__dropdown,.ui-card,.card,.modal,.dialog,.dropdown-menu{background:#FFFFFF;border:1px solid var(--sims-line);color:var(--sims-navy);box-shadow:0 12px 32px #102C4D12}
+.bell__dropdown-header,.bell__footer{border-color:var(--sims-line)}
+.bell__item{color:var(--sims-navy)}
+.bell__item:hover,.bell__item--unread{background:#F0F5F9}
+.bell__badge,.badge--primary{background:var(--sims-lime);color:var(--sims-navy)}
+h1,h2,h3,h4,h5,h6,.page-title,.heading-lg,.heading-md,.heading-sm{color:var(--sims-navy)}
+p,.text-muted,.muted{color:inherit}
+.ui-page-header p,.page-description,.text-secondary{color:var(--sims-muted)}
+.ui-card,.stat-card,.dashboard-card,.panel,.content-card{border-color:var(--sims-line);background:#FFFFFF;box-shadow:0 5px 22px #102C4D08}
+.ui-card:hover,.stat-card:hover,.dashboard-card:hover{border-color:#C7D5E2}
+.btn--primary,.btn-primary,.button-primary,.public-nav .public-nav__cta,.public-hero__actions .btn,.public-cta__actions .btn{
+  background:var(--sims-lime)!important;color:var(--sims-navy)!important;border:1px solid var(--sims-lime)!important;
+  box-shadow:0 5px 14px #102C4D18!important;font-weight:800;transition:transform .18s ease,box-shadow .18s ease,background .18s ease
+}
+.btn--primary:hover,.btn-primary:hover,.button-primary:hover,.public-nav .public-nav__cta:hover,.public-hero__actions .btn:hover,.public-cta__actions .btn:hover{
+  background:#C8EA00!important;border-color:#C8EA00!important;color:var(--sims-navy)!important;transform:translateY(-1px);box-shadow:0 8px 20px #102C4D22!important
+}
+.btn--secondary,.btn--outline,.btn--ghost,.btn-secondary{border-color:var(--sims-line);color:var(--sims-navy);background:#FFFFFF}
+.btn--secondary:hover,.btn--outline:hover,.btn--ghost:hover,.btn-secondary:hover{background:#EDF3F8;color:var(--sims-navy)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #DBFF00!important;outline-offset:2px}
+input,select,textarea,.form-control{border-color:#CCD8E3!important;background:#FFFFFF!important;color:var(--sims-navy)!important}
+input::placeholder,textarea::placeholder{color:#8A9AAA!important}
+input:focus,select:focus,textarea:focus,.form-control:focus{border-color:#547A9D!important;box-shadow:0 0 0 3px #102C4D18!important}
+table{color:var(--sims-navy)}
+thead,th{background:#EDF3F8;color:var(--sims-navy)}
+td,th{border-color:var(--sims-line)}
+tbody tr:hover{background:#F4F8FB}
+hr,.divider{border-color:var(--sims-line)}
+.public-header{background:#FFFFFFF2;border-color:var(--sims-line)}
+.public-brand,.public-brand__name,.public-product__brand{color:var(--sims-navy)}
+.public-brand__mark,.public-product__brand>span{background:var(--sims-navy);color:#FFFFFF}
+.public-hero{background:linear-gradient(180deg,#F7FAFC 0%,#FFFFFF 92%)}
+.public-hero:before{background:radial-gradient(ellipse at 60% 35%,#DCE8F2 0%,#EDF3F8 36%,transparent 72%)}
+.public-hero h1,.public-section-heading h2,.public-workflow h2,.public-cta h2{color:var(--sims-navy)}
+.public-hero h1 em,.public-section-heading h2 em,.public-workflow h2 em,.public-cta h2 em,.public-kicker,.public-eyebrow,.public-text-link{color:var(--sims-navy)}
+.public-kicker span{background:var(--sims-lime);box-shadow:0 0 0 5px #DBFF0033}
+.public-product__rail{background:var(--sims-navy)}
+.public-product__rail span.is-active{background:var(--sims-lime);color:var(--sims-navy)}
+.public-product__window{border-color:var(--sims-line);box-shadow:0 30px 75px #102C4D20}
+.public-product__body,.public-product__main{background:#F1F5F8}
+.public-product__metric,.public-product__top{background:#FFFFFF;border-color:var(--sims-line)}
+.public-product__metric strong svg,.public-product__avatar{color:var(--sims-navy)}
+.public-product__avatar{background:#E5EDF4}
+.integration-centre{--ic-ink:#102C4D;--ic-muted:#64778A;--ic-line:#DCE5ED;--ic-green:#102C4D;--ic-lime:#DBFF00}
+.integration-centre .integration-hero{background:radial-gradient(circle at 82% 48%,#315575 0,transparent 30%),linear-gradient(112deg,#0B2039 0%,#102C4D 62%,#1B456F 100%);border-color:#102C4D}
+.integration-centre .integration-hero p{color:#D6E1EA}
+.integration-centre .integration-nav{background:#FFFFFF;border-color:var(--sims-line)}
+.integration-centre .integration-nav__item.is-active{background:#DBFF00;color:#102C4D;box-shadow:inset 3px 0 #102C4D}
+.integration-centre .integration-stat-icon,.integration-centre .integration-feature>span,.integration-centre .integration-steps b{background:#EDF3F8;border-color:#DCE5ED;color:#102C4D}
+.integration-centre .integration-stats article:before{background:var(--sims-lime)}
+.integration-centre .integration-form input:focus,.integration-centre .integration-form select:focus{border-color:#547A9D;box-shadow:0 0 0 3px #102C4D18}
+.integration-centre .integration-code{background:#0B2039;color:#E5EEF5;border-color:#244565}
+@media(max-width:850px){.mobile-nav__panel{box-shadow:12px 0 35px #07192C55}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Complete legacy-token remap: prevents older Tailwind-generated page CSS
+   from reintroducing indigo, violet, slate or purple accents. */
+:root{
+  --color-white:#F7FAFC;
+  --color-slate-50:#F7FAFC;
+  --color-slate-100:#EEF3F7;
+  --color-slate-200:#DCE5ED;
+  --color-slate-300:#C7D4E0;
+  --color-slate-400:#8295A8;
+  --color-slate-500:#64778A;
+  --color-slate-600:#4C6176;
+  --color-slate-700:#334F6B;
+  --color-slate-800:#1B3B5B;
+  --color-slate-900:#102C4D;
+  --color-slate-950:#0B2039;
+  --color-indigo-50:#EEF4F8;
+  --color-indigo-100:#DCE8F1;
+  --color-indigo-200:#BED0DF;
+  --color-indigo-300:#8FAAC1;
+  --color-indigo-400:#547A9D;
+  --color-indigo-500:#244565;
+  --color-indigo-600:#102C4D;
+  --color-indigo-700:#0B2039;
+  --color-indigo-800:#08192C;
+  --color-indigo-900:#061322;
+  --color-indigo-950:#040D17;
+  --color-blue-50:#EEF4F8;
+  --color-blue-200:#BED0DF;
+  --color-blue-500:#547A9D;
+  --color-blue-700:#244565;
+  --color-blue-900:#0B2039;
+  --color-violet-50:var(--color-indigo-50);
+  --color-violet-200:var(--color-indigo-200);
+  --color-violet-400:var(--color-indigo-400);
+  --color-violet-500:var(--color-indigo-500);
+  --color-violet-600:var(--color-indigo-600);
+  --color-violet-700:var(--color-indigo-700);
+  --color-purple-400:var(--color-indigo-400);
+  --color-purple-500:var(--color-indigo-500);
+}
+
+/* Public landing page: keep its dark hero, but make it SIMS navy and use
+   Electric Lime for the primary conversion action. */
+.landing-relative-1{background-color:var(--sims-navy)!important}
+.landing-bg-indigo-500-1{background:var(--sims-lime)!important;color:var(--sims-navy)!important;box-shadow:0 12px 28px #DBFF0030!important}
+.landing-bg-indigo-500-1:hover{background:#C8EA00!important;color:var(--sims-navy)!important}
+.landing-bg-gradient-to-r-1{--tw-gradient-from:#DBFF00!important;--tw-gradient-via:#F7FAFC!important;--tw-gradient-to:#F7FAFC!important}
+.landing-inline-flex-1{border-color:#FFFFFF35;color:#DBFF00}
+.landing-text-indigo-600-1,.landing-text-violet-600-1{color:#102C4D}
+.landing-dot-indigo-1{background:var(--sims-lime)}
+.landing-bg-indigo-50-1,.landing-bg-violet-50-1{background:#EEF4F8}
+
+/* Authentication pages use the same navy panel and lime brand mark. */
+.auth-aside{background:linear-gradient(145deg,#0B2039 0%,#102C4D 65%,#1B456F 100%)}
+.auth-aside__blob-1,.auth-aside__blob-2{background:color-mix(in srgb,#547A9D 24%,transparent)}
+.auth-aside__logo,.auth-mobile-logo{background:var(--sims-lime);color:var(--sims-navy)}
+.auth-aside__eyebrow,.auth-aside__point-icon{color:var(--sims-lime)}
+.auth-aside__app-tagline,.auth-aside__subhead,.auth-aside__point,.auth-aside__quote-text{color:#D6E1EA}
+.auth-heading__title,.auth-mobile-name,.route-error-title{color:var(--sims-navy)}
+
+/* Analytics and administrator workspaces: remove the leftover violet/royal-blue
+   dashboard treatment while preserving semantic success/warning/error states. */
+.analytics-page--mosaic{color:var(--sims-navy)}
+.analytics-page--mosaic>.admin-page-hero{border-color:var(--sims-navy);background:linear-gradient(112deg,#0B2039 0%,#102C4D 68%,#244565 100%);box-shadow:0 14px 32px #102C4D1C}
+.analytics-page--mosaic>.admin-page-hero:after{border-color:#DBFF0030;box-shadow:0 0 0 34px #DBFF0010,0 0 0 76px #DBFF0008}
+.analytics-page--mosaic>.admin-page-hero .page-hero__eyebrow,.analytics-page--mosaic .analytics-page__eyebrow,.analytics-page--mosaic .admin-analytics-section-head span{color:var(--sims-lime)}
+.analytics-page--mosaic .admin-analytics-intro{border-color:var(--sims-line);background:linear-gradient(115deg,#EEF4F8 0%,#F7FAFC 58%,#FFFFFF 100%)}
+.analytics-page--mosaic .admin-analytics-intro h2,.analytics-page--mosaic .admin-analytics-section-head h2{color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-intro p,.analytics-page--mosaic .admin-analytics-section-head p{color:var(--sims-muted)}
+.analytics-page--mosaic .admin-analytics-intro__status{border-color:var(--sims-line);background:#FFFFFF;color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-kpi--primary{border-top-color:var(--sims-lime)}
+.analytics-page--mosaic .admin-analytics-kpi__icon,.analytics-page--mosaic .admin-analytics-workflow__icon,.analytics-page--mosaic .admin-analytics-network__icon.is-university{background:#EEF4F8;color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-kpi strong,.analytics-page--mosaic .admin-analytics-workflow article>strong,.analytics-page--mosaic .admin-analytics-role__top strong,.analytics-page--mosaic .admin-analytics-health__headline strong,.analytics-page--mosaic .admin-analytics-network strong,.analytics-page--mosaic .admin-analytics-ratios strong{color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-kpi small,.analytics-page--mosaic .admin-analytics-role__top>span,.analytics-page--mosaic .admin-analytics-ratios span{color:var(--sims-muted)}
+.analytics-page--mosaic .admin-analytics-track__fill--students,.analytics-page--mosaic .admin-analytics-workflow .admin-analytics-track>span{background:var(--sims-navy)!important}
+.analytics-page--mosaic .admin-analytics-track__fill--university{background:#547A9D!important}
+.analytics-page--mosaic .admin-analytics-track__fill--company{background:#8FAAC1!important}
+.analytics-page--mosaic .admin-analytics-track__fill--admins{background:var(--sims-lime)!important}
+.analytics-page--mosaic .admin-analytics-insight{background:#EEF4F8;color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-insight svg,.analytics-page--mosaic .admin-analytics-footer>div{color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-network__icon.is-company{background:#EEF3F7;color:#244565}
+.analytics-page--mosaic .admin-analytics-footer{border-color:var(--sims-line);background:#F7FAFC}
+.analytics-page--mosaic .admin-analytics-footer strong{color:var(--sims-navy)}
+.admin-module-hero__icon,.admin-module-summary__icon,.admin-module-action>span,.admin-module-feature__icon{border-color:var(--sims-line);background:#EEF4F8;color:var(--sims-navy)}
+.admin-module-summary strong,.admin-module-health-row>div strong,.admin-module-health-row>b,.admin-module-feature h3{color:var(--sims-navy)}
+.admin-module-action:hover strong,.admin-module-external{color:var(--sims-navy)}
+.admin-module-external{border-color:var(--sims-line);background:#EEF4F8}
+.admin-module-external:hover{background:#DCE8F1}
+
+/* Integration Centre had its own green palette. Normalize every interactive
+   and decorative element, not only its hero and active navigation item. */
+.integration-centre{--ic-ink:#102C4D;--ic-muted:#64778A;--ic-line:#DCE5ED;--ic-green:#102C4D;--ic-lime:#DBFF00;color:var(--sims-navy)}
+.integration-centre .integration-nav{background:#FFFFFF;border-color:var(--sims-line)}
+.integration-centre .integration-nav__item{color:#334F6B}
+.integration-centre .integration-nav__item:hover{background:#EEF4F8;color:var(--sims-navy)}
+.integration-centre .integration-nav__item.is-active{background:var(--sims-lime);color:var(--sims-navy);box-shadow:inset 3px 0 var(--sims-navy)}
+.integration-centre .integration-nav__help,.integration-centre .integration-nav__help strong{color:var(--sims-navy)}
+.integration-centre .integration-nav__help span,.integration-centre .integration-feature p,.integration-centre .integration-steps small{color:var(--sims-muted)}
+.integration-centre .integration-stat-icon,.integration-centre .integration-feature>span,.integration-centre .integration-steps b,.integration-centre .integration-provider-mark,.integration-centre .integration-activity-row__icon{border-color:var(--sims-line);background:#EEF4F8;color:var(--sims-navy)}
+.integration-centre .integration-stats article:before{background:var(--sims-lime)}
+.integration-centre .integration-stats strong,.integration-centre .integration-feature h3,.integration-centre .integration-steps strong,.integration-centre .integration-connection-row strong,.integration-centre .integration-key-row strong,.integration-centre .integration-activity-row__body strong{color:var(--sims-navy)}
+.integration-centre .integration-feature button,.integration-centre .integration-scope-list code,.integration-centre .integration-event-list code,.integration-centre .integration-key-scopes code{color:var(--sims-navy)}
+.integration-centre .integration-key-scopes code{border-color:var(--sims-line);background:#EEF4F8}
+.integration-centre .integration-form>label,.integration-centre .integration-form legend,.integration-centre .integration-scope-checks label{color:#334F6B}
+.integration-centre .integration-form input,.integration-centre .integration-form select{border-color:#CCD8E3;background:#FFFFFF;color:var(--sims-navy)}
+.integration-centre .integration-form input:focus,.integration-centre .integration-form select:focus{border-color:#547A9D;box-shadow:0 0 0 3px #102C4D18}
+.integration-centre .integration-form fieldset,.integration-centre .integration-event-list>div,.integration-centre .integration-provider-grid article,.integration-centre .integration-brand-options span{border-color:var(--sims-line);background:#FFFFFF}
+.integration-centre .integration-secret-panel{border-color:#DCE5ED;background:#EEF4F8}
+.integration-centre .integration-secret-panel strong,.integration-centre .integration-secret-panel code{color:var(--sims-navy)}
+.integration-centre .integration-secret-panel p,.integration-centre .integration-secret-panel>button:last-child{color:#334F6B}
+.integration-centre .integration-secret-panel code{border-color:var(--sims-line);background:#FFFFFF}
+.integration-centre .integration-code{border-color:#244565;background:#0B2039;color:#E5EEF5}
+.integration-centre .integration-connection-row,.integration-centre .integration-key-row,.integration-centre .integration-activity-row{border-color:var(--sims-line)}
+.integration-centre .integration-connection-row:hover,.integration-centre .integration-key-row:hover{background:#F7FAFC}
+.integration-centre :is(button,input,select):focus-visible{outline:3px solid var(--sims-lime);outline-offset:2px}
+
+
+/* Public product/marketing sections still had literal royal-blue values in
+   product-overhaul.css; bring those sections into the same three-colour system. */
+.public-hero{background:linear-gradient(180deg,#F7FAFC 0%,#FFFFFF 90%)}
+.public-hero:before{background:radial-gradient(ellipse at 60% 35%,#DCE8F1 0%,#EEF4F8 34%,transparent 70%)}
+.public-kicker,.public-eyebrow,.public-text-link,.public-feature-card__icon,.public-audience__icon{color:var(--sims-navy)}
+.public-kicker span{background:var(--sims-lime);box-shadow:0 0 0 5px #DBFF0030}
+.public-hero h1 em,.public-section-heading h2 em,.public-workflow h2 em,.public-cta h2 em{color:var(--sims-navy)}
+.public-product__rail{background:var(--sims-navy)}
+.public-product__rail span.is-active{background:var(--sims-lime);color:var(--sims-navy)}
+.public-product__body,.public-product__main,.public-workflow{background:#EEF3F7}
+.public-product__avatar,.public-feature-card__icon,.public-audience__icon,.public-stage__icon{background:#EEF4F8;color:var(--sims-navy)}
+.public-product__bars i{background:linear-gradient(180deg,#547A9D,#102C4D)}
+.public-product__step-icon.done{background:#EEF4F8;color:var(--sims-navy)}
+.public-feature-card--dark{background:linear-gradient(135deg,#0B2039,#102C4D);border-color:#102C4D;color:#F7FAFC}
+.public-feature-card--dark .public-feature-card__icon{background:#FFFFFF18;color:var(--sims-lime)}
+.public-feature-card--dark .public-feature-card__label{color:#D6E1EA}
+.public-feature-card--dark h3{color:#F7FAFC}
+.public-feature-card--dark p{color:#D6E1EA}
+.public-role-stack span{border-color:#FFFFFF30;color:#F7FAFC}
+.public-role-stack svg{color:var(--sims-lime)}
+.public-flow__node,.public-visibility>div{background:#EEF3F7}
+.public-flow__node>span,.public-visibility strong{color:var(--sims-navy)}
+.public-feature-card__label{color:var(--sims-muted)}
+.public-cta{background:linear-gradient(120deg,#0B2039 0%,#102C4D 60%,#244565 100%)}
+.public-cta .public-eyebrow{color:var(--sims-lime)}
+.public-cta h2{color:#F7FAFC}
+.public-cta h2 em{color:var(--sims-lime)}
+.public-cta>p{color:#D6E1EA}
+.public-cta__ornament{border-color:#FFFFFF30;color:var(--sims-lime);background:#FFFFFF12}
+.public-cta__actions .btn{background:var(--sims-lime)!important;color:var(--sims-navy)!important;border:1px solid var(--sims-lime)!important}
+.public-cta__actions .btn:hover{background:#C8EA00!important}
+.public-cta__actions .public-text-link{color:#F7FAFC}
+.public-footer__links a:hover,.public-nav a:hover{color:var(--sims-navy)}
+
+/* Recycle Bin and older analytics cards had literal indigo/violet accents. */
+.analytics-page__overview{border-color:var(--sims-navy);background:linear-gradient(112deg,#0B2039 0%,#102C4D 60%,#244565 100%)}
+.analytics-page__eyebrow{color:#D6E1EA}
+.analytics-page__section-heading h2,.analytics-page__role-heading strong,.analytics-page__status-total strong,.analytics-page__status-list strong{color:var(--sims-navy)}
+.analytics-page__workflow-icon{background:#EEF4F8;color:var(--sims-navy)}
+.analytics-page__legend--students,.analytics-page__fill--students{background:var(--sims-navy)}
+.analytics-page__legend--university,.analytics-page__fill--university{background:#547A9D}
+.analytics-page__legend--company,.analytics-page__fill--company{background:#8FAAC1}
+.analytics-page__legend--admins,.analytics-page__fill--admins{background:var(--sims-lime)}
+.analytics-page__status-total{background:#EEF4F8}
+.recycle-page__hero,.recycle-v2__summary{border-color:var(--sims-navy);background:linear-gradient(112deg,#0B2039 0%,#102C4D 60%,#244565 100%)}
+.recycle-v2{color:var(--sims-navy)}
+.recycle-v2__eyebrow,.recycle-v2__section-kicker{color:#547A9D}
+.recycle-v2__metric--user .recycle-v2__metric-icon,.recycle-v2__metric--university .recycle-v2__metric-icon,.recycle-v2__metric--company .recycle-v2__metric-icon,
+.recycle-v2__record-icon--user,.recycle-v2__record-icon--university,.recycle-v2__record-icon--company{background:#EEF4F8;color:var(--sims-navy)}
+.recycle-v2__metric-content strong,.recycle-v2__workspace-head h2,.recycle-v2__record-copy strong{color:var(--sims-navy)}
+.recycle-v2__metric:hover{border-color:#AFC2D2}
+.recycle-v2__notice{border-color:var(--sims-line);background:#EEF4F8;color:var(--sims-muted)}
+.recycle-v2__notice svg,.recycle-v2__confirm-icon{color:var(--sims-navy)}
+.recycle-v2__confirm-icon{background:#EEF4F8}
+.recycle-v2__notice strong,.recycle-v2__confirm strong{color:var(--sims-navy)}
+.recycle-v2__search:focus-within{border-color:#547A9D;box-shadow:0 0 0 3px #102C4D18}
+.recycle-v2__search,.recycle-v2__sort{border-color:var(--sims-line);background:#FFFFFF}
+.recycle-v2__tabs,.recycle-v2__workspace-head,.recycle-v2__footer{border-color:var(--sims-line)}
+.recycle-v2__table thead{background:#EEF3F7}
+.recycle-v2__table tbody tr:hover,.recycle-v2__mobile-record:hover{background:#F7FAFC}

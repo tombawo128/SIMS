@@ -1,7 +1,7 @@
 -- GoTrue v2.197 scans nullable token fields into Go strings. Hand-seeded
 -- auth.users rows may contain NULL in these fields, causing password sign-in
 -- to return HTTP 500 before Storage authorization can be exercised.
--- Normalize only the two isolated accounts used by the Storage API smoke test.
+-- Normalize only the isolated coordinator, company-admin and student accounts used by the Storage and analytics API smoke tests.
 UPDATE auth.users
 SET
   confirmation_token = COALESCE(confirmation_token, ''),
@@ -12,4 +12,9 @@ SET
   phone_change = COALESCE(phone_change, ''),
   phone_change_token = COALESCE(phone_change_token, ''),
   reauthentication_token = COALESCE(reauthentication_token, '')
-WHERE email IN ('student1@baystate.edu', 'student2@baystate.edu');
+WHERE email IN (
+  'student1@baystate.edu',
+  'student2@baystate.edu',
+  'coordinator@baystate.edu',
+  'admin@acme.com'
+);

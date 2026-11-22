@@ -159,7 +159,7 @@ The current integration API is designed as a read-only v1. Its supported resourc
 | Applications | `applications:read` |
 | Placements | `placements:read` |
 
-Integration credentials are generated server-side, shown once, and stored as hashes. The API derives tenant scope from the validated connection rather than accepting a tenant ID from the caller. Write endpoints and webhooks are not part of this release.
+Integration credentials are generated server-side, shown once, and stored as hashes. The API derives tenant scope from the validated connection rather than accepting a tenant ID from the caller. Write endpoints and webhooks are not part of this release. Platform administrators can review connection and API-credential administration events in the Integration Centre audit view. Per-request API telemetry, webhook delivery, SSO provider configuration, and public embed hosting remain outside the current read-only API release.
 
 ## Technology
 

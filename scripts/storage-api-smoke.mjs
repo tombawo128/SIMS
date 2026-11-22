@@ -50,15 +50,25 @@ try {
   uploaded = true;
   console.log("PASS: authenticated owner can upload to their own folder");
 
-  const deniedDelete = await request("/storage/v1/object", {
+  const deniedDelete = await request("/storage/v1/object/post-images", {
     method: "DELETE",
     headers: headers(other.access_token, { "content-type": "application/json" }),
     body: JSON.stringify({ prefixes: [objectPath] }),
   });
-  if (deniedDelete.response.ok) {
-    throw new Error("Cross-user delete unexpectedly succeeded");
+  // Storage's bulk DELETE endpoint can return HTTP 200 even when RLS filters
+  // every requested object. Verify the object still exists for its owner instead
+  // of treating the response status alone as proof of authorization.
+  if (!deniedDelete.response.ok) {
+    throw new Error(`Cross-user delete request failed unexpectedly (${deniedDelete.response.status}): ${deniedDelete.body}`);
   }
-  console.log("PASS: another authenticated user cannot delete the owner's file");
+  const afterDeniedDelete = await fetch(new URL(`/storage/v1/object/authenticated/post-images/${objectPath}`, apiUrl), {
+    headers: headers(owner.access_token),
+  });
+  const retainedBytes = Buffer.from(await afterDeniedDelete.arrayBuffer());
+  if (!afterDeniedDelete.ok || !retainedBytes.equals(imageBytes)) {
+    throw new Error(`Cross-user delete removed or altered the owner's object (${afterDeniedDelete.status})`);
+  }
+  console.log("PASS: cross-user delete is filtered by Storage RLS; owner object remains intact");
 
   const downloadResponse = await fetch(new URL(`/storage/v1/object/authenticated/post-images/${objectPath}`, apiUrl), {
     headers: headers(owner.access_token),
@@ -69,7 +79,7 @@ try {
   }
   console.log("PASS: owner can download the uploaded object");
 
-  const deletion = await request("/storage/v1/object", {
+  const deletion = await request("/storage/v1/object/post-images", {
     method: "DELETE",
     headers: headers(owner.access_token, { "content-type": "application/json" }),
     body: JSON.stringify({ prefixes: [objectPath] }),
@@ -77,11 +87,18 @@ try {
   if (!deletion.response.ok) {
     throw new Error(`Owner delete failed (${deletion.response.status}): ${deletion.body}`);
   }
+
   uploaded = false;
-  console.log("PASS: owner can delete the uploaded object");
+  const afterOwnerDelete = await fetch(new URL(`/storage/v1/object/authenticated/post-images/${objectPath}`, apiUrl), {
+    headers: headers(owner.access_token),
+  });
+  if (afterOwnerDelete.ok) {
+    throw new Error("Owner delete returned success but the object is still downloadable");
+  }
+  console.log("PASS: owner can delete the uploaded object and it is no longer downloadable");
 } finally {
   if (uploaded) {
-    const cleanup = await request("/storage/v1/object", {
+    const cleanup = await request("/storage/v1/object/post-images", {
       method: "DELETE",
       headers: headers(owner.access_token, { "content-type": "application/json" }),
       body: JSON.stringify({ prefixes: [objectPath] }),

@@ -208,3 +208,23 @@
   .integration-centre .integration-stats strong{font-size:22px}
   .integration-centre .integration-steps>div>.badge{margin-left:auto}
 }
+
+
+/* Integration activity audit trail */
+.integration-centre .integration-activity-list{display:grid;padding:0 18px 10px}
+.integration-centre .integration-activity-row{display:flex;align-items:flex-start;gap:12px;padding:14px 2px;border-bottom:1px solid #edf1ed}
+.integration-centre .integration-activity-row:last-child{border-bottom:0}
+.integration-centre .integration-activity-row__icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid #e1ecd8;border-radius:10px;background:#f2f7ec;color:#4d7a3d}
+.integration-centre .integration-activity-row__body{display:grid;gap:4px;min-width:0}
+.integration-centre .integration-activity-row__body strong{color:#23362a;font-size:12px;text-transform:capitalize}
+.integration-centre .integration-activity-row__body span{color:#52645a;font-size:10.5px;overflow-wrap:anywhere}
+.integration-centre .integration-activity-row__body small{color:#87948b;font-size:9.5px;overflow-wrap:anywhere}
+
+
+.integration-centre .integration-key-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.integration-centre .integration-error-text{display:block;color:#b42318;font-size:11px;overflow-wrap:anywhere;max-width:520px}
+.integration-centre .integration-form label small{display:block;margin-top:4px;color:#7b8a80;font-size:10px;line-height:1.45}
+.integration-centre .integration-secret-panel code{display:block;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+.integration-centre .integration-scope-checks label{align-items:flex-start}
+.integration-centre .integration-scope-checks label code{margin-left:auto;max-width:60%;overflow-wrap:anywhere}
+@media(max-width:640px){.integration-centre .integration-key-actions{justify-content:flex-start}.integration-centre .integration-scope-checks label code{max-width:100%;margin-left:0}}
