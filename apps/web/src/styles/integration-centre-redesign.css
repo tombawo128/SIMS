@@ -1,0 +1,175 @@
+/* Integration Centre — complete workspace redesign.
+   Replaces the previous marketing-style hero and stacked panels with a
+   focused enterprise control room. Existing React flows and permissions remain unchanged. */
+.integration-centre{
+  --ic-navy:#102C4D;--ic-deep:#091D33;--ic-cloud:#F7FAFC;--ic-lime:#DBFF00;
+  --ic-ink:#17324D;--ic-muted:#708397;--ic-line:#E1E9F0;--ic-panel:#FFFFFF;--ic-soft:#EFF4F8;
+  display:flex;flex-direction:column;gap:22px;min-width:0;color:var(--ic-ink);
+  padding:2px 0 28px;
+}
+.integration-centre .integration-hero{
+  min-height:0;display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:25px 30px;border:1px solid #0A213B;border-radius:18px;overflow:hidden;
+  background:linear-gradient(112deg,#091D33 0%,#102C4D 66%,#244968 100%);
+  box-shadow:0 14px 34px #102C4D18;
+}
+.integration-centre .integration-hero:before{right:-105px;top:-205px;width:440px;height:440px;border-color:#FFFFFF16;box-shadow:0 0 0 52px #FFFFFF08,0 0 0 104px #FFFFFF05}
+.integration-centre .integration-hero:after{width:32%;background:linear-gradient(135deg,#DBFF001A,transparent 72%)}
+.integration-centre .integration-hero__content{max-width:760px}
+.integration-centre .integration-eyebrow{color:#DBFF00;font-size:9px;font-weight:850;letter-spacing:.18em}
+.integration-centre .integration-hero h1{max-width:720px;margin:10px 0 8px;color:#F7FAFC;font-size:clamp(25px,2.5vw,34px);font-weight:790;line-height:1.12;letter-spacing:-.045em}
+.integration-centre .integration-hero p{max-width:700px;color:#D3DFE9;font-size:12px;line-height:1.7}
+.integration-centre .integration-hero__meta{display:flex;gap:17px;margin-top:17px;color:#E5EDF4;font-size:10px}
+.integration-centre .integration-hero__meta .badge{border:1px solid #DBFF0050;background:#DBFF001A;color:#DBFF00}
+.integration-centre .integration-dot{background:#DBFF00;box-shadow:0 0 0 4px #DBFF0026}
+.integration-centre .integration-hero__art{flex:0 0 180px;height:150px;margin:0;transform:scale(.88)}
+.integration-centre .integration-node{border-color:#FFFFFF35;background:#FFFFFF16;color:#F7FAFC}
+.integration-centre .integration-node--main{border:0;background:#DBFF00;color:#102C4D;box-shadow:0 10px 26px #DBFF0035}
+.integration-centre .integration-orbit{border-color:#FFFFFF2B}
+
+.integration-centre .integration-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;align-items:start}
+.integration-centre .integration-nav{
+  position:sticky;top:14px;display:flex;flex-direction:column;gap:5px;
+  padding:13px;border:1px solid #0A213B;border-radius:16px;background:#102C4D;
+  box-shadow:0 12px 28px #102C4D18;
+}
+.integration-centre .integration-nav__label{padding:8px 10px 11px;color:#A9BED0;font-size:9px;font-weight:850;letter-spacing:.17em}
+.integration-centre .integration-nav__item{
+  display:flex;align-items:center;gap:10px;width:100%;min-height:43px;padding:10px 11px;
+  border:1px solid transparent;border-radius:10px;background:transparent;color:#D6E1EA;
+  font-size:10.5px;font-weight:680;transition:background .16s ease,color .16s ease,border-color .16s ease;
+}
+.integration-centre .integration-nav__item span{flex:1}
+.integration-centre .integration-nav__item>svg:last-child{opacity:.3}
+.integration-centre .integration-nav__item:hover{background:#FFFFFF12;color:#FFFFFF;transform:none}
+.integration-centre .integration-nav__item.is-active{border-color:#DBFF0055;background:#DBFF00;color:#102C4D;box-shadow:0 6px 16px #00000018;font-weight:820}
+.integration-centre .integration-nav__item.is-active>svg:last-child{opacity:.8}
+.integration-centre .integration-nav__help{display:flex;flex-direction:column;gap:7px;margin:13px 2px 0;padding:15px 9px 4px;border-top:1px solid #FFFFFF24;color:#F7FAFC}
+.integration-centre .integration-nav__help svg{color:#DBFF00}
+.integration-centre .integration-nav__help strong{font-size:10.5px}
+.integration-centre .integration-nav__help span{color:#C0CFDC;font-size:9.5px;line-height:1.65}
+
+.integration-centre .integration-main{display:flex;flex-direction:column;gap:16px;min-width:0}
+.integration-centre .integration-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 2px 5px;border-bottom:1px solid #E7EDF2}
+.integration-centre .integration-section-heading h2{margin:5px 0 0;color:#102C4D;font-size:24px;font-weight:800;letter-spacing:-.045em}
+.integration-centre .integration-section-heading .integration-eyebrow{color:#7C90A3;font-size:9px}
+.integration-centre .integration-section-heading .badge{border:1px solid #DCE5ED;background:#FFFFFF;color:#526A80}
+
+.integration-centre .integration-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.integration-centre .integration-stats article{
+  position:relative;display:grid;grid-template-columns:39px minmax(0,1fr);align-items:center;column-gap:10px;
+  min-width:0;padding:17px 14px;border:1px solid #E0E8EF;border-radius:14px;background:#FFFFFF;
+  box-shadow:0 5px 18px #102C4D0A;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+}
+.integration-centre .integration-stats article:before{height:3px;background:#DBFF00}
+.integration-centre .integration-stats article:hover{transform:translateY(-2px);border-color:#B9CAD8;box-shadow:0 10px 24px #102C4D12}
+.integration-centre .integration-stat-icon{display:grid;place-items:center;grid-row:span 3;width:37px;height:37px;border:1px solid #DCE5ED;border-radius:11px;background:#EFF4F8;color:#102C4D}
+.integration-centre .integration-stats strong{color:#102C4D;font-size:25px;line-height:1.05;font-weight:820;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.integration-centre .integration-stats small{margin-top:4px;color:#405C75;font-size:10px;font-weight:750}
+.integration-centre .integration-stats em{margin-top:3px;color:#8A9BAC;font-size:9px;font-style:normal}
+
+.integration-centre .integration-overview-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.integration-centre .ui-card{min-width:0;border:1px solid #E0E8EF;border-radius:15px;background:#FFFFFF;box-shadow:0 5px 20px #102C4D09}
+.integration-centre .ui-card [class*="card-header"]{margin-bottom:16px}
+.integration-centre .integration-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.integration-centre .integration-feature{display:flex;gap:13px;padding:2px 0}
+.integration-centre .integration-feature>span{display:grid;place-items:center;flex:0 0 40px;height:40px;border:1px solid #DCE5ED;border-radius:12px;background:#EFF4F8;color:#102C4D}
+.integration-centre .integration-feature h3{margin:1px 0 6px;color:#102C4D;font-size:12px;font-weight:800}
+.integration-centre .integration-feature p{margin:0;color:#718397;font-size:10.5px;line-height:1.7}
+.integration-centre .integration-feature button{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:0;border:0;background:transparent;color:#244968;font-size:10.5px;font-weight:820;cursor:pointer}
+.integration-centre .integration-feature button:hover{text-decoration:underline}
+.integration-centre .integration-steps{display:flex;flex-direction:column}
+.integration-centre .integration-steps>div{display:flex;align-items:center;gap:13px;padding:13px 0;border-top:1px solid #EAF0F4}
+.integration-centre .integration-steps>div:first-child{border-top:0}
+.integration-centre .integration-steps b{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:0;border-radius:10px;background:#DBFF00;color:#102C4D;font-size:10px}
+.integration-centre .integration-steps span{display:flex;flex:1;flex-direction:column;gap:4px}
+.integration-centre .integration-steps strong{color:#17324D;font-size:10.5px;font-weight:780}
+.integration-centre .integration-steps small{color:#7C90A3;font-size:9.5px;line-height:1.5}
+
+.integration-centre .integration-stack{display:flex;flex-direction:column;gap:14px}
+.integration-centre .integration-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;margin:6px 0 16px}
+.integration-centre .integration-form>label,.integration-centre .integration-form legend{display:flex;flex-direction:column;gap:7px;color:#334F6B;font-size:10.5px;font-weight:760}
+.integration-centre .integration-form input,.integration-centre .integration-form select,.integration-centre .integration-form textarea{
+  width:100%;min-width:0;min-height:43px;padding:10px 12px;border:1px solid #CCD9E4!important;border-radius:9px;
+  background:#FFFFFF!important;color:#102C4D!important;font:inherit;font-size:11px;outline:none;
+}
+.integration-centre .integration-form input:focus,.integration-centre .integration-form select:focus,.integration-centre .integration-form textarea:focus{border-color:#547A9D!important;box-shadow:0 0 0 3px #102C4D16!important}
+.integration-centre .integration-form fieldset{grid-column:1/-1;margin:0;padding:15px;border:1px solid #DCE5ED;border-radius:12px;background:#F7FAFC}
+.integration-centre .integration-form legend{display:block;padding:0 7px;color:#334F6B}
+.integration-centre .integration-form__wide{grid-column:1/-1}
+.integration-centre .integration-form__actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.integration-centre .integration-form__actions>span,.integration-centre .integration-muted,.integration-centre .integration-note{color:#7C90A3;font-size:9.5px;line-height:1.6}
+.integration-centre .integration-scope-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.integration-centre .integration-scope-checks label{display:grid;grid-template-columns:16px 1fr;align-items:center;gap:5px 8px;color:#405C75;font-size:10.5px}
+.integration-centre .integration-scope-checks input{width:14px;height:14px;min-height:0;padding:0;accent-color:#102C4D}
+.integration-centre .integration-scope-checks code{grid-column:2;color:#244968;font-size:9px}
+.integration-centre .integration-connection-list,.integration-centre .integration-key-list{display:flex;flex-direction:column;margin-top:12px}
+.integration-centre .integration-connection-row,.integration-centre .integration-key-row{display:flex;align-items:center;gap:12px;padding:14px 5px;border-top:1px solid #EAF0F4;transition:background .16s ease}
+.integration-centre .integration-connection-row:hover,.integration-centre .integration-key-row:hover{background:#F7FAFC}
+.integration-centre .integration-connection-row>div:first-child,.integration-centre .integration-key-row>div:first-child{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+.integration-centre .integration-connection-row strong,.integration-centre .integration-key-row strong{color:#17324D;font-size:10.5px;font-weight:780}
+.integration-centre .integration-connection-row small,.integration-centre .integration-key-row small{color:#7C90A3;font-size:9px;line-height:1.5}
+.integration-centre .integration-key-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.integration-centre .integration-key-scopes{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.integration-centre .integration-key-scopes code{padding:4px 7px;border:1px solid #DCE5ED;border-radius:6px;background:#EFF4F8;color:#244968;font-size:9px}
+.integration-centre .integration-secret-panel{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:16px;padding:18px;border:1px solid #C7D98C;border-radius:13px;background:#F7FBE8}
+.integration-centre .integration-secret-panel strong{color:#102C4D;font-size:12px}
+.integration-centre .integration-secret-panel p{margin:0;color:#526A80;font-size:10px}
+.integration-centre .integration-secret-panel code{display:block;max-width:100%;overflow-wrap:anywhere;padding:12px;border:1px solid #DCE5ED;border-radius:9px;background:#FFFFFF;color:#102C4D;font-size:10px}
+.integration-centre .integration-secret-panel>button:last-child{border:0;background:transparent;color:#244968;font-size:10px;font-weight:750;cursor:pointer}
+.integration-centre .integration-code{overflow:auto;margin:0;padding:18px 19px;border:1px solid #244565;border-radius:12px;background:#091D33;color:#E5EEF5;font-size:10.5px;line-height:1.9;white-space:pre}
+.integration-centre .integration-event-list>div,.integration-centre .integration-provider-grid article,.integration-centre .integration-brand-options span{border:1px solid #DCE5ED;border-radius:11px;background:#F7FAFC}
+.integration-centre .integration-provider-mark{background:#EFF4F8;color:#102C4D}
+.integration-centre .integration-provider-grid strong{color:#102C4D}
+.integration-centre .integration-provider-grid small,.integration-centre .integration-empty p{color:#7C90A3}
+.integration-centre .integration-activity-list{display:grid;padding:0 16px 8px}
+.integration-centre .integration-activity-row{display:flex;align-items:flex-start;gap:12px;padding:13px 2px;border-bottom:1px solid #EAF0F4}
+.integration-centre .integration-activity-row:last-child{border-bottom:0}
+.integration-centre .integration-activity-row__icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid #DCE5ED;border-radius:10px;background:#EFF4F8;color:#102C4D}
+.integration-centre .integration-activity-row__body{display:grid;gap:4px;min-width:0}
+.integration-centre .integration-activity-row__body strong{color:#17324D;font-size:11px;text-transform:capitalize}
+.integration-centre .integration-activity-row__body span{color:#526A80;font-size:10px;overflow-wrap:anywhere}
+.integration-centre .integration-activity-row__body small{color:#8A9BAC;font-size:9px;overflow-wrap:anywhere}
+.integration-centre .integration-systems-empty{padding:28px 16px;text-align:center}
+.integration-centre .integration-systems-empty>span{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#EFF4F8;color:#102C4D}
+.integration-centre .integration-systems-empty strong{display:block;margin:10px 0 5px;color:#102C4D;font-size:11px}
+.integration-centre .integration-systems-empty p{max-width:320px;margin:0 auto;color:#7C90A3;font-size:10px;line-height:1.65}
+.integration-centre :is(button,input,select,textarea,a):focus-visible{outline:3px solid #DBFF00;outline-offset:2px}
+.integration-centre .integration-empty__icon{border-color:#DCE5ED;background:#EFF4F8;color:#102C4D}
+
+@media(max-width:1120px){
+  .integration-centre .integration-layout{grid-template-columns:195px minmax(0,1fr);gap:14px}
+  .integration-centre .integration-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:850px){
+  .integration-centre .integration-layout{grid-template-columns:1fr}
+  .integration-centre .integration-nav{position:static;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .integration-centre .integration-nav__label,.integration-centre .integration-nav__help{display:none}
+  .integration-centre .integration-nav__item{min-width:0;justify-content:flex-start}
+}
+@media(max-width:640px){
+  .integration-centre{gap:15px}
+  .integration-centre .integration-hero{min-height:0;padding:22px 19px;border-radius:15px}
+  .integration-centre .integration-hero h1{font-size:25px}
+  .integration-centre .integration-hero p{font-size:10.5px}
+  .integration-centre .integration-hero__meta{align-items:flex-start;flex-direction:column;gap:9px}
+  .integration-centre .integration-hero__art{display:none}
+  .integration-centre .integration-nav{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px}
+  .integration-centre .integration-nav__item{min-height:40px;padding:9px;font-size:9.5px}
+  .integration-centre .integration-section-heading{align-items:flex-start;flex-direction:column}
+  .integration-centre .integration-section-heading h2{font-size:22px}
+  .integration-centre .integration-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .integration-centre .integration-stats article{grid-template-columns:31px minmax(0,1fr);column-gap:7px;padding:12px 9px}
+  .integration-centre .integration-stat-icon{width:30px;height:30px}
+  .integration-centre .integration-stats strong{font-size:21px}
+  .integration-centre .integration-overview-grid,.integration-centre .integration-card-grid{grid-template-columns:1fr}
+  .integration-centre .integration-form,.integration-centre .integration-scope-checks{grid-template-columns:1fr}
+  .integration-centre .integration-form__actions{align-items:stretch;flex-direction:column}
+  .integration-centre .integration-connection-row,.integration-centre .integration-key-row{align-items:flex-start;flex-wrap:wrap}
+  .integration-centre .integration-key-meta{align-items:flex-start}
+  .integration-centre .integration-steps>div{align-items:flex-start}
+  .integration-centre .integration-steps>div>.badge{margin-left:auto}
+}
+@media(prefers-reduced-motion:reduce){
+  .integration-centre .integration-stats article{transition:none}
+}
