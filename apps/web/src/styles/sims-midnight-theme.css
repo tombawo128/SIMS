@@ -87,3 +87,120 @@ hr,.divider{border-color:var(--sims-line)}
 .integration-centre .integration-code{background:#0B2039;color:#E5EEF5;border-color:#244565}
 @media(max-width:850px){.mobile-nav__panel{box-shadow:12px 0 35px #07192C55}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Complete legacy-token remap: prevents older Tailwind-generated page CSS
+   from reintroducing indigo, violet, slate or purple accents. */
+:root{
+  --color-white:#F7FAFC;
+  --color-slate-50:#F7FAFC;
+  --color-slate-100:#EEF3F7;
+  --color-slate-200:#DCE5ED;
+  --color-slate-300:#C7D4E0;
+  --color-slate-400:#8295A8;
+  --color-slate-500:#64778A;
+  --color-slate-600:#4C6176;
+  --color-slate-700:#334F6B;
+  --color-slate-800:#1B3B5B;
+  --color-slate-900:#102C4D;
+  --color-slate-950:#0B2039;
+  --color-indigo-50:#EEF4F8;
+  --color-indigo-100:#DCE8F1;
+  --color-indigo-200:#BED0DF;
+  --color-indigo-300:#8FAAC1;
+  --color-indigo-400:#547A9D;
+  --color-indigo-500:#244565;
+  --color-indigo-600:#102C4D;
+  --color-indigo-700:#0B2039;
+  --color-indigo-800:#08192C;
+  --color-indigo-900:#061322;
+  --color-indigo-950:#040D17;
+  --color-blue-50:#EEF4F8;
+  --color-blue-200:#BED0DF;
+  --color-blue-500:#547A9D;
+  --color-blue-700:#244565;
+  --color-blue-900:#0B2039;
+  --color-violet-50:var(--color-indigo-50);
+  --color-violet-200:var(--color-indigo-200);
+  --color-violet-400:var(--color-indigo-400);
+  --color-violet-500:var(--color-indigo-500);
+  --color-violet-600:var(--color-indigo-600);
+  --color-violet-700:var(--color-indigo-700);
+  --color-purple-400:var(--color-indigo-400);
+  --color-purple-500:var(--color-indigo-500);
+}
+
+/* Public landing page: keep its dark hero, but make it SIMS navy and use
+   Electric Lime for the primary conversion action. */
+.landing-relative-1{background-color:var(--sims-navy)!important}
+.landing-bg-indigo-500-1{background:var(--sims-lime)!important;color:var(--sims-navy)!important;box-shadow:0 12px 28px #DBFF0030!important}
+.landing-bg-indigo-500-1:hover{background:#C8EA00!important;color:var(--sims-navy)!important}
+.landing-bg-gradient-to-r-1{--tw-gradient-from:#DBFF00!important;--tw-gradient-via:#F7FAFC!important;--tw-gradient-to:#F7FAFC!important}
+.landing-inline-flex-1{border-color:#FFFFFF35;color:#DBFF00}
+.landing-text-indigo-600-1,.landing-text-violet-600-1{color:#102C4D}
+.landing-dot-indigo-1{background:var(--sims-lime)}
+.landing-bg-indigo-50-1,.landing-bg-violet-50-1{background:#EEF4F8}
+
+/* Authentication pages use the same navy panel and lime brand mark. */
+.auth-aside{background:linear-gradient(145deg,#0B2039 0%,#102C4D 65%,#1B456F 100%)}
+.auth-aside__blob-1,.auth-aside__blob-2{background:color-mix(in srgb,#547A9D 24%,transparent)}
+.auth-aside__logo,.auth-mobile-logo{background:var(--sims-lime);color:var(--sims-navy)}
+.auth-aside__eyebrow,.auth-aside__point-icon{color:var(--sims-lime)}
+.auth-aside__app-tagline,.auth-aside__subhead,.auth-aside__point,.auth-aside__quote-text{color:#D6E1EA}
+.auth-heading__title,.auth-mobile-name,.route-error-title{color:var(--sims-navy)}
+
+/* Analytics and administrator workspaces: remove the leftover violet/royal-blue
+   dashboard treatment while preserving semantic success/warning/error states. */
+.analytics-page--mosaic{color:var(--sims-navy)}
+.analytics-page--mosaic>.admin-page-hero{border-color:var(--sims-navy);background:linear-gradient(112deg,#0B2039 0%,#102C4D 68%,#244565 100%);box-shadow:0 14px 32px #102C4D1C}
+.analytics-page--mosaic>.admin-page-hero:after{border-color:#DBFF0030;box-shadow:0 0 0 34px #DBFF0010,0 0 0 76px #DBFF0008}
+.analytics-page--mosaic>.admin-page-hero .page-hero__eyebrow,.analytics-page--mosaic .analytics-page__eyebrow,.analytics-page--mosaic .admin-analytics-section-head span{color:var(--sims-lime)}
+.analytics-page--mosaic .admin-analytics-intro{border-color:var(--sims-line);background:linear-gradient(115deg,#EEF4F8 0%,#F7FAFC 58%,#FFFFFF 100%)}
+.analytics-page--mosaic .admin-analytics-intro h2,.analytics-page--mosaic .admin-analytics-section-head h2{color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-intro p,.analytics-page--mosaic .admin-analytics-section-head p{color:var(--sims-muted)}
+.analytics-page--mosaic .admin-analytics-intro__status{border-color:var(--sims-line);background:#FFFFFF;color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-kpi--primary{border-top-color:var(--sims-lime)}
+.analytics-page--mosaic .admin-analytics-kpi__icon,.analytics-page--mosaic .admin-analytics-workflow__icon,.analytics-page--mosaic .admin-analytics-network__icon.is-university{background:#EEF4F8;color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-kpi strong,.analytics-page--mosaic .admin-analytics-workflow article>strong,.analytics-page--mosaic .admin-analytics-role__top strong,.analytics-page--mosaic .admin-analytics-health__headline strong,.analytics-page--mosaic .admin-analytics-network strong,.analytics-page--mosaic .admin-analytics-ratios strong{color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-kpi small,.analytics-page--mosaic .admin-analytics-role__top>span,.analytics-page--mosaic .admin-analytics-ratios span{color:var(--sims-muted)}
+.analytics-page--mosaic .admin-analytics-track__fill--students,.analytics-page--mosaic .admin-analytics-workflow .admin-analytics-track>span{background:var(--sims-navy)!important}
+.analytics-page--mosaic .admin-analytics-track__fill--university{background:#547A9D!important}
+.analytics-page--mosaic .admin-analytics-track__fill--company{background:#8FAAC1!important}
+.analytics-page--mosaic .admin-analytics-track__fill--admins{background:var(--sims-lime)!important}
+.analytics-page--mosaic .admin-analytics-insight{background:#EEF4F8;color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-insight svg,.analytics-page--mosaic .admin-analytics-footer>div{color:var(--sims-navy)}
+.analytics-page--mosaic .admin-analytics-network__icon.is-company{background:#EEF3F7;color:#244565}
+.analytics-page--mosaic .admin-analytics-footer{border-color:var(--sims-line);background:#F7FAFC}
+.analytics-page--mosaic .admin-analytics-footer strong{color:var(--sims-navy)}
+.admin-module-hero__icon,.admin-module-summary__icon,.admin-module-action>span,.admin-module-feature__icon{border-color:var(--sims-line);background:#EEF4F8;color:var(--sims-navy)}
+.admin-module-summary strong,.admin-module-health-row>div strong,.admin-module-health-row>b,.admin-module-feature h3{color:var(--sims-navy)}
+.admin-module-action:hover strong,.admin-module-external{color:var(--sims-navy)}
+.admin-module-external{border-color:var(--sims-line);background:#EEF4F8}
+.admin-module-external:hover{background:#DCE8F1}
+
+/* Integration Centre had its own green palette. Normalize every interactive
+   and decorative element, not only its hero and active navigation item. */
+.integration-centre{--ic-ink:#102C4D;--ic-muted:#64778A;--ic-line:#DCE5ED;--ic-green:#102C4D;--ic-lime:#DBFF00;color:var(--sims-navy)}
+.integration-centre .integration-nav{background:#FFFFFF;border-color:var(--sims-line)}
+.integration-centre .integration-nav__item{color:#334F6B}
+.integration-centre .integration-nav__item:hover{background:#EEF4F8;color:var(--sims-navy)}
+.integration-centre .integration-nav__item.is-active{background:var(--sims-lime);color:var(--sims-navy);box-shadow:inset 3px 0 var(--sims-navy)}
+.integration-centre .integration-nav__help,.integration-centre .integration-nav__help strong{color:var(--sims-navy)}
+.integration-centre .integration-nav__help span,.integration-centre .integration-feature p,.integration-centre .integration-steps small{color:var(--sims-muted)}
+.integration-centre .integration-stat-icon,.integration-centre .integration-feature>span,.integration-centre .integration-steps b,.integration-centre .integration-provider-mark,.integration-centre .integration-activity-row__icon{border-color:var(--sims-line);background:#EEF4F8;color:var(--sims-navy)}
+.integration-centre .integration-stats article:before{background:var(--sims-lime)}
+.integration-centre .integration-stats strong,.integration-centre .integration-feature h3,.integration-centre .integration-steps strong,.integration-centre .integration-connection-row strong,.integration-centre .integration-key-row strong,.integration-centre .integration-activity-row__body strong{color:var(--sims-navy)}
+.integration-centre .integration-feature button,.integration-centre .integration-scope-list code,.integration-centre .integration-event-list code,.integration-centre .integration-key-scopes code{color:var(--sims-navy)}
+.integration-centre .integration-key-scopes code{border-color:var(--sims-line);background:#EEF4F8}
+.integration-centre .integration-form>label,.integration-centre .integration-form legend,.integration-centre .integration-scope-checks label{color:#334F6B}
+.integration-centre .integration-form input,.integration-centre .integration-form select{border-color:#CCD8E3;background:#FFFFFF;color:var(--sims-navy)}
+.integration-centre .integration-form input:focus,.integration-centre .integration-form select:focus{border-color:#547A9D;box-shadow:0 0 0 3px #102C4D18}
+.integration-centre .integration-form fieldset,.integration-centre .integration-event-list>div,.integration-centre .integration-provider-grid article,.integration-centre .integration-brand-options span{border-color:var(--sims-line);background:#FFFFFF}
+.integration-centre .integration-secret-panel{border-color:#DCE5ED;background:#EEF4F8}
+.integration-centre .integration-secret-panel strong,.integration-centre .integration-secret-panel code{color:var(--sims-navy)}
+.integration-centre .integration-secret-panel p,.integration-centre .integration-secret-panel>button:last-child{color:#334F6B}
+.integration-centre .integration-secret-panel code{border-color:var(--sims-line);background:#FFFFFF}
+.integration-centre .integration-code{border-color:#244565;background:#0B2039;color:#E5EEF5}
+.integration-centre .integration-connection-row,.integration-centre .integration-key-row,.integration-centre .integration-activity-row{border-color:var(--sims-line)}
+.integration-centre .integration-connection-row:hover,.integration-centre .integration-key-row:hover{background:#F7FAFC}
+.integration-centre :is(button,input,select):focus-visible{outline:3px solid var(--sims-lime);outline-offset:2px}
