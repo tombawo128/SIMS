@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { isPublicIpv4, isPublicIpv6 } from '../_shared/webhook-ip.ts';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -43,29 +44,6 @@ async function signPayload(secret: string, payload: string) {
   );
   const signature = await crypto.subtle.sign('HMAC', key, toArrayBuffer(new TextEncoder().encode(payload)));
   return `sha256=${hex(new Uint8Array(signature))}`;
-}
-
-function isPublicIpv4(address: string) {
-  const parts = address.split('.').map(Number);
-  if (parts.length !== 4 || parts.some(value => !Number.isInteger(value) || value < 0 || value > 255)) return false;
-  const [a, b] = parts;
-  return a !== 0 && a !== 10 && a !== 127 && a < 224
-    && !(a === 100 && b >= 64 && b <= 127)
-    && !(a === 169 && b === 254)
-    && !(a === 172 && b >= 16 && b <= 31)
-    && !(a === 192 && (b === 0 || b === 168))
-    && !(a === 198 && (b === 18 || b === 19 || b === 51))
-    && !(a === 203 && b === 0);
-}
-
-function isPublicIpv6(address: string) {
-  const value = address.toLowerCase();
-  return value !== '::' && value !== '::1'
-    && !value.startsWith('fc') && !value.startsWith('fd')
-    && !value.startsWith('fe8') && !value.startsWith('fe9')
-    && !value.startsWith('fea') && !value.startsWith('feb') && !value.startsWith('fec')
-    && !value.startsWith('2001:db8:') && !value.startsWith('2001:10:')
-    && !value.startsWith('ff') && !value.startsWith('::ffff:');
 }
 
 async function assertSafeTarget(value: string, allowedHosts: Set<string>) {
