@@ -277,11 +277,11 @@ export function Dashboard() {
     );
 
   return (
-    <div>
-      <section className="dashboard-overview">
+    <div className="dashboard-page" data-role={role}>
+      <section className="dashboard-overview" aria-labelledby="dashboard-welcome-title">
         <div className="dashboard-overview__copy">
           <span className="dashboard-overview__eyebrow">YOUR SIMS WORKSPACE</span>
-          <h1 className="dashboard-overview__title">Good to see you, {firstName}.</h1>
+          <h1 id="dashboard-welcome-title" className="dashboard-overview__title">Good to see you, {firstName}.</h1>
           <p className="dashboard-overview__description">{roleDescription[role ?? 'student']}</p>
         </div>
         <div className="dashboard-overview__actions">{primaryAction}</div>
