@@ -1,0 +1,30 @@
+/* Page-level refinements for the actual SIMS route components. */
+:where(.dashboard-overview,.page-hero,.settings-hero,.profile-hero){position:relative;overflow:hidden;border:1px solid #1E40AF!important;border-radius:16px!important;background:linear-gradient(115deg,#0B1120 0%,#172554 58%,#1D4ED8 100%)!important;box-shadow:none!important}
+:where(.dashboard-overview,.page-hero,.settings-hero,.profile-hero) :where(h1,h2,h3,.dashboard-overview__title){color:#fff!important;letter-spacing:-.04em}
+:where(.dashboard-overview,.page-hero,.settings-hero,.profile-hero) :where(p,.dashboard-overview__description,.page-hero__description){color:#DBEAFE!important}
+:where(.dashboard-overview,.page-hero,.settings-hero,.profile-hero) :where(.dashboard-overview__eyebrow,.page-hero__eyebrow,.settings-eyebrow){color:#BFDBFE!important}
+:where(.dashboard-overview,.page-hero,.settings-hero,.profile-hero) :where(button,a){min-height:40px}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance){min-width:0}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(.ui-card,.card,.panel){border:1px solid #E2E8F0!important;border-radius:12px!important;background:#fff!important;box-shadow:0 1px 3px #0F172A08!important}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(h1,h2,h3,h4){letter-spacing:-.025em}
+:where(.applications-page,.placements-page,.people-page) :where(input,select,textarea){max-width:100%;min-width:0}
+:where(.applications-page,.placements-page,.people-page) :where(button,[role=button]){min-height:40px}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(table){width:100%;border-collapse:separate;border-spacing:0}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(th){background:#F1F5F9;color:#475569;font-size:11px;font-weight:750;letter-spacing:.035em;text-transform:uppercase}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(td,th){padding:12px 14px;border-bottom:1px solid #E2E8F0;text-align:left;vertical-align:middle}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(tr:last-child td){border-bottom:0}
+:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(.table-wrap){max-width:100%;overflow-x:auto;border:1px solid #E2E8F0;border-radius:12px;background:#fff}
+.settings-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}
+.settings-main,.settings-aside,.settings-card,.profile-grid-1,.profile-grid-2,.dashboard-main-grid{min-width:0}
+.settings-card{border:1px solid #E2E8F0!important;border-radius:12px!important;background:#fff!important;box-shadow:0 1px 3px #0F172A08!important}
+.settings-card-head{border-bottom:1px solid #F1F5F9}
+.settings-icon,.settings-row-icon{background:#EFF6FF!important;color:#2563EB!important}
+.settings-switch{accent-color:#2563EB}
+.settings-aside-card{border:1px solid #E2E8F0!important;border-radius:12px!important;background:#fff!important}
+.profile-hero__identity{min-width:0}
+.dashboard-main-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:18px}
+.dashboard-grid-1>*{min-width:0}
+@media(max-width:1023px){.settings-layout{grid-template-columns:minmax(0,1fr)}.dashboard-main-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:767px){:where(.dashboard-overview,.page-hero,.settings-hero,.profile-hero){padding:20px!important}.settings-form-actions{display:flex;flex-wrap:wrap;gap:10px}.settings-form-actions button{flex:1 1 160px}.profile-grid-1,.profile-grid-2{grid-template-columns:minmax(0,1fr)!important}}
+@media(max-width:430px){:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(td,th){padding:10px 9px;font-size:12px}.dashboard-grid-1{grid-template-columns:minmax(0,1fr)!important}}
+@media(prefers-color-scheme:dark){:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(.ui-card,.card,.panel,.settings-card,.settings-aside-card,.table-wrap){background:#111827!important;border-color:#1F2937!important;color:#D1D5DB}.settings-card-head{border-color:#1F2937}.settings-row-copy,.settings-master-copy,.settings-meta-item{color:#9CA3AF}.settings-icon,.settings-row-icon{background:#172554!important;color:#93C5FD!important}:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(th){background:#1F2937;color:#CBD5E1}:where(.applications-page,.placements-page,.people-page,.posting-detail-page,.profile-page,.settings-page,.admin-console,.admin-governance) :where(td,th){border-color:#1F2937}}
