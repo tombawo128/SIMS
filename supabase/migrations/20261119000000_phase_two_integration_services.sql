@@ -330,3 +330,60 @@ $$;
 
 revoke all on function public.claim_integration_webhook_deliveries(integer) from public, anon, authenticated;
 grant execute on function public.claim_integration_webhook_deliveries(integer) to service_role;
+
+
+-- Per-key fixed-window API rate limiting. The service-role-only RPC performs
+-- an atomic upsert so concurrent requests cannot exceed the configured window.
+create table public.integration_api_rate_limits (
+  api_key_id uuid primary key references public.integration_api_keys(id) on delete cascade,
+  window_start timestamptz not null,
+  request_count integer not null check (request_count >= 0),
+  updated_at timestamptz not null default now()
+);
+alter table public.integration_api_rate_limits enable row level security;
+revoke all on public.integration_api_rate_limits from public, anon, authenticated;
+grant all on public.integration_api_rate_limits to service_role;
+
+create or replace function public.consume_integration_api_rate_limit(
+  p_key_id uuid,
+  p_max_requests integer default 60,
+  p_window_seconds integer default 60
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_window_start timestamptz;
+  v_count integer;
+begin
+  if p_key_id is null or p_max_requests is null or p_max_requests not between 1 and 10000
+    or p_window_seconds is null or p_window_seconds not between 1 and 3600 then
+    raise exception 'Invalid API rate-limit parameters';
+  end if;
+
+  v_window_start := pg_catalog.to_timestamp(
+    pg_catalog.floor(extract(epoch from pg_catalog.clock_timestamp()) / p_window_seconds) * p_window_seconds
+  );
+
+  insert into public.integration_api_rate_limits(api_key_id, window_start, request_count)
+  values (p_key_id, v_window_start, 1)
+  on conflict (api_key_id) do update
+    set window_start = excluded.window_start,
+        request_count = case
+          when public.integration_api_rate_limits.window_start = excluded.window_start
+            then public.integration_api_rate_limits.request_count + 1
+          else 1
+        end,
+        updated_at = pg_catalog.clock_timestamp()
+    where public.integration_api_rate_limits.window_start <> excluded.window_start
+      or public.integration_api_rate_limits.request_count < p_max_requests
+  returning request_count into v_count;
+
+  return v_count is not null;
+end;
+$$;
+
+revoke all on function public.consume_integration_api_rate_limit(uuid, integer, integer) from public, anon, authenticated;
+grant execute on function public.consume_integration_api_rate_limit(uuid, integer, integer) to service_role;
