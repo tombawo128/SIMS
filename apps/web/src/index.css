@@ -1,37 +1,9 @@
-/* SIMS stylesheet entry. Import order matters: tokens -> base -> components -> layout -> pages. */
+/* SIMS styling entry point: tokens -> reset -> components -> shell -> page families */
 @import './styles/tokens.css';
 @import './styles/base.css';
 @import './styles/components.css';
 @import './styles/layout.css';
-@import './styles/pages/landing.css';
-@import './styles/pages/login.css';
-@import './styles/pages/signup.css';
-@import './styles/pages/forgot-password.css';
-@import './styles/pages/reset-password.css';
-@import './styles/pages/dashboard.css';
-@import './styles/pages/postings.css';
-@import './styles/pages/posting-detail.css';
-@import './styles/pages/posting-editor.css';
-@import './styles/pages/manage-postings.css';
-@import './styles/pages/applications.css';
-@import './styles/pages/placements.css';
-@import './styles/pages/placement-detail.css';
-@import './styles/pages/people.css';
-@import './styles/pages/tenants.css';
-@import './styles/pages/profile.css';
-@import './styles/pages/notifications.css';
-@import './styles/pages/not-found.css';
-@import './styles/pages/account-gate.css';
-@import './styles/pages/users.css';
-@import './styles/pages/admin-polish.css';
-
-
-@import './styles/product-overhaul.css';
-
-
-
-@import './styles/total-platform-blue-overhaul.css';
-
-@import './styles/integration-centre-blue-overhaul.css';
-
-@import './styles/page-component-blue-refinements.css';
+@import './styles/pages/public-auth.css';
+@import './styles/pages/workspace.css';
+@import './styles/pages/administration.css';
+@import './styles/pages/integration-centre.css';
