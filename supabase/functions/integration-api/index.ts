@@ -1,0 +1,162 @@
+import { createClient } from 'npm:@supabase/supabase-js@2';
+import { corsHeaders } from '../_shared/cors.ts';
+
+function json(body: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, ...extraHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+}
+async function sha256(value: string) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function recordApiRequest(
+  admin: any,
+  input: { keyId: string; integrationId: string; path: string; tenantType: string; tenantId: string; statusCode: number; returned?: number },
+) {
+  const { error } = await (admin as any).from('audit_logs').insert({
+    actor_id: null,
+    entity: 'integration_api_request',
+    entity_id: input.keyId,
+    action: 'GET',
+    metadata: {
+      integration_id: input.integrationId,
+      path: input.path,
+      tenant_type: input.tenantType,
+      tenant_id: input.tenantId,
+      status_code: input.statusCode,
+      returned: input.returned ?? 0,
+    },
+  });
+  if (error) console.error('Could not record integration API request audit event', error.message);
+}
+Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (req.method !== 'GET') return json({ error: 'Only GET requests are supported in this API release' }, 405);
+  const url = Deno.env.get('SUPABASE_URL');
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!url || !serviceKey) return json({ error: 'Integration API is not configured' }, 500);
+  const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
+  if (!token.startsWith('sims_live_')) return json({ error: 'A valid SIMS integration API key is required' }, 401);
+
+  const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  const hash = await sha256(token);
+  const { data: key, error: keyError } = await admin.from('integration_api_keys')
+    .select('id,integration_id,scopes,expires_at,revoked_at').eq('key_hash', hash).maybeSingle();
+  if (keyError || !key || key.revoked_at || (key.expires_at && new Date(key.expires_at).getTime() <= Date.now())) {
+    return json({ error: 'Invalid, expired or revoked API key' }, 401);
+  }
+  const { data: connection } = await admin.from('integration_connections')
+    .select('id,name,organization_type,university_id,company_id,status')
+    .eq('id', key.integration_id).maybeSingle();
+  if (!connection || connection.status !== 'active') return json({ error: 'Integration connection is suspended' }, 403);
+
+  const isUniversity = connection.organization_type === 'university';
+  const tenantId = isUniversity ? connection.university_id : connection.company_id;
+  if (!tenantId) return json({ error: 'Integration tenant configuration is invalid' }, 403);
+  const tenantTable = isUniversity ? 'universities' : 'companies';
+  const { data: tenant } = await admin.from(tenantTable).select('id,name,status,deleted_at')
+    .eq('id', tenantId).maybeSingle();
+  if (!tenant || tenant.status !== 'active' || tenant.deleted_at) return json({ error: 'Organisation is not active' }, 403);
+
+  const rateLimit = await admin.rpc('consume_integration_api_rate_limit', {
+    p_key_id: key.id, p_max_requests: 60, p_window_seconds: 60,
+  });
+  if (rateLimit.error) return json({ error: 'API rate limit service is unavailable' }, 503);
+  if (rateLimit.data !== true) {
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path: new URL(req.url).pathname,
+      tenantType: connection.organization_type, tenantId, statusCode: 429,
+    });
+    return json({ error: 'API request limit exceeded; retry after the current window' }, 429, { 'Retry-After': '60' });
+  }
+
+  await admin.from('integration_api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', key.id);
+
+  const path = new URL(req.url).pathname.replace(/^\/functions\/v1\/integration-api/, '').replace(/\/$/, '') || '/';
+  const scopeByPath: Record<string, string> = {
+    '/v1/organisation': 'organisation:read',
+    '/v1/opportunities': 'opportunities:read',
+    '/v1/applications': 'applications:read',
+    '/v1/placements': 'placements:read',
+  };
+  const requiredScope = scopeByPath[path];
+  if (!requiredScope) return json({ error: 'Endpoint not found' }, 404);
+  if (!key.scopes.includes(requiredScope)) {
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 403,
+    });
+    return json({ error: 'API key does not have the required permission scope' }, 403);
+  }
+
+  if (path === '/v1/organisation') {
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 200, returned: 1,
+    });
+    return json({ data: { id: tenant.id, name: tenant.name, type: connection.organization_type, connection: connection.name } });
+  }
+
+  const limitParam = Number(new URL(req.url).searchParams.get('limit') ?? '50');
+  const limit = Number.isFinite(limitParam) ? Math.min(Math.max(Math.floor(limitParam), 1), 100) : 50;
+  if (path === '/v1/opportunities') {
+    const fields = 'id,title,type,description,requirements,location,is_remote,duration_months,stipend,deadline,status,created_at';
+    if (!isUniversity) {
+      const { data, error } = await admin.from('job_postings').select(fields)
+        .eq('company_id', tenantId).eq('status', 'published')
+        .order('created_at', { ascending: false }).limit(limit);
+      if (error) return json({ error: 'Could not load opportunities' }, 500);
+      await recordApiRequest(admin, {
+        keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+        tenantId, statusCode: 200, returned: data?.length ?? 0,
+      });
+      return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
+    }
+    const [{ data: publicPosts, error: publicError }, { data: mappings, error: mappingError }] = await Promise.all([
+      admin.from('job_postings').select(fields).eq('status', 'published')
+        .eq('visibility', 'all_universities').order('created_at', { ascending: false }).limit(limit),
+      admin.from('posting_universities').select('posting_id').eq('university_id', tenantId),
+    ]);
+    if (publicError || mappingError) return json({ error: 'Could not load opportunities' }, 500);
+    const selectedIds = (mappings ?? []).map(item => item.posting_id);
+    let selectedPosts: typeof publicPosts = [];
+    if (selectedIds.length) {
+      const { data, error } = await admin.from('job_postings').select(fields)
+        .in('id', selectedIds).eq('status', 'published').eq('visibility', 'selected_universities')
+        .order('created_at', { ascending: false }).limit(limit);
+      if (error) return json({ error: 'Could not load selected opportunities' }, 500);
+      selectedPosts = data ?? [];
+    }
+    const combined = [...(publicPosts ?? []), ...selectedPosts]
+      .sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit);
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 200, returned: combined.length,
+    });
+    return json({ data: combined, pagination: { limit, returned: combined.length } });
+  }
+  if (path === '/v1/applications') {
+    let query = admin.from('applications')
+      .select('id,posting_id,status,reviewed_at,created_at,updated_at')
+      .order('created_at', { ascending: false }).limit(limit);
+    query = isUniversity ? query.eq('university_id', tenantId) : query.eq('company_id', tenantId);
+    const { data, error } = await query;
+    if (error) return json({ error: 'Could not load applications' }, 500);
+    await recordApiRequest(admin, {
+      keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+      tenantId, statusCode: 200, returned: data?.length ?? 0,
+    });
+    return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
+  }
+  let query = admin.from('placements')
+    .select('id,application_id,posting_id,status,start_date,end_date,final_grade,graded_at,created_at,updated_at')
+    .order('created_at', { ascending: false }).limit(limit);
+  query = isUniversity ? query.eq('university_id', tenantId) : query.eq('company_id', tenantId);
+  const { data, error } = await query;
+  if (error) return json({ error: 'Could not load placements' }, 500);
+  await recordApiRequest(admin, {
+    keyId: key.id, integrationId: connection.id, path, tenantType: connection.organization_type,
+    tenantId, statusCode: 200, returned: data?.length ?? 0,
+  });
+  return json({ data: data ?? [], pagination: { limit, returned: data?.length ?? 0 } });
+});

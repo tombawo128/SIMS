@@ -1,0 +1,39 @@
+name: Production smoke check
+
+on:
+  push:
+    branches:
+      - backend-hardening
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Production or preview URL to verify
+        required: false
+        default: https://sims-mocha.vercel.app
+        type: string
+
+concurrency:
+  group: sims-production-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-check:
+    name: Verify SIMS HTML and production assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check production page and referenced assets
+        run: npm run smoke:production
+        env:
+          SIMS_BASE_URL: ${{ inputs.base_url || 'https://sims-mocha.vercel.app' }}

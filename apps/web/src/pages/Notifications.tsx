@@ -9,12 +9,13 @@ import {
   useNotifications,
 } from '@/hooks/useNotifications';
 import {
+  Alert,
   Button,
   Card,
   EmptyState,
-  PageHeader,
   Spinner,
   Tabs,
+  useToast,
 } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -25,24 +26,18 @@ export function Notifications() {
   const markRead = useMarkNotificationRead(profile?.id);
   const markAll = useMarkAllNotificationsRead(profile?.id);
   const [tab, setTab] = useState<'all' | 'unread'>('all');
+  const { toast } = useToast();
 
   const items = notifications.data ?? [];
   const unread = items.filter((item) => !item.read_at);
   const visible = tab === 'unread' ? unread : items;
 
   return (
-    <div>
-      <PageHeader
-        title="Notifications"
-        description="Application updates, log reviews, evaluations, and placement changes."
-        actions={
-          unread.length ? (
-            <Button variant="secondary" onClick={() => markAll.mutate()} loading={markAll.isPending}>
-              <CheckCheck className='notifications-h-4-1' /> Mark all read
-            </Button>
-          ) : undefined
-        }
-      />
+    <section className="notifications-page">
+      <section className="page-hero notifications-hero">
+        <div><span className="page-hero__eyebrow">YOUR ACTIVITY</span><h1>Notifications</h1><p>Important updates from applications, placements, weekly reports and evaluations.</p></div>
+        <div className="page-hero__aside"><strong>{unread.length}</strong><span>unread updates</span><small>{items.length} total notifications</small>{unread.length ? <Button size="sm" variant="secondary" onClick={() => markAll.mutate(undefined, { onError: (error) => toast({ title: 'Could not mark notifications as read', description: error.message, tone: 'error' }) })} loading={markAll.isPending} disabled={markAll.isPending}><CheckCheck size={15}/> Mark all read</Button> : null}</div>
+      </section>
 
       <Tabs
         className='notifications-mb-4-1'
@@ -58,6 +53,10 @@ export function Notifications() {
         <div className='notifications-flex-1'>
           <Spinner className='notifications-h-6-1' />
         </div>
+      ) : notifications.isError ? (
+        <Alert tone="danger" title="Could not load notifications">
+          Your notifications could not be retrieved. <Button size="sm" variant="secondary" onClick={() => void notifications.refetch()} loading={notifications.isFetching}>Retry</Button>
+        </Alert>
       ) : visible.length === 0 ? (
         <EmptyState
           icon={<Bell className='notifications-h-5-1' />}
@@ -72,7 +71,11 @@ export function Notifications() {
                 key={notification.id}
                 type="button"
                 onClick={() => {
-                  if (!notification.read_at) markRead.mutate(notification.id);
+                  if (!notification.read_at) {
+                    markRead.mutate(notification.id, {
+                      onError: (error) => toast({ title: 'Could not mark notification as read', description: error.message, tone: 'error' }),
+                    });
+                  }
                   navigate(notification.link ?? '/dashboard');
                 }}
                 className={cn(
@@ -98,6 +101,6 @@ export function Notifications() {
           </div>
         </Card>
       )}
-    </div>
+    </section>
   );
 }

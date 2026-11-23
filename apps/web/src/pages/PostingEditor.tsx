@@ -14,7 +14,6 @@ import {
   EmptyState,
   Field,
   Input,
-  PageHeader,
   Select,
   Spinner,
   Textarea,
@@ -69,9 +68,11 @@ export function PostingEditor() {
       return (
         <EmptyState
           title="Posting unavailable"
-          description="It may have been deleted or belongs to another company."
+          description={posting.isError ? 'The posting could not be retrieved. Try again or return to your company postings.' : 'It may have been deleted or belongs to another company.'}
           action={
-            <Link to="/manage/postings">
+            posting.isError ? (
+              <Button variant="secondary" onClick={() => void posting.refetch()} loading={posting.isFetching}>Retry</Button>
+            ) : <Link to="/manage/postings">
               <Button variant="secondary">Back to postings</Button>
             </Link>
           }
@@ -127,6 +128,14 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
       setError('Add a location, or mark the role as remote.');
       return;
     }
+    if (form.durationMonths && (!Number.isInteger(Number(form.durationMonths)) || Number(form.durationMonths) < 1)) {
+      setError('Duration must be a whole number of at least one month.');
+      return;
+    }
+    if (form.visibility === 'selected_universities' && (universities.isLoading || universities.isError)) {
+      setError('Wait for the university list to load successfully before publishing to selected universities.');
+      return;
+    }
     if (form.visibility === 'selected_universities' && form.universityIds.length === 0) {
       setError('Select at least one university, or open the posting to all universities.');
       return;
@@ -172,7 +181,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
   };
 
   return (
-    <div>
+    <section className="posting-editor-page">
       <Link
         to="/manage/postings"
         className='posting-editor-mb-4-1'
@@ -180,10 +189,7 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
         <ArrowLeft className='posting-editor-h-35-1' /> Our postings
       </Link>
 
-      <PageHeader
-        title={editing ? 'Edit posting' : 'New posting'}
-        description="Draft the role, choose who can see it, and publish when ready."
-      />
+      <section className="page-hero posting-editor-hero"><div><span className="page-hero__eyebrow">EMPLOYER WORKSPACE / OPPORTUNITIES</span><h1>{editing ? 'Refine your opportunity' : 'Create a new opportunity'}</h1><p>Define the role, set visibility and choose when it is ready to publish.</p></div><div className="page-hero__aside"><strong>{editing ? 'EDIT' : 'NEW'}</strong><span>{editing ? 'Update posting details' : 'Draft a role'}</span><small>Changes are saved through the existing workflow</small></div></section>
 
       <form onSubmit={handleSubmit} className='posting-editor-grid-1'>
         <div className='posting-editor-space-y-6-1'>
@@ -327,6 +333,10 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
 
               {form.visibility === 'selected_universities' ? (
                 <div>
+                  {universities.isLoading ? <Alert tone="info">Loading active universities…</Alert> : null}
+                  {universities.isError ? (
+                    <Alert tone="danger">Could not load universities. <Button size="sm" variant="secondary" onClick={() => void universities.refetch()} loading={universities.isFetching}>Retry</Button></Alert>
+                  ) : null}
                   <p className='posting-editor-mb-15-1'>Target universities</p>
                   <div className='posting-editor-space-y-2-1'>
                     {(universities.data ?? []).map((university) => (
@@ -355,7 +365,11 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
 
           <Card>
             <div className='posting-editor-flex-4'>
-              <Button type="submit" loading={savePosting.isPending}>
+              <Button
+                type="submit"
+                loading={savePosting.isPending}
+                disabled={savePosting.isPending || (form.visibility === 'selected_universities' && (universities.isLoading || universities.isError))}
+              >
                 {editing ? 'Save changes' : form.status === 'published' ? 'Publish posting' : 'Save draft'}
               </Button>
               <Link to="/manage/postings">
@@ -367,6 +381,6 @@ function PostingForm({ posting }: { posting?: JobPosting }) {
           </Card>
         </div>
       </form>
-    </div>
+    </section>
   );
 }

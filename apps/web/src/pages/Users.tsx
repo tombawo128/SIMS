@@ -44,7 +44,6 @@ import {
   EmptyState,
   Input,
   Modal,
-  PageHeader,
   Select,
   Spinner,
   StatCard,
@@ -85,6 +84,13 @@ interface UndoState {
   user: AdminUser;
   previous: AccountStatus;
   label: string;
+}
+
+function localDateStamp() {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 export function Users() {
@@ -276,7 +282,7 @@ export function Users() {
         formatDate(user.created_at),
       ]),
     );
-    downloadCsv(`sims-users-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    downloadCsv(`sims-users-${localDateStamp()}.csv`, csv);
   };
 
   const primaryAction = (user: AdminUser) => {
@@ -305,16 +311,11 @@ export function Users() {
   };
 
   return (
-    <div className='users'>
-      <PageHeader
-        title="Users"
-        description="Approve new accounts and manage everyone across every university and company."
-        actions={
-          <Button variant="secondary" onClick={exportCsv} disabled={filtered.length === 0}>
-            <Download className='users-icon-sm' /> Export
-          </Button>
-        }
-      />
+    <section className="users users-page">
+      <section className="page-hero">
+        <div><span className="page-hero__eyebrow">IDENTITY AND ACCESS</span><h1>Platform users.</h1><p>Review account requests, manage access status and maintain a clear view of every SIMS user.</p></div>
+        <div className="page-hero__aside"><strong>{counts.all}</strong><span>registered users</span><small>{counts.pending} awaiting approval</small><Button variant="secondary" onClick={exportCsv} disabled={filtered.length === 0}><Download size={15}/> Export users</Button></div>
+      </section>
 
       <div className='users-stats'>
         <StatCard
@@ -688,6 +689,6 @@ export function Users() {
           </button>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

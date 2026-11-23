@@ -1,0 +1,98 @@
+name: Backend verification
+
+on:
+  push:
+    branches:
+      - main
+      - backend-hardening
+      - fix/phase-two-completion
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: backend-verification-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    name: Rebuild database and run SQL tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: v2.stable
+
+      - name: Configure isolated CI database ports
+        run: |
+          # GitHub-hosted runners may already have a PostgreSQL service on 54322.
+          # Override only this workflow's local database ports; keep developer defaults unchanged.
+          sed -i '/^\[db\]/,/^\[db\.pooler\]/ { s/^port = 54322$/port = 55432/; s/^shadow_port = 54320$/shadow_port = 55430/; }' supabase/config.toml
+          grep -A 8 '^\[db\]' supabase/config.toml
+
+      - name: Start local Supabase
+        run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy
+
+      - name: Apply the complete migration history
+        run: supabase db reset --local
+
+      - name: Run database tests
+        run: supabase test db
+
+      - name: Normalize nullable Auth token fields for seeded CI users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f scripts/ci/normalize-auth-seed.sql
+
+      - name: Exercise Storage API with isolated seeded users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          export API_URL ANON_KEY
+          node scripts/storage-api-smoke.mjs
+
+      - name: Exercise coordinator and company analytics with isolated seeded users
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          export API_URL ANON_KEY
+          node scripts/analytics-api-smoke.mjs
+
+      - name: Collect local Auth and Storage logs on failure
+        if: failure()
+        run: |
+          docker logs supabase_auth_sims --tail 200 || true
+          docker logs supabase_storage_sims --tail 200 || true
+
+  edge-functions:
+    name: Type-check Edge Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Test webhook IP screening
+        run: deno test --no-lock --node-modules-dir=auto supabase/functions/_shared/webhook-ip.test.ts
+
+      - name: Type-check Edge Functions
+        run: |
+          set -e
+          for file in supabase/functions/*/index.ts; do
+            echo "Checking $file"
+            deno check --node-modules-dir=auto --no-lock "$file"
+          done

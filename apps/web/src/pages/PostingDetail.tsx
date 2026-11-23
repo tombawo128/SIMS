@@ -39,7 +39,6 @@ import {
   EmptyState,
   Field,
   Modal,
-  PageHeader,
   Spinner,
   Textarea,
   useToast,
@@ -104,7 +103,9 @@ export function PostingDetail() {
     isStudent &&
     data.status === 'published' &&
     !closed &&
-    (!existingApplication || existingApplication.status === 'draft');
+    !existingApplication &&
+    !applications.isLoading &&
+    !applications.isError;
   const canManage =
     profile &&
     ['company_admin', 'site_supervisor'].includes(profile.role) &&
@@ -113,6 +114,11 @@ export function PostingDetail() {
   const submitApplication = async () => {
     if (!profile || !profile.university_id) return;
     setError('');
+    if (applications.isLoading || applications.isError || studentProfile.isLoading || studentProfile.isError) {
+      setError('Your application and student profile details must finish loading before you can apply.');
+      return;
+    }
+    if (apply.isPending || saveStudentProfile.isPending) return;
     if (!coverLetter.trim()) {
       setError('Add a short cover letter before submitting.');
       return;
@@ -153,7 +159,7 @@ export function PostingDetail() {
   };
 
   return (
-    <div>
+    <section className="posting-detail-page">
       <Link
         to="/postings"
         className='posting-detail-mb-4-1'
@@ -161,28 +167,20 @@ export function PostingDetail() {
         <ArrowLeft className='posting-detail-h-35-1' /> All opportunities
       </Link>
 
-      <PageHeader
-        title={data.title}
-        description={`${data.company?.name ?? 'Company'} · ${POSTING_TYPE_LABELS[data.type]}`}
-        actions={
-          canManage ? (
-            <>
-              <Link to={`/manage/postings/${data.id}/edit`}>
-                <Button variant="secondary">
-                  <Pencil className='posting-detail-h-4-1' /> Edit posting
-                </Button>
-              </Link>
-              <Link to="/applications">
-                <Button>Review applicants</Button>
-              </Link>
-            </>
-          ) : canApply ? (
-            <Button onClick={() => setOpen(true)}>
-              <Send className='posting-detail-h-4-1' /> Apply now
-            </Button>
-          ) : undefined
-        }
-      />
+      <section className="page-hero posting-detail-hero">
+        <div><span className="page-hero__eyebrow">OPPORTUNITY DETAILS</span><h1>{data.title}</h1><p>{data.company?.name ?? 'Company'} · {POSTING_TYPE_LABELS[data.type]} · {data.is_remote ? 'Remote' : data.location || 'Location flexible'}</p><div className="posting-detail-hero__tags"><Badge tone="blue">{POSTING_TYPE_LABELS[data.type]}</Badge><Badge tone={closed ? 'amber' : 'blue'}>{closed ? 'Applications closed' : 'Open opportunity'}</Badge></div></div>
+        <div className="posting-detail-hero__actions">
+          {canManage ? <><Link to={`/manage/postings/${data.id}/edit`}><Button variant="secondary"><Pencil className='posting-detail-h-4-1' /> Edit posting</Button></Link><Link to="/applications"><Button>Review applicants</Button></Link></> : canApply ? <Button onClick={() => setOpen(true)}><Send className='posting-detail-h-4-1' /> Apply now</Button> : null}
+        </div>
+      </section>
+
+      {applications.isError && isStudent ? (
+        <div className='posting-detail-mb-5-1'>
+          <Alert tone="danger" title="Could not check your existing applications">
+            Retry loading your applications before applying. <Button size="sm" variant="secondary" onClick={() => void applications.refetch()} loading={applications.isFetching}>Retry</Button>
+          </Alert>
+        </div>
+      ) : null}
 
       {existingApplication ? (
         <div className='posting-detail-mb-5-1'>
@@ -200,6 +198,7 @@ export function PostingDetail() {
                   size="sm"
                   variant="secondary"
                   loading={withdraw.isPending}
+                  disabled={withdraw.isPending}
                   onClick={async () => {
                     try {
                       await withdraw.mutateAsync(existingApplication.id);
@@ -366,7 +365,11 @@ export function PostingDetail() {
             <Button variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={submitApplication} loading={apply.isPending || saveStudentProfile.isPending}>
+            <Button
+              onClick={submitApplication}
+              loading={apply.isPending || saveStudentProfile.isPending}
+              disabled={applications.isLoading || applications.isError || studentProfile.isLoading || studentProfile.isError}
+            >
               Submit application
             </Button>
           </>
@@ -374,6 +377,12 @@ export function PostingDetail() {
       >
         <div className='posting-detail-space-y-4-2'>
           {error ? <Alert tone="danger">{error}</Alert> : null}
+          {studentProfile.isLoading ? <Alert tone="info">Loading your student profile…</Alert> : null}
+          {studentProfile.isError ? (
+            <Alert tone="danger" title="Could not load your student profile">
+              Retry loading your student details before submitting. <Button size="sm" variant="secondary" onClick={() => void studentProfile.refetch()} loading={studentProfile.isFetching}>Retry</Button>
+            </Alert>
+          ) : null}
 
           <Field label="Cover letter" htmlFor="cover-letter" required hint="Tell the company why you're a strong fit.">
             <Textarea
@@ -408,7 +417,7 @@ export function PostingDetail() {
           ) : null}
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 

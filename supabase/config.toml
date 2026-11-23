@@ -424,3 +424,11 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Public iframe endpoint uses an unguessable per-embed token and CSP frame-ancestors allowlists.
+[functions.integration-embed]
+verify_jwt = false
+
+# The worker authenticates with a dedicated high-entropy header secret.
+[functions.integration-webhook-worker]
+verify_jwt = false

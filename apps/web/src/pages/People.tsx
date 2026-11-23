@@ -25,7 +25,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Spinner,
   Table,
   Tabs,
@@ -35,6 +34,13 @@ import {
 } from '@/components/ui';
 
 type TabKey = 'students' | 'faculty' | 'team';
+
+function localDateStamp() {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
 
 export function People() {
   const { profile } = useAuth();
@@ -54,21 +60,19 @@ export function People() {
   const team = useCompanyTeam(profile?.role === 'company_admin' ? profile.company_id : undefined);
   const placements = usePlacements();
 
-  const facultyStudents = useMemo(() => {
-    const map = new Map<string, { id: string; full_name: string; email: string; placementId: string; title: string; company: string }>();
-    for (const placement of placements.data ?? []) {
-      if (placement.faculty_supervisor_id !== profile?.id) continue;
-      map.set(placement.student_id, {
-        id: placement.student_id,
+  const facultyStudents = useMemo(
+    () => (placements.data ?? [])
+      .filter((placement) => placement.faculty_supervisor_id === profile?.id)
+      .map((placement) => ({
+        id: placement.id,
         full_name: placement.student?.full_name ?? 'Student',
         email: placement.student?.email ?? '',
         placementId: placement.id,
         title: placement.posting?.title ?? 'Placement',
         company: placement.company?.name ?? '',
-      });
-    }
-    return [...map.values()];
-  }, [placements.data, profile?.id]);
+      })),
+    [placements.data, profile?.id],
+  );
 
   if (!profile) return null;
 
@@ -132,39 +136,19 @@ export function People() {
         (student.student_profile?.skills ?? []).join('; '),
       ]),
     );
-    downloadCsv(`students-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    downloadCsv(`students-${localDateStamp()}.csv`, csv);
   };
 
   return (
-    <div>
-      <PageHeader
-        title={isCoordinator ? 'Students & faculty' : isCompanyAdmin ? 'Company team' : 'My students'}
-        description={
-          isCoordinator
-            ? 'Everyone enrolled or supervising at your university.'
-            : isCompanyAdmin
-              ? 'Site supervisors and admins who can review applications and supervise interns.'
-              : 'Students assigned to you through active placements.'
-        }
-        actions={
-          isCoordinator ? (
-            <>
-              <Button variant="secondary" onClick={exportStudents} disabled={!students.length}>
-                <Download className='people-h-4-1' /> Export students
-              </Button>
-              <Button onClick={() => openInvite('faculty_supervisor')}>
-                <UserPlus className='people-h-4-1' /> Invite faculty
-              </Button>
-            </>
-          ) : isCompanyAdmin ? (
-            <Button onClick={() => openInvite('site_supervisor')}>
-              <UserPlus className='people-h-4-1' /> Invite site supervisor
-            </Button>
-          ) : undefined
-        }
-      />
-
-      {isCoordinator ? (
+    <section className="people-page">
+      <section className="page-hero page-hero--people">
+        <div><span className="page-hero__eyebrow">PEOPLE AND SUPERVISION</span><h1>{isCoordinator ? 'Your university community' : isCompanyAdmin ? 'Your company team' : 'Students under your supervision'}</h1><p>{isCoordinator ? 'Manage the people involved in placements across your university.' : isCompanyAdmin ? 'Keep your supervisors and company team organised.' : 'Access the students assigned to your faculty supervision.'}</p></div>
+        <div className="page-hero__aside"><strong>{isCoordinator ? everyone.length : isCompanyAdmin ? (team.data ?? []).length : facultyStudents.length}</strong><span>{isCoordinator ? 'university members' : isCompanyAdmin ? 'team members' : 'assigned students'}</span><small>People connected to your workspace</small></div>
+      </section>
+      <div className="people-page__actions">
+        {isCoordinator ? <><Button variant="secondary" onClick={exportStudents} disabled={!students.length}><Download className='people-h-4-1' /> Export students</Button><Button onClick={() => openInvite('faculty_supervisor')}><UserPlus className='people-h-4-1' /> Invite faculty</Button></> : isCompanyAdmin ? <Button onClick={() => openInvite('site_supervisor')}><UserPlus className='people-h-4-1' /> Invite site supervisor</Button> : null}
+      </div> 
+{isCoordinator ? (
         <Tabs
           className='people-mb-4-1'
           options={tabs.map((item) => ({ key: item.key, label: item.label, count: item.count }))}
@@ -188,6 +172,10 @@ export function People() {
       {isCoordinator && tab === 'students' ? (
         people.isLoading ? (
           <Loading />
+        ) : people.isError ? (
+          <Alert tone="danger" title="Could not load university members">
+            {errorMessage(people.error)} <Button size="sm" variant="secondary" onClick={() => void people.refetch()}>Try again</Button>
+          </Alert>
         ) : (
           <Card className='people-overflow-hidden-1'>
             {students.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
@@ -255,6 +243,10 @@ export function People() {
       {isCoordinator && tab === 'faculty' ? (
         people.isLoading ? (
           <Loading />
+        ) : people.isError ? (
+          <Alert tone="danger" title="Could not load faculty supervisors">
+            {errorMessage(people.error)} <Button size="sm" variant="secondary" onClick={() => void people.refetch()}>Try again</Button>
+          </Alert>
         ) : (
           <Card className='people-overflow-hidden-1'>
             {facultyMembers.filter((faculty) => filter(faculty.full_name, faculty.email)).length === 0 ? (
@@ -317,6 +309,10 @@ export function People() {
           <Card className='people-overflow-hidden-1'>
             {team.isLoading ? (
               <Loading />
+            ) : team.isError ? (
+              <Alert tone="danger" title="Could not load company team">
+                {errorMessage(team.error)} <Button size="sm" variant="secondary" onClick={() => void team.refetch()}>Try again</Button>
+              </Alert>
             ) : (team.data ?? []).filter((member) => filter(member.full_name, member.email)).length === 0 ? (
               <EmptyState
                 icon={<Users className='people-h-5-1' />}
@@ -377,6 +373,10 @@ export function People() {
       {isFaculty ? (
         placements.isLoading ? (
           <Loading />
+        ) : placements.isError ? (
+          <Alert tone="danger" title="Could not load assigned placements">
+            {errorMessage(placements.error)} <Button size="sm" variant="secondary" onClick={() => void placements.refetch()}>Try again</Button>
+          </Alert>
         ) : facultyStudents.filter((student) => filter(student.full_name, student.email)).length === 0 ? (
           <EmptyState
             icon={<Users className='people-h-5-1' />}
@@ -475,7 +475,7 @@ export function People() {
           )}
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 

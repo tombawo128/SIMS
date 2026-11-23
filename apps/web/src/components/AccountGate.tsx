@@ -34,14 +34,18 @@ const COPY: Record<
 export function AccountGate({ status }: { status: Exclude<AccountStatus, 'active'> }) {
   const { profile, signout, refreshProfile } = useAuth();
   const [checking, setChecking] = useState(false);
+  const [checkError, setCheckError] = useState('');
   const copy = COPY[status];
   if (!copy) return null;
   const Icon = copy.icon;
 
   const checkAgain = async () => {
     setChecking(true);
+    setCheckError('');
     try {
       await refreshProfile();
+    } catch (error) {
+      setCheckError(error instanceof Error ? error.message : 'Could not refresh your account status. Try again.');
     } finally {
       setChecking(false);
     }
@@ -80,6 +84,8 @@ export function AccountGate({ status }: { status: Exclude<AccountStatus, 'active
             Signed in as <span className='gate__account-email'>{profile.email}</span>
           </p>
         ) : null}
+
+        {checkError ? <p className='gate__body' role="alert">{checkError}</p> : null}
 
         <div className='gate__actions'>
           {status === 'pending' ? (

@@ -51,11 +51,15 @@ Deno.serve(async (req) => {
 
   const { data: caller, error: profileError } = await admin
     .from('profiles')
-    .select('id, role')
+    .select('id, role, account_status, deleted_at')
     .eq('id', userData.user.id)
     .single();
 
   if (profileError || !caller) return json({ error: 'Profile not found' }, 403);
+<<<<<<< HEAD
+=======
+  if (caller.account_status !== 'active' || caller.deleted_at) return json({ error: 'Your account is not active' }, 403);
+>>>>>>> 531fd9bebf7bc36fd1285eab65e77096e28c7670
   if (caller.role !== 'platform_admin') {
     return json({ error: 'Only a general administrator can manage accounts' }, 403);
   }

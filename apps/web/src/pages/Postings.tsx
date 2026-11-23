@@ -19,13 +19,13 @@ import type { PostingType } from '@sims/shared';
 import { usePostings } from '@/hooks/usePostings';
 import { useAuth } from '@/context/AuthContext';
 import {
+  Alert,
   Badge,
   Button,
   Card,
   EmptyState,
   Field,
   Input,
-  PageHeader,
   Select,
   Spinner,
 } from '@/components/ui';
@@ -44,6 +44,7 @@ export function Postings() {
   const [location, setLocation] = useState('');
   const [remoteOnly, setRemoteOnly] = useState(false);
 
+  const hasActiveFilters = Boolean(search.trim() || type || location.trim() || remoteOnly);
   const filters = useMemo(
     () => ({ search, type, location, remoteOnly }),
     [search, type, location, remoteOnly],
@@ -52,17 +53,14 @@ export function Postings() {
   const items = postings.data ?? [];
 
   return (
-    <div>
-      <PageHeader
-        title="Opportunities"
-        description={
-          profile?.role === 'student'
-            ? 'Internships, graduate roles, and part-time work from partner companies.'
-            : 'Published opportunities visible to your workspace.'
-        }
-      />
+    <section className="opportunities-page">
+      <section className="page-hero page-hero--opportunities">
+        <div><span className="page-hero__eyebrow">CAREER OPPORTUNITIES</span><h1>Find your next opportunity.</h1><p>{profile?.role === 'student' ? 'Explore internships, graduate roles and part-time work from partner companies.' : 'Explore published opportunities available to your workspace.'}</p></div>
+        <div className="page-hero__aside"><strong>{items.length}</strong><span>matching opportunities</span><small>Updated from your workspace filters</small></div>
+      </section>
 
-      <Card className='postings-mb-6-1'>
+      {profile?.role === 'student' && !profile.university_id ? <Alert tone="warning" title="University not linked">Your student account is not linked to a university, so university-restricted opportunities cannot be shown. Contact your platform administrator to correct your account.</Alert> : null}
+      <Card className='postings-mb-6-1 opportunities-filters'>
         <div className='postings-mb-3-1'>
           <SlidersHorizontal className='postings-h-4-1' />
           Filter opportunities
@@ -118,19 +116,23 @@ export function Postings() {
           <Spinner className='postings-h-6-1' />
         </div>
       ) : postings.isError ? (
-        <EmptyState title="Could not load opportunities" description="Please refresh the page and try again." />
+        <EmptyState
+          title="Could not load opportunities"
+          description="Opportunities could not be retrieved. Try again."
+          action={<Button size="sm" variant="secondary" onClick={() => void postings.refetch()} loading={postings.isFetching}>Retry</Button>}
+        />
       ) : items.length === 0 ? (
         <EmptyState
           icon={<Briefcase className='postings-h-5-1' />}
-          title="No opportunities match those filters"
-          description="Try clearing the search or widening the filters."
+          title={profile?.role === 'student' && !hasActiveFilters ? 'No published opportunities for your university yet' : 'No opportunities match those filters'}
+          description={profile?.role === 'student' && !hasActiveFilters ? 'Company opportunities appear here after a company publishes a posting and makes it available to your university. Check back when new internships are published.' : 'Try clearing the search or widening the filters.'}
         />
       ) : (
         <>
           <p className='postings-mb-3-2'>
             {items.length} opportunit{items.length === 1 ? 'y' : 'ies'}
           </p>
-          <div className='postings-grid-2'>
+          <div className='postings-grid-2 opportunities-grid'>
             {items.map((posting) => {
               const closed = isDeadlinePassed(posting.deadline);
               return (
@@ -209,6 +211,6 @@ export function Postings() {
           </Link>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

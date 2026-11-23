@@ -16,6 +16,7 @@
     "db:reset": "npx supabase db reset",
     "db:test": "npx supabase test db",
     "functions:serve": "npx supabase functions serve invite-user",
-    "functions:deploy": "npx supabase functions deploy invite-user"
+    "functions:deploy": "npx supabase functions deploy invite-user",
+    "smoke:production": "node scripts/production-smoke-check.mjs"
   }
 }

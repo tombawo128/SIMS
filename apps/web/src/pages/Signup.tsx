@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MAX_PLATFORM_ADMINS } from '@sims/shared';
 import { useAuth } from '@/context/AuthContext';
 import { useUniversities } from '@/hooks/useLookups';
@@ -13,18 +13,15 @@ type Mode = 'student' | 'admin';
 export function Signup() {
   const { signUpStudent, signUpAdmin } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const universities = useUniversities();
   const availability = useAdminSignupAvailable();
 
-  // Undefined means the availability check has not completed or failed.
-  // Only an explicit false means the administrator limit has been reached.
-  const adminAvailable = availability.data !== false;
+  // Administrator bootstrap is disabled server-side. Fail closed while the
+  // availability request is loading or if it cannot be verified.
+  const adminAvailable = availability.data === true && !availability.isLoading && !availability.isError;
 
-  const [mode, setMode] = useState<Mode>(() =>
-    searchParams.get('mode') === 'admin' ? 'admin' : 'student',
-  );
+  const [mode, setMode] = useState<Mode>('student');
 
   const [form, setForm] = useState({
     fullName: '',
@@ -33,6 +30,7 @@ export function Signup() {
     universityId: '',
     studentId: '',
     program: '',
+    department: '',
     year: '3',
   });
 
@@ -108,6 +106,11 @@ export function Signup() {
       return;
     }
 
+    if (!form.department.trim()) {
+      setError('Enter your department or faculty.');
+      return;
+    }
+
     if (!form.universityId) {
       setError('Select your university.');
       return;
@@ -123,6 +126,7 @@ export function Signup() {
         universityId: form.universityId,
         studentId: form.studentId.trim(),
         program: form.program.trim(),
+        department: form.department.trim(),
         year: Number(form.year),
       });
 
@@ -192,17 +196,19 @@ export function Signup() {
           Student
         </button>
 
-        <button
-          type="button"
-          onClick={() => switchMode('admin')}
-          aria-pressed={isAdmin}
-          className={cn(
-            'signup-mode__btn',
-            isAdmin && 'signup-mode__btn--active',
-          )}
-        >
-          Administrator
-        </button>
+        {adminAvailable ? (
+          <button
+            type="button"
+            onClick={() => switchMode('admin')}
+            aria-pressed={isAdmin}
+            className={cn(
+              'signup-mode__btn',
+              isAdmin && 'signup-mode__btn--active',
+            )}
+          >
+            Administrator
+          </button>
+        ) : null}
       </div>
 
       <form onSubmit={handleSubmit} className="signup-space-y-4-1">
@@ -430,6 +436,16 @@ export function Signup() {
                     update('program', event.target.value)
                   }
                   placeholder="Computer Science"
+                />
+              </Field>
+
+              <Field label="Department / Faculty" htmlFor="department">
+                <Input
+                  id="department"
+                  value={form.department}
+                  onChange={(event) => update('department', event.target.value)}
+                  placeholder="Business Information, Computer Science, etc."
+                  required
                 />
               </Field>
 

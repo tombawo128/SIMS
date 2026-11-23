@@ -13,19 +13,22 @@ export interface PersonRow extends Profile {
   student_profile?: StudentProfile | null;
 }
 
-export function useUniversities() {
+export function useUniversities(includeInactive = false) {
   return useQuery({
-    queryKey: ['universities'],
+    queryKey: includeInactive ? ['universities', includeInactive] : ['universities'],
     staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('universities')
         .select('id,name,slug,domain,logo_url,status,created_at')
-        .eq('status', 'active')
         .is('deleted_at', null)
         .order('name');
+      if (!includeInactive) {
+        query = query.eq('status', 'active');
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as University[];
     },
@@ -54,9 +57,10 @@ export function useFacultyList(universityId: string | null | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id,full_name,email,role,university_id,company_id')
+        .select('id,full_name,email,role,university_id,company_id,department')
         .eq('university_id', universityId)
         .eq('role', 'faculty_supervisor')
+        .eq('account_status', 'active')
         .is('deleted_at', null)
         .order('full_name');
       if (error) throw error;
@@ -115,7 +119,7 @@ export function useInviteUser() {
             const body = (await context.json()) as { error?: string };
             if (body.error) message = body.error;
           } catch {
-            // keep the fallback message
+            // keep fallback
           }
         }
         throw new Error(message);
@@ -133,7 +137,6 @@ export function useInviteUser() {
 export function useSaveTenant(kind: 'university' | 'company') {
   const queryClient = useQueryClient();
   const table = kind === 'university' ? 'universities' : 'companies';
-
   return useMutation({
     mutationFn: async (input: { id?: string; values: Record<string, unknown> }) => {
       if (input.id) {

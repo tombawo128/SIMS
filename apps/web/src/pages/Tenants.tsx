@@ -5,6 +5,7 @@ import {
   Pencil,
   Plus,
   Power,
+  Search,
   Trash2,
   UserPlus,
 } from 'lucide-react';
@@ -25,7 +26,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Spinner,
   StatCard,
   Tabs,
@@ -64,7 +64,7 @@ function slugify(value: string) {
 
 export function Tenants() {
   const { toast } = useToast();
-  const universities = useUniversities();
+  const universities = useUniversities(true);
   const companies = useCompanies();
   const platformStats = usePlatformStats(true);
   const platformAdmins = usePlatformAdmins();
@@ -74,6 +74,7 @@ export function Tenants() {
   const deleteTenant = useDeleteTenant();
 
   const [tab, setTab] = useState<Kind>('university');
+  const [searchTerm, setSearchTerm] = useState('');
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<University | Company | null>(null);
   const [form, setForm] = useState<TenantFormState>(EMPTY_FORM);
@@ -216,32 +217,25 @@ export function Tenants() {
         company_id: tab === 'company' ? inviteTenant.id : undefined,
       });
       setInviteResult(result);
-      toast({ title: 'Admin invited', description: `Share the temporary password with ${result.email}.`, tone: 'success' });
+      toast({ title: tab === 'company' ? 'Company account created' : 'Coordinator account created', description: `Share the temporary password securely with ${result.email}.`, tone: 'success' });
     } catch (caught) {
       setInviteError(errorMessage(caught));
     }
   };
 
   const list = tab === 'university' ? universityList : companyList;
+  const filteredList = useMemo(() => {
+    const query = searchTerm.trim().toLocaleLowerCase();
+    return query ? list.filter((tenant) => tenant.name.toLocaleLowerCase().includes(query)) : list;
+  }, [list, searchTerm]);
   const loading = tab === 'university' ? universities.isLoading : companies.isLoading;
 
   return (
-    <div>
-      <PageHeader
-        title="Universities & companies"
-        description={
-          tab === 'admins'
-            ? 'Create and remove the general administrators who oversee the whole platform.'
-            : 'Manage tenant workspaces, suspend access, and invite tenant administrators.'
-        }
-        actions={
-          tab === 'admins' ? undefined : (
-            <Button onClick={openCreate}>
-              <Plus className='tenants-h-4-1' /> {tab === 'university' ? 'New university' : 'New company'}
-            </Button>
-          )
-        }
-      />
+    <section className="tenants-page">
+      <section className="page-hero">
+        <div><span className="page-hero__eyebrow">PLATFORM ADMINISTRATION</span><h1>Organisations and tenants.</h1><p>{tab === 'admins' ? 'Manage platform administrators and privileged access.' : 'Create and manage university and company workspaces across SIMS.'}</p></div>
+        <div className="page-hero__aside"><strong>{list.length}</strong><span>{tab === 'admins' ? 'administrators' : tab === 'university' ? 'university workspaces' : 'company workspaces'}</span><small>Currently selected category</small>{tab !== 'admins' ? <Button onClick={openCreate}><Plus size={15}/> {tab === 'university' ? 'Add university' : 'Add company'}</Button> : null}</div>
+      </section>
 
       <div className='tenants-mb-6-1'>
         <StatCard
@@ -287,19 +281,34 @@ export function Tenants() {
         <div className='tenants-flex-1'>
           <Spinner className='tenants-h-6-1' />
         </div>
+      ) : (tab === 'university' ? universities.isError : companies.isError) ? (
+        <Alert tone="danger" title={`Could not load ${tab === 'university' ? 'universities' : 'companies'}`}>
+          {errorMessage(tab === 'university' ? universities.error : companies.error)}{' '}
+          <Button size="sm" variant="secondary" onClick={() => void (tab === 'university' ? universities.refetch() : companies.refetch())}>
+            Retry
+          </Button>
+        </Alert>
       ) : list.length === 0 ? (
         <EmptyState
           title={tab === 'university' ? 'No universities yet' : 'No companies yet'}
           description="Create the first tenant to get started."
           action={
             <Button size="sm" onClick={openCreate}>
-              Create tenant
+              {tab === 'company' ? 'Add new company' : 'Add new university'}
             </Button>
           }
         />
       ) : (
+        <>
+        <div className='tenants-search'>
+          <Search size={18} aria-hidden="true" />
+          <Input aria-label={tab === 'university' ? 'Search universities by name' : 'Search companies by name'} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder={tab === 'university' ? 'Search universities by name…' : 'Search companies by name…'} />
+          {searchTerm ? <Button size="sm" variant="ghost" onClick={() => setSearchTerm('')}>Clear</Button> : null}
+          <span>{filteredList.length} of {list.length}</span>
+        </div>
+        {filteredList.length === 0 ? <EmptyState title={'No ' + (tab === 'university' ? 'universities' : 'companies') + ' found'} description={'No organisation name matches “' + searchTerm.trim() + '”. Try another name.'} /> : (
         <div className='tenants-grid-1'>
-          {list.map((tenant) => (
+          {filteredList.map((tenant) => (
             <Card key={tenant.id} className='tenants-flex-2'>
               <div className='tenants-flex-3'>
                 <div className='tenants-flex-4'>
@@ -329,7 +338,7 @@ export function Tenants() {
                   <Pencil className='tenants-h-35-1' /> Edit
                 </Button>
                 <Button size="sm" variant="secondary" onClick={() => openInvite(tenant)}>
-                  <UserPlus className='tenants-h-35-1' /> Invite admin
+                  <UserPlus className='tenants-h-35-1' /> {tab === 'company' ? 'Create company account' : 'Create coordinator account'}
                 </Button>
                 <Button
                   size="sm"
@@ -352,6 +361,8 @@ export function Tenants() {
             </Card>
           ))}
         </div>
+        )}
+        </>
       )}
 
       <Modal
@@ -448,8 +459,8 @@ export function Tenants() {
       <Modal
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
-        title={`Invite ${tab === 'university' ? 'coordinator' : 'company admin'}`}
-        description={inviteTenant ? `Create the first administrator for ${inviteTenant.name}.` : undefined}
+        title={tab === 'company' ? 'Create company account' : 'Create coordinator account'}
+        description={inviteTenant ? (tab === 'company' ? `Create a company administrator login for ${inviteTenant.name}.` : `Create a coordinator login for ${inviteTenant.name}.`) : undefined}
         footer={
           inviteResult ? (
             <Button onClick={() => setInviteOpen(false)}>Done</Button>
@@ -459,7 +470,7 @@ export function Tenants() {
                 Cancel
               </Button>
               <Button onClick={submitInvite} loading={invite.isPending}>
-                Create account
+                {tab === 'company' ? 'Create company account' : 'Create coordinator account'}
               </Button>
             </>
           )
@@ -468,7 +479,7 @@ export function Tenants() {
         <div className='tenants-space-y-4-1'>
           {inviteError ? <Alert tone="danger">{inviteError}</Alert> : null}
           {inviteResult ? (
-            <Alert tone="success" title="Administrator created">
+            <Alert tone="success" title={tab === 'company' ? 'Company account created' : 'Coordinator account created'}>
               <div className='tenants-space-y-1-1'>
                 <p>Email: <strong>{inviteResult.email}</strong></p>
                 <p>
@@ -480,7 +491,7 @@ export function Tenants() {
             </Alert>
           ) : (
             <>
-              <Field label="Full name" htmlFor="invite-admin-name" required>
+              <Field label={tab === 'company' ? 'Company representative name' : 'Coordinator full name'} htmlFor="invite-admin-name" required>
                 <Input
                   id="invite-admin-name"
                   value={inviteForm.fullName}
@@ -488,7 +499,7 @@ export function Tenants() {
                   placeholder="Dana Whitfield"
                 />
               </Field>
-              <Field label="Email" htmlFor="invite-admin-email" required>
+              <Field label="Login email" htmlFor="invite-admin-email" required>
                 <Input
                   id="invite-admin-email"
                   type="email"
@@ -498,8 +509,8 @@ export function Tenants() {
                 />
               </Field>
               <div className='tenants-rounded-xl-1'>
-                <Badge tone="violet">{tab === 'university' ? 'Coordinator' : 'Company admin'}</Badge>
-                <span className='tenants-ml-2-1'>Scoped to {inviteTenant?.name}. The account is created by the invite-user function.</span>
+                <Badge tone="violet">{tab === 'university' ? 'University coordinator' : 'Company administrator'}</Badge>
+                <span className='tenants-ml-2-1'>This login is linked to {inviteTenant?.name} and receives access for that organization only.</span>
               </div>
             </>
           )}
@@ -531,6 +542,6 @@ export function Tenants() {
           </Alert>
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }

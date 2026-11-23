@@ -40,7 +40,7 @@ export function GeneralAdmins() {
 
   const admins = adminsQuery.data ?? [];
   const count = admins.length;
-  const canCreate = count < MAX_PLATFORM_ADMINS;
+  const canCreate = !adminsQuery.isLoading && !adminsQuery.isError && count < MAX_PLATFORM_ADMINS;
   const slotsLeft = Math.max(0, MAX_PLATFORM_ADMINS - count);
 
   const openCreate = () => {
@@ -124,11 +124,15 @@ export function GeneralAdmins() {
               ))}
             </span>
             <span className='admins-quota__count'>
-              {count} / {MAX_PLATFORM_ADMINS}
+              {adminsQuery.isError ? '—' : count} / {MAX_PLATFORM_ADMINS}
             </span>
           </div>
 
-          {canCreate ? (
+          {adminsQuery.isLoading ? (
+            <span className='admins-full'>Checking available slots…</span>
+          ) : adminsQuery.isError ? (
+            <span className='admins-full'>Administrator count unavailable</span>
+          ) : canCreate ? (
             <Button onClick={openCreate}>
               <UserPlus className='admins-icon-sm' /> Create general admin
             </Button>
@@ -140,7 +144,7 @@ export function GeneralAdmins() {
         </div>
       </Card>
 
-      {!canCreate ? (
+      {!adminsQuery.isLoading && !adminsQuery.isError && !canCreate ? (
         <p className='admins-hint'>
           The administrator limit is reached. Delete an administrator below to free a slot and the
           create option will return.

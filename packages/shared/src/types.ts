@@ -15,7 +15,8 @@ export type ApplicationStatus =
   | 'under_review'
   | 'shortlisted'
   | 'accepted'
-  | 'rejected';
+  | 'rejected'
+  | 'withdrawn';
 export type PlacementStatus = 'active' | 'completed' | 'cancelled';
 export type WeeklyLogStatus = 'draft' | 'submitted' | 'approved' | 'needs_revision';
 export type EvaluationType = 'midterm' | 'final';
@@ -46,6 +47,13 @@ export interface Company {
   created_at: string;
 }
 
+export interface NotificationPreferences {
+  in_app_notifications: boolean;
+  application_updates: boolean;
+  supervision_updates: boolean;
+  system_announcements: boolean;
+}
+
 export interface Profile {
   id: string;
   role: UserRole;
@@ -54,8 +62,10 @@ export interface Profile {
   full_name: string;
   email: string;
   phone: string | null;
+  department: string | null;
   avatar_url: string | null;
   account_status: AccountStatus;
+  notification_preferences: NotificationPreferences;
   created_at: string;
   university?: Pick<University, 'id' | 'name'> | null;
   company?: Pick<Company, 'id' | 'name'> | null;
@@ -70,7 +80,7 @@ export interface StudentProfile {
   skills: string[];
 }
 
-export interface ProfileSummary extends Pick<Profile, 'id' | 'full_name' | 'email'> {
+export interface ProfileSummary extends Pick<Profile, 'id' | 'full_name' | 'email' | 'department'> {
   student_profile?: StudentProfile | null;
 }
 
@@ -155,6 +165,22 @@ export interface WeeklyLog {
   reviewed_by: string | null;
   created_at: string;
   updated_at: string;
+  rating_scores?: Record<string, number> | null;
+  rating_overall?: number | null;
+  rating_comment?: string | null;
+  rated_by?: string | null;
+  rated_at?: string | null;
+}
+
+export interface FacultySupervisorRequest {
+  id: string;
+  placement_id: string;
+  student_id: string;
+  university_id: string;
+  status: 'pending' | 'assigned' | 'cancelled';
+  assigned_faculty_id: string | null;
+  requested_at: string;
+  assigned_at: string | null;
 }
 
 export interface Evaluation {

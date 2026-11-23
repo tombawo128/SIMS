@@ -32,7 +32,6 @@ import {
   Field,
   Input,
   Modal,
-  PageHeader,
   Select,
   Spinner,
   Table,
@@ -51,12 +50,16 @@ const STATUS_TABS: { key: ApplicationStatus | 'all'; label: string }[] = [
   { key: 'shortlisted', label: 'Shortlisted' },
   { key: 'accepted', label: 'Accepted' },
   { key: 'rejected', label: 'Rejected' },
+  { key: 'withdrawn', label: 'Withdrawn' },
 ];
 
 const ACTIVE_STATUSES: ApplicationStatus[] = ['submitted', 'under_review', 'shortlisted'];
 
 function isoDate(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function defaultDates() {
@@ -186,24 +189,11 @@ export function Applications() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title={isStudent ? 'My applications' : 'Applications'}
-        description={
-          isStudent
-            ? 'Track every application from submission to decision.'
-            : isCoordinator
-              ? 'Applications submitted by students at your university.'
-              : 'Review candidates who applied to your company.'
-        }
-        actions={
-          isCoordinator ? (
-            <Button variant="secondary" onClick={exportCsv} disabled={!items.length}>
-              <Download className='applications-h-4-1' /> Export CSV
-            </Button>
-          ) : undefined
-        }
-      />
+    <section className="applications-page">
+      <section className="page-hero page-hero--applications">
+        <div><span className="page-hero__eyebrow">APPLICATION WORKSPACE</span><h1>{isStudent ? 'Your applications' : 'Application review'}</h1><p>{isStudent ? 'Follow your submissions and see where each opportunity stands.' : isCoordinator ? 'Review applications submitted by students at your university.' : 'Assess candidates and move applications through your hiring process.'}</p></div>
+        <div className="page-hero__aside"><strong>{items.length}</strong><span>{items.length === 1 ? 'application' : 'applications'}</span><small>{counts.submitted ?? 0} awaiting first review</small>{isCoordinator ? <Button size="sm" variant="secondary" onClick={exportCsv} disabled={!items.length}><Download size={15}/> Export CSV</Button> : null}</div>
+      </section>
 
       <Tabs
         className='applications-mb-5-1'
@@ -221,7 +211,11 @@ export function Applications() {
           <Spinner className='applications-h-6-1' />
         </div>
       ) : applications.isError ? (
-        <EmptyState title="Could not load applications" description="Refresh the page and try again." />
+        <EmptyState
+          title="Could not load applications"
+          description="Your applications could not be retrieved. Try again."
+          action={<Button size="sm" variant="secondary" onClick={() => void applications.refetch()} loading={applications.isFetching}>Retry</Button>}
+        />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={<FileText className='applications-h-5-1' />}
@@ -286,6 +280,7 @@ export function Applications() {
                           size="sm"
                           variant="secondary"
                           loading={withdraw.isPending}
+                          disabled={withdraw.isPending}
                           onClick={async () => {
                             try {
                               await withdraw.mutateAsync(application.id);
@@ -302,12 +297,12 @@ export function Applications() {
                       {isCompany && ACTIVE_STATUSES.includes(application.status) ? (
                         <>
                           {application.status === 'submitted' ? (
-                            <Button size="sm" variant="secondary" onClick={() => doReview(application, 'under_review')}>
+                            <Button size="sm" variant="secondary" loading={review.isPending} disabled={review.isPending} onClick={() => doReview(application, 'under_review')}>
                               Review
                             </Button>
                           ) : null}
                           {application.status !== 'shortlisted' ? (
-                            <Button size="sm" variant="secondary" onClick={() => doReview(application, 'shortlisted')}>
+                            <Button size="sm" variant="secondary" loading={review.isPending} disabled={review.isPending} onClick={() => doReview(application, 'shortlisted')}>
                               Shortlist
                             </Button>
                           ) : null}
@@ -433,7 +428,7 @@ export function Applications() {
             <Button variant="secondary" onClick={() => setAccepting(null)}>
               Cancel
             </Button>
-            <Button onClick={doAccept} loading={accept.isPending}>
+            <Button onClick={doAccept} loading={accept.isPending} disabled={accept.isPending || team.isLoading || team.isError || !supervisorId}>
               Accept & create placement
             </Button>
           </>
@@ -446,6 +441,15 @@ export function Applications() {
             supervisor, and university coordinator.
           </Alert>
 
+          {team.isLoading ? <Alert tone="info">Loading available company supervisors…</Alert> : null}
+          {team.isError ? (
+            <Alert tone="danger">
+              Could not load company supervisors. <Button size="sm" variant="ghost" onClick={() => void team.refetch()}>Retry</Button>
+            </Alert>
+          ) : null}
+          {!team.isLoading && !team.isError && (team.data ?? []).length === 0 ? (
+            <Alert tone="warning">No active company administrator or site supervisor is available. Add a supervisor before accepting this application.</Alert>
+          ) : null}
           <Field label="Site supervisor" htmlFor="site-supervisor" required>
             <Select
               id="site-supervisor"
@@ -468,6 +472,7 @@ export function Applications() {
               <Input
                 id="start-date"
                 type="date"
+                min={isoDate(new Date())}
                 value={dates.start}
                 onChange={(event) => setDates((current) => ({ ...current, start: event.target.value }))}
               />
@@ -476,6 +481,7 @@ export function Applications() {
               <Input
                 id="end-date"
                 type="date"
+                min={dates.start || isoDate(new Date())}
                 value={dates.end}
                 onChange={(event) => setDates((current) => ({ ...current, end: event.target.value }))}
               />
@@ -517,7 +523,7 @@ export function Applications() {
           </Field>
         </div>
       </Modal>
-    </div>
+    </section>
   );
 }
 
