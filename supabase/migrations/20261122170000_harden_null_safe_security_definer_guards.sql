@@ -162,78 +162,15 @@ begin
 end;
 $function$;
 
-create or replace function public.record_grade(
-  p_placement_id uuid,
-  p_grade numeric,
-  p_notes text default null
-)
-returns void
-language plpgsql
-security definer
-set search_path to 'public'
-as $function$
-declare
-  v_placement public.placements%rowtype;
-begin
-  select * into v_placement
-  from public.placements
-  where id = p_placement_id
-  for update;
+drop function if exists public.record_grade(uuid, numeric, text);
 
-  if not found then
-    raise exception 'Placement not found';
-  end if;
-
-  if public.auth_role() is distinct from 'faculty_supervisor'::public.user_role
-     or v_placement.faculty_supervisor_id is distinct from auth.uid() then
-    raise exception 'Only the assigned university faculty supervisor can record the official final grade';
-  end if;
-
-  if p_grade is null or p_grade < 0 or p_grade > 100 then
-    raise exception 'Grade must be between 0 and 100';
-  end if;
-
-  if not exists (
-    select 1
-    from public.weekly_logs
-    where placement_id = p_placement_id
-  ) then
-    raise exception 'At least one weekly report must be submitted and approved before final grading';
-  end if;
-
-  if exists (
-    select 1
-    from public.weekly_logs
-    where placement_id = p_placement_id
-      and status <> 'approved'
-  ) then
-    raise exception 'All weekly reports must be approved before recording the final grade';
-  end if;
-
-  update public.placements
-  set final_grade = p_grade,
-      grade_notes = p_notes,
-      graded_by = auth.uid(),
-      graded_at = now()
-  where id = p_placement_id;
-
-  perform public.notify_user(
-    v_placement.student_id,
-    'Final grade recorded',
-    'Your official internship grade has been recorded.',
-    '/placements/' || p_placement_id
-  );
-end;
-$function$;
 
 -- Preserve the existing intended API: no PUBLIC/anon execution; authenticated
 -- workflows and trusted service-role operations remain supported.
 revoke execute on function public.assign_faculty_supervisor(uuid, uuid) from public, anon;
 revoke execute on function public.faculty_stats() from public, anon;
 revoke execute on function public.review_weekly_log(uuid, public.log_status, text) from public, anon;
-revoke execute on function public.record_grade(uuid, numeric, text) from public, anon;
 
 grant execute on function public.assign_faculty_supervisor(uuid, uuid) to authenticated, service_role;
 grant execute on function public.faculty_stats() to authenticated, service_role;
 grant execute on function public.review_weekly_log(uuid, public.log_status, text) to authenticated, service_role;
-grant execute on function public.record_grade(uuid, numeric, text) to authenticated, service_role;
