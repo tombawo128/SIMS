@@ -261,11 +261,18 @@ Deno.serve(async (req: Request) => {
 
   if (body.action === 'set_webhook_status') {
     if (!body.webhook_id || !['active', 'suspended'].includes(body.status ?? '')) return json({ error: 'Webhook and valid status are required' }, 400);
+    const { data: previous, error: previousError } = await admin.from('integration_webhooks').select('id,integration_id,status').eq('id', body.webhook_id).maybeSingle();
+    if (previousError) return json({ error: 'Could not load webhook status' }, 500);
+    if (!previous) return json({ error: 'Webhook endpoint not found' }, 404);
     const { data, error } = await admin.from('integration_webhooks').update({ status: body.status })
-      .eq('id', body.webhook_id).select('id,integration_id,status').maybeSingle();
+      .eq('id', body.webhook_id).eq('status', previous.status).select('id,integration_id,status').maybeSingle();
     if (error) return json({ error: 'Could not update webhook status' }, 500);
-    if (!data) return json({ error: 'Webhook endpoint not found' }, 404);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_webhook', entity_id: data.id, action: body.status === 'suspended' ? 'suspended' : 'reactivated', metadata: { integration_id: data.integration_id } });
+    if (!data) return json({ error: 'Webhook status changed concurrently; refresh and retry' }, 409);
+    const action = body.status === 'suspended' ? 'suspended' : 'reactivated';
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_webhook', entity_id: data.id, action, metadata: { integration_id: data.integration_id } })) {
+      const rolledBack = await rollbackStatus(admin, 'integration_webhooks', data.id, data.status, previous.status);
+      return json({ error: rolledBack ? 'Webhook status change was rolled back because audit logging failed' : 'Webhook status and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ webhook: data });
   }
 
@@ -325,11 +332,18 @@ Deno.serve(async (req: Request) => {
     if (!body.integration_id || !['disabled', 'pending_verification'].includes(body.status ?? '')) {
       return json({ error: 'SSO can only be disabled or moved to pending verification from this control' }, 400);
     }
+    const { data: previous, error: previousError } = await admin.from('integration_sso_configs').select('id,status')
+      .eq('integration_id', body.integration_id).maybeSingle();
+    if (previousError) return json({ error: 'Could not load SSO status' }, 500);
+    if (!previous) return json({ error: 'SSO configuration not found' }, 404);
     const { data, error } = await admin.from('integration_sso_configs').update({ status: body.status })
-      .eq('integration_id', body.integration_id).select('id,integration_id,status').maybeSingle();
+      .eq('integration_id', body.integration_id).eq('status', previous.status).select('id,integration_id,status').maybeSingle();
     if (error) return json({ error: 'Could not update SSO status' }, 500);
-    if (!data) return json({ error: 'SSO configuration not found' }, 404);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_sso_config', entity_id: data.id, action: body.status, metadata: { integration_id: body.integration_id } });
+    if (!data) return json({ error: 'SSO status changed concurrently; refresh and retry' }, 409);
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_sso_config', entity_id: data.id, action: body.status, metadata: { integration_id: body.integration_id } })) {
+      const rolledBack = await rollbackStatus(admin, 'integration_sso_configs', data.id, data.status, previous.status);
+      return json({ error: rolledBack ? 'SSO status change was rolled back because audit logging failed' : 'SSO status and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ sso_config: data });
   }
 
@@ -366,11 +380,17 @@ Deno.serve(async (req: Request) => {
 
   if (body.action === 'set_embed_status') {
     if (!body.embed_id || !['active', 'suspended'].includes(body.status ?? '')) return json({ error: 'Embed and valid status are required' }, 400);
+    const { data: previous, error: previousError } = await admin.from('integration_embeds').select('id,integration_id,status').eq('id', body.embed_id).maybeSingle();
+    if (previousError) return json({ error: 'Could not load embed status' }, 500);
+    if (!previous) return json({ error: 'Embed not found' }, 404);
     const { data, error } = await admin.from('integration_embeds').update({ status: body.status })
-      .eq('id', body.embed_id).select('id,integration_id,status').maybeSingle();
+      .eq('id', body.embed_id).eq('status', previous.status).select('id,integration_id,status').maybeSingle();
     if (error) return json({ error: 'Could not update embed status' }, 500);
-    if (!data) return json({ error: 'Embed not found' }, 404);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_embed', entity_id: data.id, action: body.status, metadata: { integration_id: data.integration_id } });
+    if (!data) return json({ error: 'Embed status changed concurrently; refresh and retry' }, 409);
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_embed', entity_id: data.id, action: body.status, metadata: { integration_id: data.integration_id } })) {
+      const rolledBack = await rollbackStatus(admin, 'integration_embeds', data.id, data.status, previous.status);
+      return json({ error: rolledBack ? 'Embed status change was rolled back because audit logging failed' : 'Embed status and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ embed: data });
   }
 
@@ -448,11 +468,19 @@ Deno.serve(async (req: Request) => {
 
   if (body.action === 'set_connection_status') {
     if (!body.integration_id || !['active', 'suspended'].includes(body.status ?? '')) return json({ error: 'Connection and valid status are required' }, 400);
+    const { data: previous, error: previousError } = await admin.from('integration_connections').select('id,status')
+      .eq('id', body.integration_id).maybeSingle();
+    if (previousError) return json({ error: 'Could not load connection status' }, 500);
+    if (!previous) return json({ error: 'Integration connection not found' }, 404);
     const { data, error } = await admin.from('integration_connections').update({ status: body.status })
-      .eq('id', body.integration_id).select('id,status').maybeSingle();
+      .eq('id', body.integration_id).eq('status', previous.status).select('id,status').maybeSingle();
     if (error) return json({ error: 'Could not update connection status' }, 500);
-    if (!data) return json({ error: 'Integration connection not found' }, 404);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_connection', entity_id: data.id, action: body.status === 'suspended' ? 'suspended' : 'reactivated', metadata: {} });
+    if (!data) return json({ error: 'Connection status changed concurrently; refresh and retry' }, 409);
+    const action = body.status === 'suspended' ? 'suspended' : 'reactivated';
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_connection', entity_id: data.id, action, metadata: {} })) {
+      const rolledBack = await rollbackStatus(admin, 'integration_connections', data.id, data.status, previous.status);
+      return json({ error: rolledBack ? 'Connection status change was rolled back because audit logging failed' : 'Connection status and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ connection: data });
   }
   return json({ error: 'Unknown action' }, 400);
