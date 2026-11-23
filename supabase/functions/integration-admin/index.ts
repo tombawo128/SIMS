@@ -464,12 +464,20 @@ Deno.serve(async (req: Request) => {
 
   if (body.action === 'revoke_api_key') {
     if (!body.key_id) return json({ error: 'API key id is required' }, 400);
+    const { data: previous, error: previousError } = await admin.from('integration_api_keys')
+      .select('id,integration_id,revoked_at').eq('id', body.key_id).maybeSingle();
+    if (previousError) return json({ error: 'Could not load API credential status' }, 500);
+    if (!previous || previous.revoked_at) return json({ error: 'API credential not found or already revoked' }, 404);
+    const revokedAt = new Date().toISOString();
     const { data, error } = await admin.from('integration_api_keys')
-      .update({ revoked_at: new Date().toISOString() }).eq('id', body.key_id).is('revoked_at', null)
+      .update({ revoked_at: revokedAt }).eq('id', body.key_id).is('revoked_at', null)
       .select('id,integration_id').maybeSingle();
     if (error) return json({ error: 'Could not revoke API credential' }, 500);
-    if (!data) return json({ error: 'API credential not found or already revoked' }, 404);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_api_key', entity_id: data.id, action: 'revoked', metadata: { integration_id: data.integration_id } });
+    if (!data) return json({ error: 'API credential changed concurrently; refresh and retry' }, 409);
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_api_key', entity_id: data.id, action: 'revoked', metadata: { integration_id: data.integration_id } })) {
+      const rolledBack = await rollbackRevokedKey(admin, data.id, revokedAt);
+      return json({ error: rolledBack ? 'API credential revocation was rolled back because audit logging failed' : 'API credential revocation and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ id: data.id, revoked: true });
   }
 
