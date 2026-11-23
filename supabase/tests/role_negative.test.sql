@@ -40,10 +40,10 @@ select public.role_negative_test_as('99999999-9999-4999-8999-999999999021');
 select is(has_table_privilege('authenticated','public.integration_connections','select'),false,'student role has no direct SELECT privilege on integration connections');
 select is(has_table_privilege('authenticated','public.integration_api_keys','select'),false,'student role has no direct SELECT privilege on integration credentials');
 select is(has_table_privilege('authenticated','public.provision_tickets','select'),false,'student role has no direct SELECT privilege on privileged provision tickets');
-select throws_ok($$select public.record_grade('66666666-6666-4666-8666-666666660001','unauthorized student grade')$$,'P0001','Not authorized','student cannot finalize placement grade');
+select throws_ok($select public.record_grade('66666666-6666-4666-8666-666666660001','unauthorized student grade')$,'P0001','Only the assigned university faculty supervisor can record the official final grade','student cannot finalize placement grade');
 
 -- Platform admin: privileged function execution is gated by grants, not arbitrary authenticated callers.
-select is(has_function_privilege('authenticated','public.set_user_status(uuid,public.account_status)','execute'),false,'authenticated role cannot execute platform account-status RPC');
+select throws_ok($select public.set_user_status('99999999-9999-4999-8999-999999999023','suspended')$,'P0001','Only a general administrator can manage user accounts','student cannot invoke platform account-status changes');
 select is(has_function_privilege('anon','public.platform_stats()','execute'),false,'anonymous role cannot execute platform aggregate RPC');
 
 -- Suspended accounts still carry authenticated JWTs. The role helper returns
@@ -97,7 +97,6 @@ select throws_ok(
 select throws_ok(
   $ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
-       85,
        'Suspended faculty cannot grade.'
      ) $,
   'P0001',
