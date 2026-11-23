@@ -313,6 +313,10 @@ Deno.serve(async (req: Request) => {
     }
     const { data: connection } = await admin.from('integration_connections').select('id,status').eq('id', integrationId).maybeSingle();
     if (!connection || connection.status !== 'active') return json({ error: 'Integration connection not found or suspended' }, 404);
+    const { data: previousConfig, error: previousConfigError } = await admin.from('integration_sso_configs')
+      .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,auth_provider_id,provider_config_ciphertext,email_domains,status,created_by')
+      .eq('integration_id', integrationId).maybeSingle();
+    if (previousConfigError) return json({ error: 'Could not load existing SSO configuration' }, 500);
     let encryptedConfig: string;
     try { encryptedConfig = await encryptIntegrationSecret(JSON.stringify(body.provider_config)); } catch (error) {
       return json({ error: error instanceof Error ? error.message : 'SSO encryption is unavailable' }, 503);
@@ -324,7 +328,10 @@ Deno.serve(async (req: Request) => {
     }, { onConflict: 'integration_id' })
       .select('id,integration_id,protocol,issuer_url,client_id,metadata_url,auth_provider_id,email_domains,status,created_at').single();
     if (error) return json({ error: 'Could not save SSO configuration' }, 500);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_sso_config', entity_id: data.id, action: 'saved', metadata: { integration_id: integrationId, protocol, email_domains: domains } });
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_sso_config', entity_id: data.id, action: 'saved', metadata: { integration_id: integrationId, protocol, email_domains: domains } })) {
+      const rolledBack = await rollbackSsoConfig(admin, integrationId, previousConfig, data.id);
+      return json({ error: rolledBack ? 'SSO configuration was rolled back because audit logging failed' : 'SSO configuration and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ sso_config: data, status_note: 'Configuration saved as draft. Provider metadata and domain ownership must be verified before activation.' });
   }
 
