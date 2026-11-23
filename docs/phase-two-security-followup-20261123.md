@@ -8,6 +8,7 @@ This follow-up is source-only. No production migration, function deployment, Aut
 - The latest main-branch database rebuild applied the complete migration history successfully.
 - The existing integration-services and RLS tests passed in that run.
 - The role-negative suite failed before completion: malformed dollar-quote syntax stopped the file after the early assertions. Earlier CI also showed two incorrect expectations and a direct-table-read test that aborted on privilege denial.
+- The follow-up PR's first frontend build failed with TS2339 because App.tsx expected a named `Login` export while Login.tsx contained a legacy landing-page module. The follow-up restores a functional named Login page; frontend CI and Vercel preview must be rerun.
 - The follow-up corrects the test syntax, tests a foreign draft posting rather than a publicly published posting, uses privilege checks instead of direct SELECTs on service-only tables, and keeps the intended authenticated grant for the guarded account-status RPC.
 
 ## Source fixes and regression coverage
@@ -15,6 +16,7 @@ This follow-up is source-only. No production migration, function deployment, Aut
 1. **Suspended faculty statistics:** the old `faculty_stats()` guard used `auth_role() <> 'faculty_supervisor'`. A suspended user's NULL role could bypass that condition. A new migration uses a NULL-safe role check and rejects missing user IDs. The negative suite tests suspended faculty.
 2. **Webhook payload minimization:** application events omit redundant tenant IDs; placement events omit final grades; evaluation events omit rubric, comment and overall score. Synthetic pgTAP assertions cover placement and evaluation payloads.
 3. **Role regression:** the expanded role-negative suite plans 21 assertions, including suspended coordinator and faculty checks for assignment, stats, weekly review and final grading.
+4. **Build gate:** the named Login module mismatch is corrected to restore sign-in form routing; build verification remains pending.
 
 ## Live production parity (read-only checks)
 
