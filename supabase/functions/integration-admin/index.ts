@@ -252,7 +252,10 @@ Deno.serve(async (req: Request) => {
       secret_ciphertext: encryptedSecret, created_by: caller.id,
     }).select('id,integration_id,name,endpoint_url,events,status,created_at').single();
     if (error) return json({ error: 'Could not register webhook endpoint' }, 500);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_webhook', entity_id: data.id, action: 'created', metadata: { integration_id: integrationId, events, endpoint_host: new URL(endpoint).hostname } });
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_webhook', entity_id: data.id, action: 'created', metadata: { integration_id: integrationId, events, endpoint_host: new URL(endpoint).hostname } })) {
+      const rolledBack = await rollbackCreatedRecord(admin, 'integration_webhooks', data.id);
+      return json({ error: rolledBack ? 'Webhook registration was rolled back because audit logging failed' : 'Webhook registration and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ webhook: data, secret, warning: 'Copy this signing secret now. It cannot be displayed again.' }, 201);
   }
 
@@ -354,7 +357,10 @@ Deno.serve(async (req: Request) => {
       integration_id: integrationId, public_token: publicToken, title, allowed_origins: origins, created_by: caller.id,
     }).select('id,integration_id,public_token,title,allowed_origins,display_options,status,created_at').single();
     if (error) return json({ error: 'Could not create public embed' }, 500);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_embed', entity_id: data.id, action: 'created', metadata: { integration_id: integrationId, allowed_origins: origins } });
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_embed', entity_id: data.id, action: 'created', metadata: { integration_id: integrationId, allowed_origins: origins } })) {
+      const rolledBack = await rollbackCreatedRecord(admin, 'integration_embeds', data.id);
+      return json({ error: rolledBack ? 'Embed creation was rolled back because audit logging failed' : 'Embed creation and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ embed: data }, 201);
   }
 
@@ -391,7 +397,10 @@ Deno.serve(async (req: Request) => {
         ? json({ error: 'A connection with this name already exists for this organisation' }, 409)
         : json({ error: 'Could not register the integration connection' }, 500);
     }
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_connection', entity_id: data.id, action: 'created', metadata: { organization_type: kind, organization_id: orgId, name } });
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_connection', entity_id: data.id, action: 'created', metadata: { organization_type: kind, organization_id: orgId, name } })) {
+      const rolledBack = await rollbackCreatedRecord(admin, 'integration_connections', data.id);
+      return json({ error: rolledBack ? 'Connection creation was rolled back because audit logging failed' : 'Connection creation and audit failed; rollback could not be confirmed' }, 503);
+    }
     return json({ connection: data }, 201);
   }
 
@@ -419,7 +428,10 @@ Deno.serve(async (req: Request) => {
       scopes, expires_at: expiresAt, created_by: caller.id,
     }).select('id,integration_id,name,key_prefix,scopes,expires_at,created_at').single();
     if (error) return json({ error: 'Could not create API credential' }, 500);
-    await admin.from('audit_logs').insert({ actor_id: caller.id, entity: 'integration_api_key', entity_id: data.id, action: 'created', metadata: { integration_id: integrationId, scopes, key_prefix: prefix } });
+    if (!await auditAdminAction(admin, { actor_id: caller.id, entity: 'integration_api_key', entity_id: data.id, action: 'created', metadata: { integration_id: integrationId, scopes, key_prefix: prefix } })) {
+      const rolledBack = await rollbackCreatedRecord(admin, 'integration_api_keys', data.id);
+      return json({ error: rolledBack ? 'API credential creation was rolled back because audit logging failed' : 'API credential creation and audit failed; rollback could not be confirmed. The secret was not returned.' }, 503);
+    }
     return json({ api_key: data, secret, warning: 'Copy this secret now. It cannot be displayed again.' }, 201);
   }
 
