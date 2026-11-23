@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { AuthShell } from '@/components/AuthShell';
 import { Alert, Button, Field, Input } from '@/components/ui';
 import { errorMessage } from '@/lib/utils';
+import '@/styles/pages/login.css';
 
 export function Login() {
   const { signIn } = useAuth();
@@ -55,12 +56,10 @@ export function Login() {
         <div className="login-forgot">
           <Link to="/forgot-password">Forgot password?</Link>
         </div>
-        <Button type="submit" className="login-submit" loading={submitting}>
+        <Button type="submit" loading={submitting}>
           Sign in
         </Button>
-        <p className="login-footer">
-          <span>New to SIMS? <Link to="/signup">Create an account</Link></span>
-        </p>
+        <p>New to SIMS? <Link to="/signup">Create an account</Link></p>
       </form>
     </AuthShell>
   );
