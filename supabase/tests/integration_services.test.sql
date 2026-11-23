@@ -116,7 +116,7 @@ select is(
   'application status event is queued once for each matching tenant connection'
 );
 select ok(
-  (select bool_and(not (payload ? 'student_id') and not (payload ? 'email') and not (payload ? 'cover_letter'))
+  (select bool_and(not (payload ? 'student_id') and not (payload ? 'email') and not (payload ? 'cover_letter') and not (payload ? 'university_id') and not (payload ? 'company_id'))
    from public.integration_webhook_deliveries
    where webhook_id in ('88888888-8888-4888-8888-888888880001','88888888-8888-4888-8888-888888880002')),
   'webhook payloads omit student identifiers, emails and cover letters'
