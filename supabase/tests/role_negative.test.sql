@@ -40,10 +40,10 @@ select public.role_negative_test_as('99999999-9999-4999-8999-999999999021');
 select is(has_table_privilege('authenticated','public.integration_connections','select'),false,'student role has no direct SELECT privilege on integration connections');
 select is(has_table_privilege('authenticated','public.integration_api_keys','select'),false,'student role has no direct SELECT privilege on integration credentials');
 select is(has_table_privilege('authenticated','public.provision_tickets','select'),false,'student role has no direct SELECT privilege on privileged provision tickets');
-select throws_ok($select public.record_grade('66666666-6666-4666-8666-666666660001','unauthorized student grade')$,'P0001','Only the assigned university faculty supervisor can record the official final grade','student cannot finalize placement grade');
+select throws_ok($test$select public.record_grade('66666666-6666-4666-8666-666666660001','unauthorized student grade')$test$,'P0001','Only the assigned university faculty supervisor can record the official final grade','student cannot finalize placement grade');
 
 -- Platform admin: privileged function execution is gated by grants, not arbitrary authenticated callers.
-select throws_ok($select public.set_user_status('99999999-9999-4999-8999-999999999023','suspended')$,'P0001','Only a general administrator can manage user accounts','student cannot invoke platform account-status changes');
+select throws_ok($test$select public.set_user_status('99999999-9999-4999-8999-999999999023','suspended')$test$,'P0001','Only a general administrator can manage user accounts','student cannot invoke platform account-status changes');
 select is(has_function_privilege('anon','public.platform_stats()','execute'),false,'anonymous role cannot execute platform aggregate RPC');
 
 -- Suspended accounts still carry authenticated JWTs. The role helper returns
@@ -56,10 +56,10 @@ set local role authenticated;
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999003');
 
 select throws_ok(
-  $ select public.assign_faculty_supervisor(
+  $test$ select public.assign_faculty_supervisor(
        '66666666-6666-4666-8666-666666660002',
        '99999999-9999-4999-8999-999999999013'
-     ) $,
+     ) $test$,
   'P0001',
   'Only internship coordinators can assign faculty supervisors',
   'suspended coordinator cannot assign faculty supervisors'
@@ -77,28 +77,28 @@ set local role authenticated;
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999011');
 
 select throws_ok(
-  $ select public.faculty_stats() $,
+  $test$ select public.faculty_stats() $test$,
   'P0001',
   'Not authorized',
   'suspended faculty cannot read faculty statistics'
 );
 
 select throws_ok(
-  $ select public.review_weekly_log(
+  $test$ select public.review_weekly_log(
        '77777777-7777-4777-8777-777777770001',
        'approved',
        'Suspended faculty cannot review.'
-     ) $,
+     ) $test$,
   'P0001',
   'Only the assigned university faculty supervisor can approve this weekly report',
   'suspended faculty cannot review weekly reports'
 );
 
 select throws_ok(
-  $ select public.record_grade(
+  $test$ select public.record_grade(
        '66666666-6666-4666-8666-666666660001',
        'Suspended faculty cannot grade.'
-     ) $,
+     ) $test$,
   'P0001',
   'Only the assigned university faculty supervisor can record the official final grade',
   'suspended faculty cannot record final grades'
