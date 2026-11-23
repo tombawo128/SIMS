@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { isPublicIpv4, isPublicIpv6 } from '../_shared/webhook-ip.ts';
+import { writeIntegrationAudit } from '../_shared/integration-audit.ts';
 
 const ALLOWED_SCOPES = ['organisation:read', 'opportunities:read', 'applications:read', 'placements:read'];
 const ALLOWED_WEBHOOK_EVENTS = [
@@ -34,6 +35,61 @@ function base64Url(bytes: Uint8Array) {
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer { const copy = new Uint8Array(bytes.byteLength); copy.set(bytes); return copy.buffer; }
+
+async function auditAdminAction(admin: any, record: Record<string, unknown>) {
+  const result = await writeIntegrationAudit(admin, record);
+  if (!result.ok) console.error('Integration admin audit write failed', { entity: record.entity, action: record.action, code: result.code });
+  return result.ok;
+}
+
+async function rollbackCreatedRecord(admin: any, table: string, id: string) {
+  const { data, error } = await admin.from(table).delete().eq('id', id).select('id').maybeSingle();
+  if (error || !data) {
+    console.error('Integration admin rollback of created record failed', { table, id, code: error?.code });
+    return false;
+  }
+  return true;
+}
+
+async function rollbackStatus(admin: any, table: string, id: string, current: string, previous: string) {
+  const { data, error } = await admin.from(table).update({ status: previous })
+    .eq('id', id).eq('status', current).select('id').maybeSingle();
+  if (error || !data) {
+    console.error('Integration admin status rollback failed', { table, id, code: error?.code });
+    return false;
+  }
+  return true;
+}
+
+async function rollbackRevokedKey(admin: any, id: string, revokedAt: string) {
+  const { data, error } = await admin.from('integration_api_keys').update({ revoked_at: null })
+    .eq('id', id).eq('revoked_at', revokedAt).select('id').maybeSingle();
+  if (error || !data) {
+    console.error('Integration admin key-revocation rollback failed', { id, code: error?.code });
+    return false;
+  }
+  return true;
+}
+
+async function rollbackSsoConfig(admin: any, integrationId: string, previous: any, createdId: string) {
+  if (!previous) return rollbackCreatedRecord(admin, 'integration_sso_configs', createdId);
+  const { data, error } = await admin.from('integration_sso_configs').update({
+    protocol: previous.protocol,
+    issuer_url: previous.issuer_url,
+    client_id: previous.client_id,
+    metadata_url: previous.metadata_url,
+    auth_provider_id: previous.auth_provider_id,
+    provider_config_ciphertext: previous.provider_config_ciphertext,
+    email_domains: previous.email_domains,
+    status: previous.status,
+    created_by: previous.created_by,
+  }).eq('integration_id', integrationId).select('id').maybeSingle();
+  if (error || !data) {
+    console.error('Integration admin SSO config rollback failed', { integrationId, code: error?.code });
+    return false;
+  }
+  return true;
+}
 
 async function encryptIntegrationSecret(value: string) {
   const configuredKey = Deno.env.get('INTEGRATION_SECRET_ENCRYPTION_KEY');
