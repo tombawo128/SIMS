@@ -115,3 +115,5 @@ export function Login() {
     </AuthShell>
   );
 }
+
+export default Login;
