@@ -49,11 +49,13 @@ select is(has_function_privilege('anon','public.platform_stats()','execute'),fal
 -- Suspended accounts still carry authenticated JWTs. The role helper returns
 -- NULL for them, so SECURITY DEFINER guards must use NULL-safe comparisons.
 reset role;
-update public.profiles
-set account_status = 'suspended'
-where id = '99999999-9999-4999-8999-999999999003';
+-- Suspend through the platform-admin RPC, not a self-update (profile guard).
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
 set local role authenticated;
+select public.set_user_status('99999999-9999-4999-8999-999999999003', 'suspended');
+reset role;
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999003');
+set local role authenticated;
 
 select throws_ok(
   $test$ select public.assign_faculty_supervisor(
@@ -66,15 +68,16 @@ select throws_ok(
 );
 
 reset role;
-update public.profiles
-set account_status = 'active'
-where id = '99999999-9999-4999-8999-999999999003';
-
-update public.profiles
-set account_status = 'suspended'
-where id = '99999999-9999-4999-8999-999999999011';
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
 set local role authenticated;
+select public.set_user_status('99999999-9999-4999-8999-999999999003', 'active');
+reset role;
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
+set local role authenticated;
+select public.set_user_status('99999999-9999-4999-8999-999999999011', 'suspended');
+reset role;
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999011');
+set local role authenticated;
 
 select throws_ok(
   $test$ select public.faculty_stats() $test$,
@@ -105,9 +108,9 @@ select throws_ok(
 );
 
 reset role;
-update public.profiles
-set account_status = 'active'
-where id = '99999999-9999-4999-8999-999999999011';
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
+set local role authenticated;
+select public.set_user_status('99999999-9999-4999-8999-999999999011', 'active');
 
 reset role;
 select * from finish();
