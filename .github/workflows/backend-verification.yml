@@ -26,6 +26,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Test analytics pagination beyond 1000 rows
+        run: node --test scripts/analytics-pagination.test.mjs
+
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v3
         with:
