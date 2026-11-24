@@ -1,3 +1,4 @@
+import { queryAll } from './analytics-pagination.mjs';
 const apiUrl = process.env.API_URL;
 const anonKey = process.env.ANON_KEY;
 if (!apiUrl || !anonKey) throw new Error('API_URL and ANON_KEY are required');
@@ -50,16 +51,6 @@ async function signIn(email, password) {
 }
 
 
-async function queryAll(path, token, pageSize = 1000) {
-  const rows = [];
-  for (let offset = 0; ; offset += pageSize) {
-    const page = await request(path, token, { headers: { Range: String(offset) + '-' + (offset + pageSize - 1), 'Range-Unit': 'items' } });
-    if (!Array.isArray(page)) throw new Error('Paginated query did not return an array: ' + path);
-    rows.push(...page);
-    if (page.length < pageSize) return rows;
-  }
-}
-
 function assertTenantRows(label, rows, tenantField, tenantId) {
   const unexpected = rows.filter(row => row[tenantField] !== tenantId);
   if (unexpected.length) {
@@ -72,7 +63,7 @@ for (const tenant of tenants) {
   const query = async path => request(`/rest/v1/${path}`, token);
 
   const placements = await queryAll(
-    'placements?select=id,university_id,company_id,student:profiles!placements_student_id_fkey(id,department,student_profile:student_profiles(program)),site_supervisor:profiles!placements_site_supervisor_id_fkey(id,full_name),faculty_supervisor:profiles!placements_faculty_supervisor_id_fkey(id,full_name),posting:job_postings(id,title,type)&order=created_at.desc', token,
+    'placements?select=id,university_id,company_id,student:profiles!placements_student_id_fkey(id,department,student_profile:student_profiles(program)),site_supervisor:profiles!placements_site_supervisor_id_fkey(id,full_name),faculty_supervisor:profiles!placements_faculty_supervisor_id_fkey(id,full_name),posting:job_postings(id,title,type)&order=created_at.desc', request,
   );
   if (!Array.isArray(placements) || placements.length === 0) {
     throw new Error(`${tenant.label} analytics query returned no seeded placements`);
@@ -81,13 +72,13 @@ for (const tenant of tenants) {
   const visiblePlacementIds = new Set(placements.map(row => row.id));
 
   const applications = await queryAll(
-    'applications?select=id,university_id,company_id,status,student:profiles!applications_student_id_fkey(id,department,student_profile:student_profiles(program)),posting:job_postings(id,title,type,status)&order=created_at.desc', token,
+    'applications?select=id,university_id,company_id,status,student:profiles!applications_student_id_fkey(id,department,student_profile:student_profiles(program)),posting:job_postings(id,title,type,status)&order=created_at.desc', request,
   );
   assertTenantRows(`${tenant.label} applications`, applications, tenant.tenantField, tenant.tenantId);
 
-  const weekly = await queryAll('weekly_logs?select=id,placement_id,week_number,status,submitted_at', token);
-  const daily = await queryAll('daily_reports?select=id,placement_id,report_date,week_number,status', token);
-  const evaluations = await queryAll('evaluations?select=id,placement_id,type,overall_score', token);
+  const weekly = await queryAll('weekly_logs?select=id,placement_id,week_number,status,submitted_at', token, request);
+  const daily = await queryAll('daily_reports?select=id,placement_id,report_date,week_number,status', token, request);
+  const evaluations = await queryAll('evaluations?select=id,placement_id,type,overall_score', token, request);
   for (const [name, rows] of [['weekly reports', weekly], ['daily reports', daily], ['evaluations', evaluations]]) {
     const foreign = rows.filter(row => !visiblePlacementIds.has(row.placement_id));
     if (foreign.length) throw new Error(`${tenant.label} can see ${foreign.length} ${name} linked to an inaccessible placement`);
