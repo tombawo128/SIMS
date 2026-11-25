@@ -48,14 +48,17 @@ select is(has_function_privilege('anon','public.platform_stats()','execute'),fal
 
 -- Suspended coordinator must not pass NULL role checks.
 reset role;
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
 update public.profiles set account_status='suspended' where id='99999999-9999-4999-8999-999999999003';
 set local role authenticated;
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999003');
 select throws_ok($$select public.assign_faculty_supervisor('66666666-6666-4666-8666-666666660002','99999999-9999-4999-8999-999999999013')$$,'P0001','Only internship coordinators can assign faculty supervisors','suspended coordinator cannot assign faculty supervisors');
 reset role;
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
 update public.profiles set account_status='active' where id='99999999-9999-4999-8999-999999999003';
 
 -- Suspended faculty cannot access stats or mutate review/final-grade workflow.
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
 update public.profiles set account_status='suspended' where id='99999999-9999-4999-8999-999999999011';
 set local role authenticated;
 select public.role_negative_test_as('99999999-9999-4999-8999-999999999011');
@@ -63,6 +66,7 @@ select throws_ok($$select public.faculty_stats()$$,'P0001','Not authorized','sus
 select throws_ok($$select public.review_weekly_log('77777777-7777-4777-8777-777777770001','approved','Suspended faculty cannot review.')$$,'P0001','Only the assigned university faculty supervisor can approve this weekly report','suspended faculty cannot review weekly reports');
 select throws_ok($$select public.record_grade('66666666-6666-4666-8666-666666660001','Suspended faculty cannot grade.')$$,'P0001','Only the assigned university faculty supervisor can record the official final grade','suspended faculty cannot record final grades');
 reset role;
+select public.role_negative_test_as('99999999-9999-4999-8999-999999999001');
 update public.profiles set account_status='active' where id='99999999-9999-4999-8999-999999999011';
 
 reset role;
