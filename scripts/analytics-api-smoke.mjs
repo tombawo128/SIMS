@@ -63,7 +63,7 @@ for (const tenant of tenants) {
   const query = async path => request(`/rest/v1/${path}`, token);
 
   const placements = await queryAll(
-    'placements?select=id,university_id,company_id,student:profiles!placements_student_id_fkey(id,department,student_profile:student_profiles(program)),site_supervisor:profiles!placements_site_supervisor_id_fkey(id,full_name),faculty_supervisor:profiles!placements_faculty_supervisor_id_fkey(id,full_name),posting:job_postings(id,title,type)&order=created_at.desc', request,
+    'placements?select=id,university_id,company_id,student:profiles!placements_student_id_fkey(id,department,student_profile:student_profiles(program)),site_supervisor:profiles!placements_site_supervisor_id_fkey(id,full_name),faculty_supervisor:profiles!placements_faculty_supervisor_id_fkey(id,full_name),posting:job_postings(id,title,type)&order=created_at.desc', token, request,
   );
   if (!Array.isArray(placements) || placements.length === 0) {
     throw new Error(`${tenant.label} analytics query returned no seeded placements`);
@@ -72,7 +72,7 @@ for (const tenant of tenants) {
   const visiblePlacementIds = new Set(placements.map(row => row.id));
 
   const applications = await queryAll(
-    'applications?select=id,university_id,company_id,status,student:profiles!applications_student_id_fkey(id,department,student_profile:student_profiles(program)),posting:job_postings(id,title,type,status)&order=created_at.desc', request,
+    'applications?select=id,university_id,company_id,status,student:profiles!applications_student_id_fkey(id,department,student_profile:student_profiles(program)),posting:job_postings(id,title,type,status)&order=created_at.desc', token, request,
   );
   assertTenantRows(`${tenant.label} applications`, applications, tenant.tenantField, tenant.tenantId);
 
