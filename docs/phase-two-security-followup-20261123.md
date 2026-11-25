@@ -49,3 +49,9 @@ Run the follow-up PR's full database rebuild, SQL regression, frontend and Edge 
 - The backend run on commit `918ad313ca7adc59cef39a5affefdba4bccdc5ba` applied the complete migration history and passed the existing RLS test, but the expanded role-negative suite stopped at assertion 18 of 21 during the synthetic profile-status restore. The profile guard rejected a test-fixture update because the helper left the test JWT subject set to the same coordinator profile being restored; this was a harness failure, not evidence that the coordinator authorization assertion failed.
 - Commit `c7e4a7e4ad456511e67afd83b379274e626e8b6f` changes the fixture setup to set the JWT subject to the synthetic platform-admin identity before profile-status setup/restore mutations, avoiding self-protection while preserving the suspended-role assertions.
 - The new commit has a successful Vercel preview status, but no backend workflow run or backend CI status is currently associated with this SHA. Therefore the fixture correction and all 21 role-negative assertions remain **unverified by CI** until a run is available.
+
+
+## Verification trigger update — 25 November 2026
+
+- Added `fix/phase-two-security-followup` to the backend-verification workflow's push branch filter so branch pushes can request the full database and Edge verification directly as well as via PR events.
+- The latest commit at this note's time, `bd01fe22b1f8729d007345a06a4133a0d947e5cf`, still has no GitHub Actions backend run associated with it. The Vercel check is pending. The GitHub connector's commit operation did not produce an observable Actions run, so manual CI dispatch or an equivalent push from an Actions-triggering credential is still needed to verify the 21-test suite.
