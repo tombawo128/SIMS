@@ -42,3 +42,10 @@ This follow-up is source-only. No production migration, function deployment, Aut
 ## Safe next step
 
 Run the follow-up PR's full database rebuild, SQL regression, frontend and Edge checks; resolve only evidence-backed failures. Then complete the per-function permission review and SSRF transport/egress design. Production rollout remains a separate approved, backed-up, reversible step.
+
+
+## 25 November CI diagnosis and fixture correction
+
+- The backend run on commit `918ad313ca7adc59cef39a5affefdba4bccdc5ba` applied the complete migration history and passed the existing RLS test, but the expanded role-negative suite stopped at assertion 18 of 21 during the synthetic profile-status restore. The profile guard rejected a test-fixture update because the helper left the test JWT subject set to the same coordinator profile being restored; this was a harness failure, not evidence that the coordinator authorization assertion failed.
+- Commit `c7e4a7e4ad456511e67afd83b379274e626e8b6f` changes the fixture setup to set the JWT subject to the synthetic platform-admin identity before profile-status setup/restore mutations, avoiding self-protection while preserving the suspended-role assertions.
+- The new commit has a successful Vercel preview status, but no backend workflow run or backend CI status is currently associated with this SHA. Therefore the fixture correction and all 21 role-negative assertions remain **unverified by CI** until a run is available.
