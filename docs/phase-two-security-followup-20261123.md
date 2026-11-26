@@ -55,3 +55,20 @@ Run the follow-up PR's full database rebuild, SQL regression, frontend and Edge 
 
 - Added `fix/phase-two-security-followup` to the backend-verification workflow's push branch filter so branch pushes can request the full database and Edge verification directly as well as via PR events.
 - The latest commit at this note's time, `bd01fe22b1f8729d007345a06a4133a0d947e5cf`, still has no GitHub Actions backend run associated with it. The Vercel check is pending. The GitHub connector's commit operation did not produce an observable Actions run, so manual CI dispatch or an equivalent push from an Actions-triggering credential is still needed to verify the 21-test suite.
+
+
+## Fresh read-only production verification — 26 November 2026
+
+- Rechecked the connected Supabase production project with SELECT-only queries. The live definitions of `assign_faculty_supervisor`, `review_weekly_log`, `record_grade`, and `faculty_stats` still use `auth_role() <> ...` role guards, which are NULL-unsafe for suspended accounts. All four are SECURITY DEFINER with `search_path=public`; the database ACL check shows EXECUTE for authenticated and service_role, and none for anon. This confirms a potential authorization bypass in the live schema; no production RPC was invoked to test it.
+- Rechecked webhook event capture trigger attachments: **no live triggers** are attached to the production tables for `capture_integration_webhook_event()`. The integration-services migration remains absent, so production event capture/outbox functionality is not active.
+- Production migration inventory remains 24 versions. Production Edge Function inventory contains `integration-admin` v4 and `integration-api` v2, but no `integration-embed` or `integration-webhook-worker`.
+- Security advisor remains at 35 authenticated SECURITY DEFINER warnings, three RLS-enabled/no-policy informational findings for service-only tables, and leaked-password protection disabled. The no-policy tables still have no direct anon/authenticated grants; no ACL change was made.
+- The follow-up branch ref was missing and has been recreated at PR #24's last recorded head commit `f2d7049ee3b22a22e6f393bbc66526221f99d671`. This is branch recovery only; no PR merge or production change.
+- PR #24 still has no observable backend Actions run on its latest recorded commit. The Vercel status is successful, but it does not verify the SQL regression suite.
+
+### Confirmed blockers
+
+1. Production migration-ledger/schema reconciliation and backup/recovery verification are required before deployment.
+2. The four live NULL-unsafe workflow guards require an approved, reconciled migration and suspended-account regression; do not apply it directly in production.
+3. Webhook event capture is not installed in production; outbound DNS screening remains vulnerable to resolution/fetch mismatch unless transport pinning or network egress controls are verified.
+4. The 21-assertion role-negative suite and the payload-minimization tests remain unverified by a fresh CI run.
