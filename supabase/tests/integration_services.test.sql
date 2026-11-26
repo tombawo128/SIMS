@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(27);
+select plan(29);
 
 select ok(to_regclass('public.integration_webhooks') is not null, 'webhook configuration table exists');
 select ok(to_regclass('public.integration_webhook_deliveries') is not null, 'webhook delivery outbox exists');
@@ -127,6 +127,30 @@ select is(
   'delivery worker can atomically claim both queued tenant deliveries'
 );
 
+
+
+-- Retry ceiling: abandoned processing claims must become terminal, not remain stuck.
+insert into public.integration_webhook_deliveries (
+  id, webhook_id, event_type, payload, status, attempts, next_attempt_at
+) values (
+  '88888888-8888-4888-8888-888888880003',
+  '88888888-8888-4888-8888-888888880001',
+  'application.status_changed',
+  '{}'::jsonb,
+  'processing',
+  8,
+  now() - interval '10 minutes'
+);
+select is(
+  (select count(*)::integer from public.claim_integration_webhook_deliveries(1)),
+  0,
+  'expired claim at the retry ceiling is not reclaimed'
+);
+select is(
+  (select status from public.integration_webhook_deliveries where id = '88888888-8888-4888-8888-888888880003'),
+  'failed',
+  'expired claim at the retry ceiling is terminalized as failed'
+);
 
 select * from finish();
 rollback;
