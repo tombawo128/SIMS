@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { isPublicIpv4, isPublicIpv6 } from '../_shared/webhook-ip.ts';
+import { updateClaimedWebhookDelivery } from '../_shared/webhook-delivery-lease.ts';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -135,11 +136,11 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!errorMessage) {
-      const { error: updateError } = await admin.from('integration_webhook_deliveries')
-        .update({ status: 'delivered', delivered_at: new Date().toISOString(), last_status_code: statusCode, last_error: null })
-        .eq('id', delivery.id);
-      if (updateError) {
-        console.error('Could not mark webhook delivery as delivered', delivery.id, updateError.message);
+      const updateResult = await updateClaimedWebhookDelivery(admin, delivery.id, delivery.attempts, {
+        status: 'delivered', delivered_at: new Date().toISOString(), last_status_code: statusCode, last_error: null,
+      });
+      if (!updateResult.ok) {
+        console.error('Could not mark webhook delivery as delivered', delivery.id, updateResult.reason, updateResult.code);
         retrying += 1;
       } else delivered += 1;
       continue;
@@ -147,16 +148,14 @@ Deno.serve(async (req: Request) => {
 
     const terminal = delivery.attempts >= 8;
     const delaySeconds = Math.min(3600, 15 * (2 ** Math.max(0, delivery.attempts - 1)));
-    const { error: updateError } = await admin.from('integration_webhook_deliveries')
-      .update({
-        status: terminal ? 'failed' : 'pending',
-        next_attempt_at: new Date(Date.now() + delaySeconds * 1000).toISOString(),
-        last_status_code: statusCode,
-        last_error: errorMessage,
-      })
-      .eq('id', delivery.id);
-    if (updateError) {
-      console.error('Could not update failed webhook delivery', delivery.id, updateError.message);
+    const updateResult = await updateClaimedWebhookDelivery(admin, delivery.id, delivery.attempts, {
+      status: terminal ? 'failed' : 'pending',
+      next_attempt_at: new Date(Date.now() + delaySeconds * 1000).toISOString(),
+      last_status_code: statusCode,
+      last_error: errorMessage,
+    });
+    if (!updateResult.ok) {
+      console.error('Could not update failed webhook delivery', delivery.id, updateResult.reason, updateResult.code);
       retrying += 1;
     } else if (terminal) failed += 1;
     else retrying += 1;
