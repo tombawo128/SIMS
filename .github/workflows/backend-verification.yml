@@ -89,8 +89,8 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Test webhook IP screening and integration audit helper
-        run: deno test --no-lock --node-modules-dir=auto supabase/functions/_shared/webhook-ip.test.ts supabase/functions/_shared/integration-audit.test.ts
+      - name: Test webhook IP screening, audit helper and delivery lease guards
+        run: deno test --no-lock --node-modules-dir=auto supabase/functions/_shared/webhook-ip.test.ts supabase/functions/_shared/integration-audit.test.ts supabase/functions/_shared/webhook-delivery-lease.test.ts
 
       - name: Type-check Edge Functions
         run: |
