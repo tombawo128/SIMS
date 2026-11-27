@@ -72,3 +72,17 @@ Run the follow-up PR's full database rebuild, SQL regression, frontend and Edge 
 2. The four live NULL-unsafe workflow guards require an approved, reconciled migration and suspended-account regression; do not apply it directly in production.
 3. Webhook event capture is not installed in production; outbound DNS screening remains vulnerable to resolution/fetch mismatch unless transport pinning or network egress controls are verified.
 4. The 21-assertion role-negative suite and the payload-minimization tests remain unverified by a fresh CI run.
+
+
+## Fresh read-only audit — 27 November 2026
+
+- Production Supabase security advisor was refreshed at 12:18 UTC: **35** authenticated SECURITY DEFINER warnings, **3** RLS-enabled/no-policy informational findings on service-only tables, and **1** leaked-password-protection warning. This is a function review queue, not a blanket-revoke instruction.
+- Read-only ACL verification again showed the three service-only tables `integration_api_keys`, `integration_connections`, and `provision_tickets` have no direct SELECT privilege for `anon` or `authenticated`; `service_role` has SELECT. No grants or policies were changed.
+- A separate read-only trigger query returned no trigger attached to a public table for `capture_integration_webhook_event()`; production webhook event capture remains inactive.
+- The four live workflow functions `assign_faculty_supervisor`, `review_weekly_log`, `record_grade`, and `faculty_stats` still contain NULL-unsafe `auth_role() <> ...` guards. Their `search_path=public` is pinned, and the ACL check remains EXECUTE for authenticated/service_role but not anon. This is a potential suspended-account authorization bypass; no function was invoked to test it and no production change was made.
+- Production still records 24 migrations; the Phase Two integration-services migration remains absent. The live Edge Function inventory still lacks `integration-embed` and `integration-webhook-worker`; `integration-admin` remains v4 and `integration-api` v2.
+- The old backend run 390 log is not current-head verification: it failed while parsing an earlier 17-test snapshot (8 tests executed; 0 assertion failures before a malformed dollar-quote error). The branch's current `role_negative.test.sql` file has a 21-test plan and corrected dollar-quoting, but **no fresh backend Actions run is observable for the PR's current head**. The current head's combined status only exposes a successful Vercel check. Do not treat the stale run as either a current failure or a pass.
+
+## Current gate
+
+Production remains untouched. Reconcile migration history/schema and verify backups/recovery before any migration or deployment. The current branch's full database tests, payload-minimization tests, Storage/analytics API smoke tests and controlled outbound transport/egress verification remain unverified.
