@@ -90,3 +90,14 @@ button:disabled[aria-label],button:disabled{filter:none}
 .settings-profile{display:flex;align-items:center;gap:12px}
 .settings-avatar{width:40px;height:40px;border-radius:50%;background:var(--primary-tint);color:var(--primary)}
 @media(max-width:767px){.admin-console__split,.admin-console__form-grid,.admin-module-grid,.admin-analytics-grid{grid-template-columns:1fr}.admin-console__form-footer{align-items:stretch;flex-direction:column}.admin-analytics-intro{align-items:flex-start;flex-direction:column}.admin-module-hero{align-items:flex-start}.admin-analytics-footer{align-items:flex-start;flex-direction:column}}
+
+/* Administration refinement: consistent panel and action alignment */
+:where(.analytics-page,.admin-console-page,.governance-page,.tenants-page,.admin-module-page,.notifications-page){min-width:0}
+:where(.analytics-page,.admin-console-page,.governance-page,.tenants-page,.admin-module-page,.notifications-page){display:grid;gap:18px}
+:where(.admin-console__split,.admin-module-grid,.admin-analytics-grid){align-items:start}
+:where(.admin-console__alert-item,.admin-module-health-row,.admin-module-action,.admin-module-feature){overflow-wrap:anywhere}
+@media(max-width:430px){
+ .admin-analytics-kpi{padding:13px}
+ .admin-analytics-kpi strong{font-size:21px}
+ .admin-module-hero,.settings-hero{padding:16px}
+}
