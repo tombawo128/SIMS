@@ -115,3 +115,18 @@
 .auth-aside__blob-1,.auth-aside__blob-2{display:none}
 @media(max-width:900px){.auth-aside{display:flex;min-height:auto;padding:24px;gap:20px}.auth-aside__hero{max-width:100%}.auth-aside__points{margin-top:16px}.auth-aside__quote{margin-top:10px}.auth-main{min-height:auto}.public-product__lower{grid-template-columns:1fr}}
 @media(max-width:767px){.public-product__panel--side{display:grid}.public-product__lower{grid-template-columns:1fr}.public-float{position:relative;inset:auto;max-width:100%;margin:8px 0}}
+
+/* Public/auth refinement: compact, readable, and robust on narrow screens */
+.public-header,.public-header__inner,.public-hero__grid,.public-footer{min-width:0}
+.public-hero__grid>* ,.public-product,.auth-shell,.auth-main,.auth-aside{min-width:0}
+.public-nav a,.public-cta__actions a,.public-cta__actions button{max-width:100%;overflow-wrap:anywhere}
+@media(max-width:767px){
+ .public-header__inner{gap:10px}
+ .public-nav--open{max-width:100%}
+ .public-hero__grid{gap:24px}
+ .auth-shell{overflow:clip}
+}
+@media(max-width:360px){
+ .public-hero h1{font-size:2rem}
+ .public-hero__grid,.public-platform>.public-section-heading,.public-feature-layout,.public-workflow__intro,.public-stage-list,.public-audience-grid,.sims-landing-container,.public-cta__actions{width:calc(100% - 24px)}
+}
