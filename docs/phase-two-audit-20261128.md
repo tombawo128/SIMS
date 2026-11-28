@@ -30,3 +30,10 @@
 - Plan a reversible deployment and rollback only after gates and explicit approval.
 
 No production migration, deployment, RPC execution, Auth setting change, grant change, data mutation or merge was performed.
+
+## SSRF screening source change
+
+- Updated the shared IPv6 screening helper to reject the full `2001::/23` special-purpose block rather than only the narrower second-group range. The IANA IPv6 Special-Purpose registry identifies `2001::/23` as protocol-assignment space with globally reachable exceptions only where more-specific allocations apply: https://www.iana.org/assignments/iana-ipv6-special-registry
+- Added regression cases for `2001:100::1`, `2001:180::1`, and `2001:1ff::1`.
+- Ran the two test groups locally through a Node 22 TypeScript-strip harness with a `Deno.test` registration shim. Both groups passed. This is not the official Deno test runner or GitHub Actions; Deno is not installed in the local environment.
+- DNS screening still is not connection-time pinning. This patch reduces address-screening gaps but does not close the DNS-rebinding/egress control blocker.
