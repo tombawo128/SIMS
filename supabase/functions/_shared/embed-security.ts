@@ -29,3 +29,18 @@ export function buildEmbedContentSecurityPolicy(allowedOrigins: unknown): string
   const ancestors = ["'self'", ...normalizeAllowedEmbedOrigins(allowedOrigins)].join(' ');
   return `default-src 'none'; style-src 'unsafe-inline'; img-src https: data:; frame-ancestors ${ancestors}`;
 }
+
+export function isPostingVisibleToEmbed(
+  posting: Record<string, unknown>,
+  organizationType: string,
+  tenantId: string,
+  selectedPostingIds: ReadonlySet<string> = new Set<string>(),
+): boolean {
+  if (posting.status !== 'published') return false;
+  if (organizationType === 'company') return posting.company_id === tenantId;
+  if (organizationType !== 'university') return false;
+  if (posting.visibility === 'all_universities') return true;
+  return posting.visibility === 'selected_universities'
+    && typeof posting.id === 'string'
+    && selectedPostingIds.has(posting.id);
+}
