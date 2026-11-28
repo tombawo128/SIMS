@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { buildEmbedContentSecurityPolicy, isEmbedRequestOriginAllowed, normalizeAllowedEmbedOrigins } from '../_shared/embed-security.ts';
+import { buildEmbedContentSecurityPolicy, isEmbedRequestOriginAllowed, isPostingVisibleToEmbed, normalizeAllowedEmbedOrigins } from '../_shared/embed-security.ts';
 
 function escapeHtml(value: unknown) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -62,14 +62,14 @@ Deno.serve(async (req: Request) => {
   const tenantId = connection.organization_type === 'university' ? connection.university_id : connection.company_id;
   if (!tenantId) return html('Embed tenant is invalid', 403);
 
-  const fields = 'id,title,description,location,is_remote,deadline,created_at,company:companies(name)';
+  const fields = 'id,title,description,location,is_remote,deadline,created_at,status,company_id,visibility,company:companies(name)';
   let rows: Array<Record<string, unknown>> = [];
   if (connection.organization_type === 'company') {
     const { data, error } = await admin.from('job_postings').select(fields)
       .eq('company_id', tenantId).eq('status', 'published')
       .order('created_at', { ascending: false }).limit(25);
     if (error) return html('Opportunities could not be loaded', 503, allowedOrigins);
-    rows = (data ?? []).map(item => ({
+    rows = (data ?? []).filter(item => isPostingVisibleToEmbed(item, 'company', tenantId)).map(item => ({
       ...item,
       company_name: (item.company as { name?: string } | null)?.name ?? '',
     }));
@@ -80,16 +80,17 @@ Deno.serve(async (req: Request) => {
       admin.from('posting_universities').select('posting_id').eq('university_id', tenantId),
     ]);
     if (publicError || mappingError) return html('Opportunities could not be loaded', 503, allowedOrigins);
-    const selectedIds = (mappings ?? []).map(item => item.posting_id);
+    const selectedIds = new Set((mappings ?? []).map(item => item.posting_id));
     let selectedPosts: typeof publicPosts = [];
-    if (selectedIds.length) {
+    if (selectedIds.size) {
       const { data, error } = await admin.from('job_postings').select(fields)
-        .in('id', selectedIds).eq('status', 'published').eq('visibility', 'selected_universities')
+        .in('id', [...selectedIds]).eq('status', 'published').eq('visibility', 'selected_universities')
         .order('created_at', { ascending: false }).limit(25);
       if (error) return html('Opportunities could not be loaded', 503, allowedOrigins);
       selectedPosts = data ?? [];
     }
     rows = [...(publicPosts ?? []), ...selectedPosts]
+      .filter(item => isPostingVisibleToEmbed(item, 'university', tenantId, selectedIds))
       .sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 25)
       .map(item => ({
         ...item,
