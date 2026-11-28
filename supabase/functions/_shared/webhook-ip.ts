@@ -53,7 +53,7 @@ export function isPublicIpv6(address: string) {
   const [first, second] = groups;
   // Restrict to global-unicast 2000::/3 and exclude special-use/documentation/tunnel ranges.
   return first >= 0x2000 && first <= 0x3fff
-    && !(first === 0x2001 && second <= 0x007f) // protocol assignments, transition and special-purpose ranges
+    && !(first === 0x2001 && second <= 0x01ff) // entire IANA 2001::/23 special-purpose block
     && !(first === 0x2001 && second === 0x0db8) // documentation
     && first !== 0x2002 // 6to4
     && !(first === 0x3fff && second <= 0x0fff); // documentation
