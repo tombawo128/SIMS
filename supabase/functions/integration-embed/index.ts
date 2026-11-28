@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { buildEmbedContentSecurityPolicy, isEmbedRequestOriginAllowed, normalizeAllowedEmbedOrigins } from '../_shared/embed-security.ts';
 
 function escapeHtml(value: unknown) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -7,12 +8,11 @@ function escapeHtml(value: unknown) {
 }
 
 function html(body: string, status: number, frameOrigins: string[] = []) {
-  const ancestors = ["'self'", ...frameOrigins].join(' ');
   return new Response(body, {
     status,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
-      'Content-Security-Policy': `default-src 'none'; style-src 'unsafe-inline'; img-src https: data:; frame-ancestors ${ancestors}`,
+      'Content-Security-Policy': buildEmbedContentSecurityPolicy(frameOrigins),
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Cache-Control': 'no-store',
@@ -56,9 +56,9 @@ Deno.serve(async (req: Request) => {
     .eq('id', embed.integration_id).maybeSingle();
   if (connectionError || !connection || connection.status !== 'active') return html('Embed unavailable', 404);
 
-  const allowedOrigins = embed.allowed_origins ?? [];
+  const allowedOrigins = normalizeAllowedEmbedOrigins(embed.allowed_origins);
   const requestOrigin = req.headers.get('origin');
-  if (requestOrigin && !allowedOrigins.includes(requestOrigin)) return html('Origin not allowed', 403);
+  if (!isEmbedRequestOriginAllowed(requestOrigin, allowedOrigins)) return html('Origin not allowed', 403);
   const tenantId = connection.organization_type === 'university' ? connection.university_id : connection.company_id;
   if (!tenantId) return html('Embed tenant is invalid', 403);
 
