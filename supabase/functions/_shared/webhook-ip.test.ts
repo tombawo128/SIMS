@@ -20,7 +20,7 @@ Deno.test('IPv6 global-unicast and special-use ranges', () => {
   }
   for (const address of [
     '::', '::1', 'fc00::1', 'fd00::1', 'fe80::1', 'ff02::1',
-    '2001::1', '2001:10::1', '2001:db8::1', '2002::1', '3fff::1',
+    '2001::1', '2001:10::1', '2001:100::1', '2001:180::1', '2001:1ff::1', '2001:db8::1', '2002::1', '3fff::1',
     '::ffff:8.8.8.8', '4fff::1', 'invalid',
   ]) {
     if (isPublicIpv6(address)) throw new Error(`Expected blocked IPv6: ${address}`);
