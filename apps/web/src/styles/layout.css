@@ -85,3 +85,19 @@
 .workspace-shell{display:block}
 .app-content.workspace-content{width:calc(100% - var(--sidebar-width));margin-left:var(--sidebar-width)}
 @media(max-width:1023px){.app-content.workspace-content{width:100%;margin-left:0}}
+
+/* Layout refinement: consistent content rhythm and narrow viewport protection */
+.workspace-main,.app-main{min-width:0;overflow-x:clip}
+.workspace-content,.app-main__content{min-width:0}
+.workspace-topbar,.app-header{min-width:0}
+.workspace-topbar__left,.workspace-topbar__right,.app-header__left,.app-header__right{flex-wrap:wrap}
+.page-header h1,.page-hero h1{overflow-wrap:anywhere}
+@media(max-width:1023px){.workspace-main,.app-main{grid-column:1}.workspace-content,.app-main__content{max-width:none}}
+@media(max-width:767px){
+ .workspace-topbar,.app-header{flex-wrap:wrap}
+ .workspace-topbar__left,.app-header__left{flex:1}
+ .workspace-topbar__right,.app-header__right{margin-left:auto}
+ .workspace-content,.app-main__content{width:100%;max-width:none}
+ .page-header,.page-hero{width:100%}
+}
+@media(max-width:360px){.workspace-content,.app-main__content{padding-inline:12px}.workspace-topbar,.app-header{padding-inline:12px}}
