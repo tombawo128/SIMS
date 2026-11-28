@@ -84,3 +84,21 @@
 .integration-node{position:absolute;display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(255,255,255,.2);border-radius:7px;background:var(--navy);color:#fff;box-shadow:none;backdrop-filter:none}
 .integration-node--main{top:40%;left:40%;width:46px;height:46px;border-radius:8px;background:var(--primary);border-color:#93C5FD}
 @media(max-width:767px){.integration-nav{position:sticky;top:var(--topbar-height);z-index:20;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;white-space:normal}.integration-nav__label,.integration-nav__help{display:grid;grid-column:1/-1}.integration-nav__item{width:100%;min-width:0}.integration-hero{align-items:flex-start;flex-direction:column}.integration-hero__art{align-self:flex-end;width:116px;min-height:116px}}
+
+/* Integration Centre refinement */
+.integration-centre,.integration-main,.integration-layout{min-width:0}
+.integration-hero__content{min-width:0}
+.integration-form,.integration-form fieldset{min-width:0}
+.integration-connection-row,.integration-key-row,.integration-activity-row{min-width:0}
+.integration-centre button{max-width:100%;overflow-wrap:anywhere}
+.integration-centre .ui-card{min-width:0}
+@media(max-width:767px){
+ .integration-layout{gap:14px}
+ .integration-nav{max-width:100%;min-width:0}
+ .integration-nav__item{white-space:normal}
+ .integration-centre .ui-card{padding:16px}
+}
+@media(max-width:360px){
+ .integration-stats{grid-template-columns:1fr}
+ .integration-hero{padding:16px}
+}
