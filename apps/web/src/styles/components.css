@@ -151,3 +151,32 @@ code,.mono,.users-mono{overflow-wrap:anywhere;font-family:var(--font-mono);font-
 .text-xs{font-size:12px}.text-sm{font-size:14px}.text-center{text-align:center}
 .font-medium{font-weight:500}.font-semibold{font-weight:600}.font-bold{font-weight:700}.underline{text-decoration:underline}
 .text-red-600{color:var(--danger)}.text-slate-500{color:var(--muted)}.text-slate-700{color:var(--body)}
+
+/* Refinement pass: clearer hierarchy, consistent density and resilient controls */
+:where(.card,.ui-card,.panel,.stat-card,.users-panel,.settings-card){min-width:0}
+:where(.card,.ui-card,.panel){padding:clamp(16px,2vw,24px)}
+:where(.card-header,.ui-card-header,.panel-header){flex-wrap:wrap;align-items:center}
+:where(.btn,.button,[class*="btn--"]){min-width:0;max-width:100%;white-space:normal}
+:where(.btn--primary,.button--primary){box-shadow:0 1px 2px rgba(15,23,42,.08)}
+:where(.btn--primary,.button--primary):focus-visible{box-shadow:0 0 0 3px var(--primary-tint)}
+:where(input,select,textarea){max-width:100%}
+:where(button){overflow-wrap:anywhere}
+:where(table){min-width:0}
+:where(th){white-space:nowrap}
+:where(td){overflow-wrap:anywhere}
+:where(.table-wrap,.table-container){overscroll-behavior-x:contain}
+:where(.page-header,.page-hero){align-items:flex-start}
+:where(.page-header__actions,.page-hero__aside){flex-wrap:wrap}
+:where(.empty-state){min-height:160px}
+:where(.alert,[role=alert]){overflow-wrap:anywhere}
+@media(max-width:767px){
+ :where(.card,.ui-card,.panel){padding:16px}
+ :where(.modal-footer,.dialog-footer){flex-wrap:wrap}
+ :where(.modal-footer button,.dialog-footer button){flex:1 1 auto}
+ :where(.page-header__actions,.page-hero__aside){width:100%;justify-content:flex-start}
+ :where(.table-wrap,.table-container){border-radius:8px}
+}
+@media(max-width:360px){
+ :where(.card,.ui-card,.panel){padding:14px}
+ :where(.btn,.button,[class*="btn--"]){padding:9px 11px}
+}
